@@ -80,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -96,38 +96,110 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _reactMotion = __webpack_require__(3);
 
-	var getPrefix = function getPrefix(prop) {
-	  var styles = document.createElement('p').style;
-	  var vendors = ['ms', 'O', 'Moz', 'Webkit'];
+	var _getPrefixJs = __webpack_require__(4);
 
-	  if (styles[prop] === '') return prop;
-
-	  prop = prop.charAt(0).toUpperCase() + prop.slice(1);
-
-	  for (var i = vendors.length; i--;) {
-	    if (styles[vendors[i] + prop] === '') {
-	      return vendors[i] + prop;
-	    }
-	  }
-	};
+	var _getPrefixJs2 = _interopRequireDefault(_getPrefixJs);
 
 	var Slider = (function (_Component) {
-	  function Slider(props) {
+	  function Slider() {
+	    var _this = this;
+
 	    _classCallCheck(this, Slider);
 
-	    _get(Object.getPrototypeOf(Slider.prototype), 'constructor', this).call(this, props);
+	    _get(Object.getPrototypeOf(Slider.prototype), 'constructor', this).apply(this, arguments);
 
+	    this.slideCount = this.props.children.length;
 	    this.isSliding = false;
-	    this.transform = getPrefix('transform');
+	    this.transform = (0, _getPrefixJs2['default'])('transform');
 	    this.supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
-
-	    // swipe props
-	    this.deltaX = this.deltaY = this.startX = this.startY = this.isDragging = this.isSwiping = this.isFlick = false;
-	    this.swipeThreshold = 10;
-
+	    this.deltaX = false;
+	    this.deltaY = false;
+	    this.startX = false;
+	    this.startY = false;
+	    this.isDragging = false;
+	    this.isSwiping = false;
+	    this.isFlick = false;
 	    this.state = {
-	      currIndex: 0,
-	      direction: null
+	      currIndex: this.props.defaultSlide,
+	      direction: null,
+	      sliderWidth: this.slideCount * 100 / this.props.slidesToShow
+	    };
+
+	    this._dragStart = function (e) {
+	      // get proper event
+	      var touch = e.touches && e.touches[0] || e;
+
+	      // we're now dragging
+	      _this.isDragging = true;
+
+	      // reset deltas
+	      _this.deltaX = _this.deltaY = 0;
+
+	      // store the initial starting coordinates
+	      _this.startX = touch.pageX;
+	      _this.startY = touch.pageY;
+
+	      // determine if a flick or not
+	      _this.isFlick = true;
+
+	      setTimeout(function () {
+	        _this.isFlick = false;
+	      }, _this.props.flickTimeout);
+	    };
+
+	    this._dragMove = function (e) {
+	      // if we aren't dragging bail
+	      if (!_this.isDragging) return;
+
+	      var touch = e.touches && e.touches[0] || e;
+	      var _state = _this.state;
+	      var currIndex = _state.currIndex;
+	      var sliderWidth = _state.sliderWidth;
+
+	      var threshold = sliderWidth / 2;
+
+	      // determine how much we have moved
+	      _this.deltaX = _this.startX - touch.pageX;
+	      _this.deltaY = _this.startY - touch.pageY;
+
+	      if (_this._isSwipe(_this.props.swipeThreshold)) {
+	        e.preventDefault();
+	        e.stopPropagation();
+	        _this.isSwiping = true;
+	      }
+
+	      if (_this.isSwiping) {
+	        _this.setState({ direction: _this.deltaX / sliderWidth });
+	      }
+	    };
+
+	    this._dragEnd = function () {
+	      var _state2 = _this.state;
+	      var currIndex = _state2.currIndex;
+	      var sliderWidth = _state2.sliderWidth;
+
+	      var threshold = _this.isFlick ? _this.props.swipeThreshold : sliderWidth / 2;
+
+	      // handle swipe
+	      if (_this._isSwipe(threshold)) {
+	        // id if an end slide, we still need to set the direction
+	        if (_this._isEndSlide()) {
+	          _this.setState({ direction: 0 });
+	        }
+	        _this.deltaX < 0 ? _this.prev() : _this.next();
+	      } else {
+	        _this.setState({ direction: 0 });
+	      }
+
+	      // we are no longer swiping or dragging
+	      _this.isSwiping = _this.isDragging = false;
+	    };
+
+	    this._dragPast = function () {
+	      // perform a dragend if we dragged past component
+	      if (_this.isDragging) {
+	        _this._dragEnd();
+	      }
 	    };
 	  }
 
@@ -136,18 +208,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(Slider, [{
 	    key: 'prev',
 	    value: function prev() {
-	      var hold = arguments[0] === undefined ? this.state.currIndex <= 0 : arguments[0];
-
-	      var currIndex = hold ? this.state.currIndex : this.state.currIndex - 1;
-	      this.setState({ currIndex: currIndex, direction: null });
+	      if (this.state.currIndex <= 0) return;
+	      this.setState({ currIndex: this.state.currIndex - 1, direction: null });
 	    }
 	  }, {
 	    key: 'next',
 	    value: function next() {
-	      var hold = arguments[0] === undefined ? this.state.currIndex >= this.props.children.length - 1 : arguments[0];
+	      if (this.state.currIndex >= this.slideCount - 1) return;
+	      this.setState({ currIndex: this.state.currIndex + 1, direction: null });
+	    }
+	  }, {
+	    key: '_isEndSlide',
+	    value: function _isEndSlide() {
+	      var currIndex = this.state.currIndex;
 
-	      var currIndex = hold ? this.state.currIndex : this.state.currIndex + 1;
-	      this.setState({ currIndex: currIndex, direction: null });
+	      return currIndex === 0 || currIndex === this.slideCount - 1;
 	    }
 	  }, {
 	    key: '_isSwipe',
@@ -155,104 +230,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return Math.abs(this.deltaX) > Math.max(threshold, Math.abs(this.deltaY));
 	    }
 	  }, {
-	    key: '_dragStart',
-	    value: function _dragStart(e) {
-	      var _this = this;
-
-	      // get proper event
-	      var touch = this.supportsTouch ? e.touches[0] : e;
-
-	      // we're now dragging
-	      this.isDragging = true;
-
-	      // reset deltas
-	      this.deltaX = this.deltaY = 0;
-
-	      // store the initial starting coordinates
-	      this.startX = touch.pageX;
-	      this.startY = touch.pageY;
-
-	      // determine if a flick or not
-	      this.isFlick = true;
-
-	      setTimeout(function () {
-	        _this.isFlick = false;
-	      }, 300);
-	    }
-	  }, {
-	    key: '_dragMove',
-	    value: function _dragMove(e) {
-	      // if we aren't dragging bail
-	      if (!this.isDragging) return;
-
-	      // get proper event
-	      var currIndex = this.state.currIndex;
-
-	      var touch = this.supportsTouch ? e.touches[0] : e;
-	      var sliderCount = this.props.children.length;
-	      var sliderWidth = sliderCount * 100;
-	      var threshold = sliderWidth / 2;
-
-	      // determine how much we have moved
-	      this.deltaX = this.startX - touch.pageX;
-	      this.deltaY = this.startY - touch.pageY;
-
-	      // if on the first or last side check for a threshold
-	      if (this._isSwipe(threshold) && (currIndex === 0 || currIndex === sliderCount - 1)) {
-	        return;
-	      }
-
-	      if (this._isSwipe(this.swipeThreshold)) {
-	        e.preventDefault();
-	        e.stopPropagation();
-	        this.isSwiping = true;
-	      }
-
-	      if (this.isSwiping) {
-	        this.setState({ direction: this.deltaX / sliderWidth });
-	      }
-	    }
-	  }, {
-	    key: '_dragEnd',
-	    value: function _dragEnd(e) {
-	      var currIndex = this.state.currIndex;
-
-	      var slideCount = this.props.children.length;
-	      var sliderWidth = slideCount * 100;
-	      var threshold = this.isFlick ? this.swipeThreshold : sliderWidth / 2;
-
-	      // handle swipe
-	      if (this._isSwipe(threshold)) {
-	        this.deltaX < 0 ? this.prev() : this.next();
-	      } else {
-	        this.setState({ direction: 0 });
-	      }
-
-	      // we are no longer swiping or dragging
-	      this.isSwiping = this.isDragging = false;
-	    }
-	  }, {
-	    key: '_getX',
-	    value: function _getX() {
-	      return -((this.state.direction + this.state.currIndex) * 100) / this.props.children.length;
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _this2 = this;
 
-	      var children = this.props.children;
-	      var _state = this.state;
-	      var currIndex = _state.currIndex;
-	      var currX = _state.currX;
+	      var _props = this.props;
+	      var children = _props.children;
+	      var springConfig = _props.springConfig;
+	      var draggable = _props.draggable;
+	      var _state3 = this.state;
+	      var currIndex = _state3.currIndex;
+	      var direction = _state3.direction;
+	      var sliderWidth = _state3.sliderWidth;
 
-	      var count = children.length;
-	      var destX = this._getX();
+	      // normalize index when on end slides
+	      var slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove;
+	      var destX = -((direction + currIndex * slidesToMove) * 100) / this.slideCount;
 
 	      return _react2['default'].createElement(
 	        _reactMotion.Spring,
 	        {
-	          endValue: { val: { x: destX }, config: [211, 21] }
+	          endValue: { val: { x: destX }, config: springConfig }
 	        },
 	        function (_ref2) {
 	          var x = _ref2.val.x;
@@ -264,6 +262,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	          if (_this2.isSliding) {
 	            modifiers.push('is-sliding');
+	          }
+
+	          if (draggable) {
+	            modifiers.push('is-draggable');
 	          }
 
 	          if (_this2.isDragging) {
@@ -281,11 +283,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	              'ul',
 	              {
 	                className: 'slider__track',
-	                onMouseDown: _this2._dragStart.bind(_this2),
-	                onMouseMove: _this2._dragMove.bind(_this2),
-	                onMouseUp: _this2._dragEnd.bind(_this2),
+	                onMouseDown: draggable && _this2._dragStart,
+	                onMouseMove: draggable && _this2._dragMove,
+	                onMouseUp: draggable && _this2._dragEnd,
+	                onMouseLeave: draggable && _this2._dragPast,
+	                onTouchStart: draggable && _this2._dragStart,
+	                onTouchMove: draggable && _this2._dragMove,
+	                onTouchEnd: draggable && _this2._dragEnd,
 	                style: _defineProperty({
-	                  width: 100 * count + '%'
+	                  width: sliderWidth + '%'
 	                }, _this2.transform, 'translate3d(' + x + '%, 0, 0)')
 	              },
 	              children
@@ -294,6 +300,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      );
 	    }
+	  }], [{
+	    key: 'propTypes',
+	    value: {
+	      draggable: _react.PropTypes.bool,
+	      defaultSlide: _react.PropTypes.number,
+	      springConfig: _react.PropTypes.array,
+	      swipeThreshold: _react.PropTypes.number,
+	      flickTimeout: _react.PropTypes.number,
+	      slidesToShow: _react.PropTypes.number,
+	      slidesToMove: _react.PropTypes.number
+	    },
+	    enumerable: true
+	  }, {
+	    key: 'defaultProps',
+	    value: {
+	      draggable: true,
+	      defaultSlide: 0,
+	      springConfig: [262, 24],
+	      swipeThreshold: 10,
+	      flickTimeout: 300,
+	      slidesToShow: 1,
+	      slidesToMove: 1
+	    },
+	    enumerable: true
 	  }]);
 
 	  return Slider;
@@ -313,6 +343,34 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	exports['default'] = function (prop) {
+	  var styles = document.createElement('p').style;
+	  var vendors = ['ms', 'O', 'Moz', 'Webkit'];
+
+	  if (styles[prop] === '') return prop;
+
+	  prop = prop.charAt(0).toUpperCase() + prop.slice(1);
+
+	  for (var i = vendors.length; i--;) {
+	    if (styles[vendors[i] + prop] === '') {
+	      return vendors[i] + prop;
+	    }
+	  }
+	};
+
+	;
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ])
