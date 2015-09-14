@@ -154,6 +154,7 @@ class Slider extends Component {
                 onMouseDown={this._dragStart}
                 onMouseMove={this._dragMove}
                 onMouseUp={this._dragEnd}
+                onMouseLeave={this._dragPast}
                 onTouchStart={this._dragStart}
                 onTouchMove={this._dragMove}
                 onTouchEnd={this._dragEnd}
