@@ -22,6 +22,7 @@ Working on more features, and a less opinionated version.
 
 - [x] touch support
 - [x] handle dragging outside of slider
-- [ ] add props to allow flexibility
+- [x] add props to allow flexibility
+- [ ] infinite navigation
 - [ ] keyboard support
 - [ ] ARIA support

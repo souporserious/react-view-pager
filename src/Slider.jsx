@@ -4,21 +4,26 @@ import getPrefix from './getPrefix.js';
 
 class Slider extends Component {
   static propTypes = {
+    draggable: PropTypes.bool,
+    defaultSlide: PropTypes.number,
     springConfig: PropTypes.array,
     swipeThreshold: PropTypes.number,
-    flickTimeout: PropTypes.number
+    flickTimeout: PropTypes.number,
+    slidesToShow: PropTypes.number,
+    slidesToMove: PropTypes.number
   }
 
   static defaultProps = {
+    draggable: true,
+    defaultSlide: 0,
     springConfig: [262, 24],
     swipeThreshold: 10,
-    flickTimeout: 300
+    flickTimeout: 300,
+    slidesToShow: 1,
+    slidesToMove: 1
   }
 
-  state = {
-    currIndex: 0,
-    direction: null
-  }
+  slideCount = this.props.children.length
   isSliding = false
   transform = getPrefix('transform')
   supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints
@@ -29,15 +34,25 @@ class Slider extends Component {
   isDragging = false
   isSwiping = false
   isFlick = false
-  
-  prev(hold = this.state.currIndex <= 0) {
-    const currIndex = hold ? this.state.currIndex : this.state.currIndex - 1;
-    this.setState({currIndex, direction: null});
+  state = {
+    currIndex: this.props.defaultSlide,
+    direction: null,
+    sliderWidth: (this.slideCount * 100) / this.props.slidesToShow
   }
   
-  next(hold = this.state.currIndex >= this.props.children.length-1) {
-    const currIndex = hold ? this.state.currIndex : this.state.currIndex + 1;
-    this.setState({currIndex, direction: null});
+  prev() {
+    if(this.state.currIndex <= 0) return;
+    this.setState({currIndex: this.state.currIndex - 1, direction: null});
+  }
+  
+  next() {
+    if(this.state.currIndex >= this.slideCount-1) return;
+    this.setState({currIndex: this.state.currIndex + 1, direction: null});
+  }
+
+  _isEndSlide() {
+    const { currIndex } = this.state;
+    return currIndex === 0 || currIndex === this.slideCount - 1;
   }
   
   _isSwipe(threshold) {
@@ -71,20 +86,12 @@ class Slider extends Component {
     if(!this.isDragging) return;
 
     const touch = e.touches && e.touches[0] || e;
-    const { currIndex } = this.state;
-    const sliderCount = this.props.children.length;
-    const sliderWidth = sliderCount * 100;
+    const { currIndex, sliderWidth } = this.state;
     const threshold = sliderWidth / 2;
 
     // determine how much we have moved
     this.deltaX = this.startX - touch.pageX;
     this.deltaY = this.startY - touch.pageY;
-
-    // bail if we're on the first or last slide and we've moved past the threshold
-    if(this._isSwipe(threshold) &&
-      (currIndex === 0 || currIndex === sliderCount - 1)) {
-      return;
-    }
 
     if(this._isSwipe(this.props.swipeThreshold)) {
       e.preventDefault();
@@ -98,13 +105,15 @@ class Slider extends Component {
   }
 
   _dragEnd = () =>  {
-    const { currIndex } = this.state;
-    const slideCount = this.props.children.length;
-    const sliderWidth = slideCount * 100;
+    const { currIndex, sliderWidth } = this.state;
     const threshold = this.isFlick ? this.props.swipeThreshold : sliderWidth / 2;
 
     // handle swipe
     if(this._isSwipe(threshold)) {
+      // id if an end slide, we still need to set the direction
+      if(this._isEndSlide()) {
+        this.setState({direction: 0});
+      }
       (this.deltaX < 0) ? this.prev() : this.next();
     } else {
       this.setState({direction: 0});
@@ -122,10 +131,11 @@ class Slider extends Component {
   }
   
   render() {
-    const { children, springConfig } = this.props;
-    const { currIndex, direction } = this.state;
-    const count = children.length;
-    const destX = -((direction + currIndex) * 100) / count;
+    const { children, springConfig, draggable } = this.props;
+    const { currIndex, direction, sliderWidth } = this.state;
+    // normalize index when on end slides
+    const slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove;
+    const destX = -((direction + (currIndex * slidesToMove)) * 100) / this.slideCount;
 
     return(
       <Spring
@@ -141,6 +151,10 @@ class Slider extends Component {
             modifiers.push('is-sliding');
           }
 
+          if(draggable) {
+            modifiers.push('is-draggable');
+          }
+
           if(this.isDragging) {
             modifiers.push('is-dragging');
           }
@@ -151,15 +165,15 @@ class Slider extends Component {
             <div className={sliderClassName}>
               <ul
                 className="slider__track"
-                onMouseDown={this._dragStart}
-                onMouseMove={this._dragMove}
-                onMouseUp={this._dragEnd}
-                onMouseLeave={this._dragPast}
-                onTouchStart={this._dragStart}
-                onTouchMove={this._dragMove}
-                onTouchEnd={this._dragEnd}
+                onMouseDown={draggable && this._dragStart}
+                onMouseMove={draggable && this._dragMove}
+                onMouseUp={draggable && this._dragEnd}
+                onMouseLeave={draggable && this._dragPast}
+                onTouchStart={draggable && this._dragStart}
+                onTouchMove={draggable && this._dragMove}
+                onTouchEnd={draggable && this._dragEnd}
                 style={{
-                  width: (100 * count) + '%',
+                  width: sliderWidth + '%',
                   [this.transform]: `translate3d(${x}%, 0, 0)`
                 }}
               >
