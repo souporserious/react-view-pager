@@ -46,7 +46,7 @@ class Slider extends Component {
 
   _dragStart = (e) =>  {
     // get proper event
-    const touch = this.supportsTouch ? e.touches[0] : e;
+    const touch = e.touches && e.touches[0] || e;
 
     // we're now dragging
     this.isDragging = true;
@@ -70,7 +70,7 @@ class Slider extends Component {
     // if we aren't dragging bail
     if(!this.isDragging) return;
 
-    const touch = this.supportsTouch ? e.touches[0] : e;
+    const touch = e.touches && e.touches[0] || e;
     const { currIndex } = this.state;
     const sliderCount = this.props.children.length;
     const sliderWidth = sliderCount * 100;
@@ -147,6 +147,9 @@ class Slider extends Component {
                 onMouseDown={this._dragStart}
                 onMouseMove={this._dragMove}
                 onMouseUp={this._dragEnd}
+                onTouchStart={this._dragStart}
+                onTouchMove={this._dragMove}
+                onTouchEnd={this._dragEnd}
                 style={{
                   width: (100 * count) + '%',
                   [this.transform]: `translate3d(${x}%, 0, 0)`
