@@ -97,7 +97,7 @@ class Slider extends Component {
     }
   }
 
-  _dragEnd(e) {
+  _dragEnd() {
     const { currIndex } = this.state;
     const slideCount = this.props.children.length;
     const sliderWidth = slideCount * 100;
@@ -112,6 +112,13 @@ class Slider extends Component {
 
     // we are no longer swiping or dragging
     this.isSwiping = this.isDragging = false;
+  }
+
+  _dragPast() {
+    // perform a dragend if we dragged past component
+    if(this.isDragging) {
+      this._dragEnd();
+    }
   }
   
   render() {
@@ -144,12 +151,13 @@ class Slider extends Component {
             <div className={sliderClassName}>
               <ul
                 className="slider__track"
-                onMouseDown={this._dragStart.bind(this)}
-                onMouseMove={this._dragMove.bind(this)}
-                onMouseUp={this._dragEnd.bind(this)}
-                onTouchStart={this._dragStart.bind(this)}
-                onTouchMove={this._dragMove.bind(this)}
-                onTouchEnd={this._dragEnd.bind(this)}
+                onMouseDown={::this._dragStart}
+                onMouseMove={::this._dragMove}
+                onMouseUp={::this._dragEnd}
+                onMouseLeave={::this._dragPast}
+                onTouchStart={::this._dragStart}
+                onTouchMove={::this._dragMove}
+                onTouchEnd={::this._dragEnd}
                 style={{
                   width: (100 * count) + '%',
                   [this.transform]: `translate3d(${x}%, 0, 0)`

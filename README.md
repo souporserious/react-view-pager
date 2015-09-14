@@ -21,7 +21,7 @@ Working on more features, and a less opinionated version.
 ## TODOS
 
 - [x] touch support
-- [ ] handle dragging outside of slider
+- [x] handle dragging outside of slider
 - [ ] add props to allow flexibility
 - [ ] keyboard support
 - [ ] ARIA support
