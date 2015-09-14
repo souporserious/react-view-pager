@@ -1,44 +1,34 @@
 import React, { Component, PropTypes } from 'react';
 import { Spring } from 'react-motion';
-
-const getPrefix = function (prop) {
-  const styles = document.createElement('p').style;
-  const vendors = ['ms', 'O', 'Moz', 'Webkit'];
-
-  if(styles[prop] === '') return prop;
-
-  prop = prop.charAt(0).toUpperCase() + prop.slice(1);
-
-  for(let i = vendors.length; i--;) {
-    if(styles[vendors[i] + prop] === '') {
-      return (vendors[i] + prop);
-    }
-  }
-};
+import getPrefix from './getPrefix.js';
 
 class Slider extends Component {
-  constructor(props) {
-    super(props)
-    
-    this.isSliding = false;
-    this.transform = getPrefix('transform');
-    this.supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
-
-    // swipe props
-    this.deltaX =
-    this.deltaY =
-    this.startX =
-    this.startY =
-    this.isDragging =
-    this.isSwiping =
-    this.isFlick = false;
-    this.swipeThreshold = 10;
-    
-    this.state = {
-      currIndex: 0,
-      direction: null
-    }
+  static propTypes = {
+    springConfig: PropTypes.array,
+    swipeThreshold: PropTypes.number,
+    flickTimeout: PropTypes.number
   }
+
+  static defaultProps = {
+    springConfig: [262, 24],
+    swipeThreshold: 10,
+    flickTimeout: 300
+  }
+
+  state = {
+    currIndex: 0,
+    direction: null
+  }
+  isSliding = false
+  transform = getPrefix('transform')
+  supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints
+  deltaX = false
+  deltaY = false
+  startX = false
+  startY = false
+  isDragging = false
+  isSwiping = false
+  isFlick = false
   
   prev(hold = this.state.currIndex <= 0) {
     const currIndex = hold ? this.state.currIndex : this.state.currIndex - 1;
@@ -73,16 +63,15 @@ class Slider extends Component {
 
     setTimeout(() => {
       this.isFlick = false;
-    }, 300);
+    }, this.props.flickTimeout);
   }
 
   _dragMove(e) {
     // if we aren't dragging bail
     if(!this.isDragging) return;
 
-    // get proper event
-    const { currIndex } = this.state;
     const touch = this.supportsTouch ? e.touches[0] : e;
+    const { currIndex } = this.state;
     const sliderCount = this.props.children.length;
     const sliderWidth = sliderCount * 100;
     const threshold = sliderWidth / 2;
@@ -91,18 +80,18 @@ class Slider extends Component {
     this.deltaX = this.startX - touch.pageX;
     this.deltaY = this.startY - touch.pageY;
 
-    // if on the first or last side check for a threshold
+    // bail if we're on the first or last slide and we've moved past the threshold
     if(this._isSwipe(threshold) &&
       (currIndex === 0 || currIndex === sliderCount - 1)) {
       return;
     }
 
-    if(this._isSwipe(this.swipeThreshold)) {
+    if(this._isSwipe(this.props.swipeThreshold)) {
       e.preventDefault();
       e.stopPropagation();
       this.isSwiping = true;
     }
-    
+
     if(this.isSwiping) {
       this.setState({direction: this.deltaX / sliderWidth});
     }
@@ -112,7 +101,7 @@ class Slider extends Component {
     const { currIndex } = this.state;
     const slideCount = this.props.children.length;
     const sliderWidth = slideCount * 100;
-    const threshold = this.isFlick ? this.swipeThreshold : sliderWidth / 2;
+    const threshold = this.isFlick ? this.props.swipeThreshold : sliderWidth / 2;
 
     // handle swipe
     if(this._isSwipe(threshold)) {
@@ -125,19 +114,15 @@ class Slider extends Component {
     this.isSwiping = this.isDragging = false;
   }
   
-  _getX() {
-    return -((this.state.direction + this.state.currIndex) * 100) / this.props.children.length;
-  }
-  
   render() {
-    const { children } = this.props;
-    const { currIndex, currX } = this.state;
+    const { children, springConfig } = this.props;
+    const { currIndex, direction } = this.state;
     const count = children.length;
-    const destX = this._getX();
+    const destX = -((direction + currIndex) * 100) / count;
 
     return(
       <Spring
-        endValue={{val: {x: destX}, config: [211, 21]}}
+        endValue={{val: {x: destX}, config: springConfig}}
       >
         {({val: {x}}) => {
           this.isSliding = x !== destX;
