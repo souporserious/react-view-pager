@@ -44,7 +44,7 @@ class Slider extends Component {
     return Math.abs(this.deltaX) > Math.max(threshold, Math.abs(this.deltaY));
   }
   
-  _dragStart(e) {
+  _dragStart = (e) =>  {
     // get proper event
     const touch = e.touches && e.touches[0] || e;
 
@@ -66,7 +66,7 @@ class Slider extends Component {
     }, this.props.flickTimeout);
   }
 
-  _dragMove(e) {
+  _dragMove = (e) =>  {
     // if we aren't dragging bail
     if(!this.isDragging) return;
 
@@ -97,7 +97,7 @@ class Slider extends Component {
     }
   }
 
-  _dragEnd() {
+  _dragEnd = () =>  {
     const { currIndex } = this.state;
     const slideCount = this.props.children.length;
     const sliderWidth = slideCount * 100;
@@ -114,7 +114,7 @@ class Slider extends Component {
     this.isSwiping = this.isDragging = false;
   }
 
-  _dragPast() {
+  _dragPast = () =>  {
     // perform a dragend if we dragged past component
     if(this.isDragging) {
       this._dragEnd();
@@ -151,13 +151,12 @@ class Slider extends Component {
             <div className={sliderClassName}>
               <ul
                 className="slider__track"
-                onMouseDown={::this._dragStart}
-                onMouseMove={::this._dragMove}
-                onMouseUp={::this._dragEnd}
-                onMouseLeave={::this._dragPast}
-                onTouchStart={::this._dragStart}
-                onTouchMove={::this._dragMove}
-                onTouchEnd={::this._dragEnd}
+                onMouseDown={this._dragStart}
+                onMouseMove={this._dragMove}
+                onMouseUp={this._dragEnd}
+                onTouchStart={this._dragStart}
+                onTouchMove={this._dragMove}
+                onTouchEnd={this._dragEnd}
                 style={{
                   width: (100 * count) + '%',
                   [this.transform]: `translate3d(${x}%, 0, 0)`
