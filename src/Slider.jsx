@@ -20,6 +20,7 @@ class Slider extends Component {
   constructor(props) {
     super(props)
     
+    this.isSliding = false;
     this.transform = getPrefix('transform');
     this.supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
@@ -39,26 +40,14 @@ class Slider extends Component {
     }
   }
   
-  prev() {
-    let currIndex = this.state.currIndex - 1;
-    let direction = null;
-    
-    if(this.state.currIndex <= 0 && this.deltaX < 0) {
-      currIndex = this.state.currIndex;
-      direction = 0;
-    }
-    
-    //if(this.state.currIndex <= 0) return;
-    
-    this.setState({currIndex, direction});
+  prev(hold = this.state.currIndex <= 0) {
+    const currIndex = hold ? this.state.currIndex : this.state.currIndex - 1;
+    this.setState({currIndex, direction: null});
   }
   
-  next() {
-    if(this.state.currIndex >= this.props.children.length-1) return;
-    this.setState({
-      currIndex: this.state.currIndex + 1,
-      direction: null
-    });
+  next(hold = this.state.currIndex >= this.props.children.length-1) {
+    const currIndex = hold ? this.state.currIndex : this.state.currIndex + 1;
+    this.setState({currIndex, direction: null});
   }
   
   _isSwipe(threshold) {
@@ -92,25 +81,37 @@ class Slider extends Component {
     if(!this.isDragging) return;
 
     // get proper event
+    const { currIndex } = this.state;
     const touch = this.supportsTouch ? e.touches[0] : e;
-    const sliderWidth = this.props.children.length * 100;
+    const sliderCount = this.props.children.length;
+    const sliderWidth = sliderCount * 100;
+    const threshold = sliderWidth / 2;
 
     // determine how much we have moved
     this.deltaX = this.startX - touch.pageX;
     this.deltaY = this.startY - touch.pageY;
+
+    // if on the first or last side check for a threshold
+    if(this._isSwipe(threshold) &&
+      (currIndex === 0 || currIndex === sliderCount - 1)) {
+      return;
+    }
 
     if(this._isSwipe(this.swipeThreshold)) {
       e.preventDefault();
       e.stopPropagation();
       this.isSwiping = true;
     }
+    
     if(this.isSwiping) {
       this.setState({direction: this.deltaX / sliderWidth});
     }
   }
 
   _dragEnd(e) {
-    const sliderWidth = this.props.children.length * 100;
+    const { currIndex } = this.state;
+    const slideCount = this.props.children.length;
+    const sliderWidth = slideCount * 100;
     const threshold = this.isFlick ? this.swipeThreshold : sliderWidth / 2;
 
     // handle swipe
@@ -124,7 +125,7 @@ class Slider extends Component {
     this.isSwiping = this.isDragging = false;
   }
   
-  getX() {
+  _getX() {
     return -((this.state.direction + this.state.currIndex) * 100) / this.props.children.length;
   }
   
@@ -132,16 +133,30 @@ class Slider extends Component {
     const { children } = this.props;
     const { currIndex, currX } = this.state;
     const count = children.length;
-    const destX = this.getX();
-    
+    const destX = this._getX();
+
     return(
       <Spring
-        endValue={{val: {x: currX || destX}}}
+        endValue={{val: {x: destX}, config: [211, 21]}}
       >
         {({val: {x}}) => {
-          this.isSliding = !(x === destX);
+          this.isSliding = x !== destX;
+
+          let sliderClassName = 'slider';
+          let modifiers = [];
+
+          if(this.isSliding) {
+            modifiers.push('is-sliding');
+          }
+
+          if(this.isDragging) {
+            modifiers.push('is-dragging');
+          }
+
+          sliderClassName += modifiers.map(modifier => ` ${sliderClassName}--${modifier}`).join('');
+
           return(
-            <div className="slider">
+            <div className={sliderClassName}>
               <ul
                 className="slider__track"
                 onMouseDown={this._dragStart.bind(this)}
@@ -149,7 +164,7 @@ class Slider extends Component {
                 onMouseUp={this._dragEnd.bind(this)}
                 style={{
                   width: (100 * count) + '%',
-                  [this.transform]: `translate3d(${(currX || x)}%, 0, 0)`
+                  [this.transform]: `translate3d(${x}%, 0, 0)`
                 }}
               >
                 {children}
