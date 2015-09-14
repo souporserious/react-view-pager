@@ -29,22 +29,22 @@ class Slider extends Component {
   isDragging = false
   isSwiping = false
   isFlick = false
-  
+
   prev(hold = this.state.currIndex <= 0) {
     const currIndex = hold ? this.state.currIndex : this.state.currIndex - 1;
     this.setState({currIndex, direction: null});
   }
-  
+
   next(hold = this.state.currIndex >= this.props.children.length-1) {
     const currIndex = hold ? this.state.currIndex : this.state.currIndex + 1;
     this.setState({currIndex, direction: null});
   }
-  
+
   _isSwipe(threshold) {
     return Math.abs(this.deltaX) > Math.max(threshold, Math.abs(this.deltaY));
   }
-  
-  _dragStart(e) {
+
+  _dragStart = (e) =>  {
     // get proper event
     const touch = e.touches && e.touches[0] || e;
 
@@ -66,7 +66,7 @@ class Slider extends Component {
     }, this.props.flickTimeout);
   }
 
-  _dragMove(e) {
+  _dragMove = (e) =>  {
     // if we aren't dragging bail
     if(!this.isDragging) return;
 
@@ -97,7 +97,7 @@ class Slider extends Component {
     }
   }
 
-  _dragEnd(e) {
+  _dragEnd = (e) =>  {
     const { currIndex } = this.state;
     const slideCount = this.props.children.length;
     const sliderWidth = slideCount * 100;
@@ -113,7 +113,7 @@ class Slider extends Component {
     // we are no longer swiping or dragging
     this.isSwiping = this.isDragging = false;
   }
-  
+
   render() {
     const { children, springConfig } = this.props;
     const { currIndex, direction } = this.state;
@@ -144,12 +144,12 @@ class Slider extends Component {
             <div className={sliderClassName}>
               <ul
                 className="slider__track"
-                onMouseDown={this._dragStart.bind(this)}
-                onMouseMove={this._dragMove.bind(this)}
-                onMouseUp={this._dragEnd.bind(this)}
-                onTouchStart={this._dragStart.bind(this)}
-                onTouchMove={this._dragMove.bind(this)}
-                onTouchEnd={this._dragEnd.bind(this)}
+                onMouseDown={this._dragStart}
+                onMouseMove={this._dragMove}
+                onMouseUp={this._dragEnd}
+                onTouchStart={this._dragStart}
+                onTouchMove={this._dragMove}
+                onTouchEnd={this._dragEnd}
                 style={{
                   width: (100 * count) + '%',
                   [this.transform]: `translate3d(${x}%, 0, 0)`
