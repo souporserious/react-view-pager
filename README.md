@@ -25,4 +25,3 @@ Working on more features, and a less opinionated version.
 - [ ] add props to allow flexibility
 - [ ] keyboard support
 - [ ] ARIA support
-- [ ] i18n support
