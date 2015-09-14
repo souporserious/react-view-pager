@@ -4,7 +4,7 @@ var TARGET = process.env.TARGET || null;
 
 var config = {
   entry: {
-    index: './src/react-motion-slider.js',
+    index: './src/index.js',
   },
   output: {
     path: path.join(__dirname, 'dist'),
