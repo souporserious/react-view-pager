@@ -5,7 +5,7 @@ Slider/Carousel powered by React Motion.
 ## Example Usage
 ![alt tag](images/react-motion-slider.gif)
 
-```
+```js
 <div>
   <Slider
     ref="slider"
