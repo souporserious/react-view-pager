@@ -26,7 +26,6 @@ class Slider extends Component {
   slideCount = this.props.children.length
   isSliding = false
   transform = getPrefix('transform')
-  supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints
   deltaX = false
   deltaY = false
   startX = false
