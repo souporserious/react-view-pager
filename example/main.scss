@@ -1,9 +1,13 @@
-.slider {
+.slider-wrapper {
   max-width: 400px;
-  padding: 6px;
   margin: 24px auto;
-  overflow: hidden;
+  border-radius: 3px;
   background: #fff;
+  padding: 12px;
+}
+
+.slider {
+  overflow: hidden;
 
   &:hover {
     cursor: grab;
@@ -30,9 +34,9 @@
   flex: 1;
   align-self: flex-start;
 
-  & + & {
-    margin-left: 16px;
-  }
+  // & + & {
+  //   margin-left: 16px;
+  // }
   
   &:nth-of-type(1) {
     background: #FFA820;
@@ -67,6 +71,21 @@
   
 }
 
+// components
+.c {
+  text-align: center;
+
+  h1 {
+    color: #fff;
+  }
+}
+
+.c1 {
+  a {
+    color: #FFDB99;
+  }
+}
+
 // layout specific
 * {
   box-sizing: border-box;
@@ -74,5 +93,5 @@
 
 body {
   font-family: "Helvetica", sans-serif;
-  background: grey;
+  background: #F1F1F1;
 }

@@ -1,8 +1,8 @@
 {
   "name": "react-motion-slider",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Slider/Carousel powered by React Motion.",
-  "main": "lib/index.js",
+  "main": "lib/react-motion-slider.js",
   "scripts": {
     "build": "npm run build:lib && NODE_ENV=production webpack --config webpack.prod.config.js",
     "build:lib": "babel src --out-dir lib --stage 0",

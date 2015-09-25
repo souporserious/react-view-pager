@@ -4,14 +4,14 @@ var TARGET = process.env.TARGET || null;
 
 var config = {
   entry: {
-    index: './src/index.js',
+    index: './src/react-motion-slider.js',
   },
   output: {
     path: path.join(__dirname, 'dist'),
     publicPath: 'dist/',
     filename: 'react-motion-slider.js',
     sourceMapFilename: 'react-motion-slider.sourcemap.js',
-    library: 'ReactMotionSlider',
+    library: 'Slider',
     libraryTarget: 'umd'
   },
   module: {

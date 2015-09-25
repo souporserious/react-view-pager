@@ -1,5 +1,5 @@
 import React, { Component, PropTypes, Children } from 'react';
-import { Spring } from 'react-motion';
+import { Spring, presets } from 'react-motion';
 import Measure from 'react-measure';
 import getPrefix from './getPrefix.js';
 
@@ -7,7 +7,7 @@ class Slider extends Component {
   static propTypes = {
     draggable: PropTypes.bool,
     currentKey: PropTypes.any,
-    currentIndex: PropTypes.number,
+    //currentIndex: PropTypes.number,
     springConfig: PropTypes.array,
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
@@ -18,8 +18,8 @@ class Slider extends Component {
   static defaultProps = {
     draggable: true,
     currentKey: 0,
-    currentIndex: 0,
-    springConfig: [262, 24],
+    //currentIndex: 0, soon
+    springConfig: presets.noWobble,
     swipeThreshold: 10,
     flickTimeout: 300,
     slidesToShow: 1,
@@ -61,7 +61,7 @@ class Slider extends Component {
   _getCurrentChildIndex(props) {
     const { children, currentKey } = props
     let index = 0
-    
+
     Children.forEach(children, (child, i) => {
       if(child.key === currentKey) {
         index = i

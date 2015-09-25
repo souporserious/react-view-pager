@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import Alt from 'alt'
 import connectToStores from 'alt/utils/connectToStores'
-import { Slider } from '../src/index'
+import Slider from '../src/react-motion-slider'
 
 import './main.scss';
 
@@ -36,8 +36,8 @@ const routerStore = alt.createStore(RouterStore);
 class One extends Component {
   render() {
     return(
-      <div className="c-1" style={{height: 250}}>
-        Component 1
+      <div className="c c1" style={{height: 250}}>
+        <h1>Component 1</h1>
         <div>
           <a href="#" onClick={() => routerActions.moveTo('slide-2')}>
             Move to Component Three.
@@ -50,13 +50,21 @@ class One extends Component {
 
 class Two extends Component {
   render() {
-    return <div className="c-2" style={{height: 300}}>Component 2</div>
+    return(
+      <div className="c c2" style={{height: 300}}>
+        <h1>Component 2</h1>
+      </div>
+    )
   }
 }
 
 class Three extends Component {
   render() {
-    return <div className="c-3" style={{height: 200}}>Component 3</div>
+    return(
+      <div className="c c3" style={{height: 200}}>
+        <h1>Component 3</h1>
+      </div>
+    )
   }
 }
 
@@ -100,19 +108,20 @@ class App extends Component {
 
     return(
       <div>
-        <Slider
-          ref="slider"
-          calcWidths={true}
-          currentKey={this.props.currentRoute}
-        >
-          {
-            this.state.slides.map((InnerView, i) => 
-              <View key={`slide-${i}`} width={slideWidth}>
-                <InnerView/>
-              </View>
-            )
-          }
-        </Slider>
+        <div className="slider-wrapper">
+          <Slider
+            ref="slider"
+            currentKey={this.props.currentRoute}
+          >
+            {
+              this.state.slides.map((InnerView, i) => 
+                <View key={`slide-${i}`} width={slideWidth}>
+                  <InnerView/>
+                </View>
+              )
+            }
+          </Slider>
+        </div>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev.bind(this)}>Prev</a>
           <a className="slider__control slider__control--next" onClick={this.next.bind(this)}>Next</a>
