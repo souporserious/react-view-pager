@@ -1,15 +1,88 @@
-import React, { Component, PropTypes } from 'react';
-import { Slider } from '../src/index';
+import React, { Component, PropTypes } from 'react'
+import Alt from 'alt'
+import connectToStores from 'alt/utils/connectToStores'
+import { Slider } from '../src/index'
 
 import './main.scss';
 
-class App extends Component {
+const alt = new Alt();
+
+class RouterActions {
   constructor() {
-    super();
-    this.slider = null;
-    this.state = {
-      slides: [0, 1, 2]
-    }
+    this.generateActions('moveTo');
+  }
+  moveTo(route) {
+    this.dispatch(route)
+  }
+}
+
+const routerActions = alt.createActions(RouterActions);
+
+class RouterStore {
+  constructor() {
+    const {moveTo} = routerActions
+    this.bindListeners({moveTo})
+  }
+  currentRoute = 'slide-1'
+
+  moveTo = (route) => {
+    this.currentRoute = route
+  }
+}
+
+const routerStore = alt.createStore(RouterStore);
+
+
+class One extends Component {
+  render() {
+    return(
+      <div className="c-1" style={{height: 250}}>
+        Component 1
+        <div>
+          <a href="#" onClick={() => routerActions.moveTo('slide-2')}>
+            Move to Component Three.
+          </a>
+        </div>
+      </div>
+    )
+  }
+}
+
+class Two extends Component {
+  render() {
+    return <div className="c-2" style={{height: 300}}>Component 2</div>
+  }
+}
+
+class Three extends Component {
+  render() {
+    return <div className="c-3" style={{height: 200}}>Component 3</div>
+  }
+}
+
+class View extends Component {
+  render() {
+    return(
+      <div className="slide" style={{width: this.props.width + '%'}}>
+        {this.props.children}
+      </div>
+    )
+  }
+}
+
+@connectToStores
+class App extends Component {
+  _slider = null
+  state = {
+    slides: [One, Two, Three]
+  }
+
+  static getStores() {
+    return [routerStore]
+  }
+
+  static getPropsFromStores() {
+    return routerStore.getState()
   }
 
   prev() {
@@ -21,10 +94,24 @@ class App extends Component {
   }
   
   render() {
+    const { slides } = this.state
+    const slideCount = slides.length
+    const slideWidth = (100/slideCount).toFixed(2)
+
     return(
       <div>
-        <Slider ref="slider">
-          {this.state.slides.map((slide, i) => <li key={i} className="slide" />)}
+        <Slider
+          ref="slider"
+          calcWidths={true}
+          currentKey={this.props.currentRoute}
+        >
+          {
+            this.state.slides.map((InnerView, i) => 
+              <View key={`slide-${i}`} width={slideWidth}>
+                <InnerView/>
+              </View>
+            )
+          }
         </Slider>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev.bind(this)}>Prev</a>

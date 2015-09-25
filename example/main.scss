@@ -1,8 +1,9 @@
 .slider {
   max-width: 400px;
-  padding: 22px;
+  padding: 6px;
   margin: 24px auto;
   overflow: hidden;
+  background: #fff;
 
   &:hover {
     cursor: grab;
@@ -27,8 +28,7 @@
 
 .slide {
   flex: 1;
-  height: 300px;
-  background: #fff;
+  align-self: flex-start;
 
   & + & {
     margin-left: 16px;
@@ -74,4 +74,5 @@
 
 body {
   font-family: "Helvetica", sans-serif;
+  background: grey;
 }

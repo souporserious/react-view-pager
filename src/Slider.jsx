@@ -1,11 +1,13 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes, Children } from 'react';
 import { Spring } from 'react-motion';
+import Measure from 'react-measure';
 import getPrefix from './getPrefix.js';
 
 class Slider extends Component {
   static propTypes = {
     draggable: PropTypes.bool,
-    defaultSlide: PropTypes.number,
+    currentKey: PropTypes.any,
+    currentIndex: PropTypes.number,
     springConfig: PropTypes.array,
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
@@ -15,7 +17,8 @@ class Slider extends Component {
 
   static defaultProps = {
     draggable: true,
-    defaultSlide: 0,
+    currentKey: 0,
+    currentIndex: 0,
     springConfig: [262, 24],
     swipeThreshold: 10,
     flickTimeout: 300,
@@ -35,9 +38,14 @@ class Slider extends Component {
   isSwiping = false
   isFlick = false
   state = {
-    currIndex: this.props.defaultSlide,
+    currIndex: this._getCurrentChildIndex(this.props),
     direction: null,
+    dimensions: {},
     sliderWidth: (this.slideCount * 100) / this.props.slidesToShow
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({currIndex: this._getCurrentChildIndex(nextProps)})
   }
   
   prev() {
@@ -48,6 +56,32 @@ class Slider extends Component {
   next() {
     if(this.state.currIndex >= this.slideCount-1) return;
     this.setState({currIndex: this.state.currIndex + 1, direction: null});
+  }
+
+  _getCurrentChildIndex(props) {
+    const { children, currentKey } = props
+    let index = 0
+    
+    Children.forEach(children, (child, i) => {
+      if(child.key === currentKey) {
+        index = i
+        return
+      }
+    })
+    return index
+  }
+
+  _getChildByIndex(i) {
+    const { children } = this.props
+    let child = null
+
+    Children.forEach(children, (_child, _i) => {
+      if(i === _i) {
+        child = _child
+        return
+      }
+    })
+    return child
   }
 
   _isEndSlide() {
@@ -129,6 +163,12 @@ class Slider extends Component {
       this._dragEnd();
     }
   }
+
+  _storeDimensions = (key, childDimensions) => {
+    const { dimensions } = this.state
+    dimensions[key] = childDimensions
+    this.setState({dimensions})
+  }
   
   render() {
     const { children, springConfig, draggable } = this.props;
@@ -136,12 +176,15 @@ class Slider extends Component {
     // normalize index when on end slides
     const slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove;
     const destX = -((direction + (currIndex * slidesToMove)) * 100) / this.slideCount;
+    const currChild = this._getChildByIndex(currIndex)
+    const dimensions = this.state.dimensions[currChild.key]
+    const height = dimensions && dimensions.height || 0
 
     return(
       <Spring
-        endValue={{val: {x: destX}, config: springConfig}}
+        endValue={{val: {height, x: destX}, config: springConfig}}
       >
-        {({val: {x}}) => {
+        {({val: {height, x}}) => {
           this.isSliding = x !== destX;
 
           let sliderClassName = 'slider';
@@ -173,11 +216,19 @@ class Slider extends Component {
                 onTouchMove={draggable && this._dragMove}
                 onTouchEnd={draggable && this._dragEnd}
                 style={{
+                  height,
                   width: sliderWidth + '%',
                   [this.transform]: `translate3d(${x}%, 0, 0)`
                 }}
               >
-                {children}
+                {Children.map(children, child =>
+                  <Measure
+                    whitelist={['height']}
+                    onChange={this._storeDimensions.bind(null, child.key)}
+                  >
+                    {child}
+                  </Measure>
+                )}
               </ul>
             </div>
           );
