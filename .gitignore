@@ -6,11 +6,10 @@
 .LSOverride
 
 # Bower & Node Modules
+.npmignore
 node_modules
 npm-debug.log
 app/bower_components
-
-# NPM module directory
 lib
 
 # General Files

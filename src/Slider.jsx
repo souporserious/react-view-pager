@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, Children } from 'react';
+import React, { Component, PropTypes, Children, createElement } from 'react';
 import { Spring, presets } from 'react-motion';
 import Measure from 'react-measure';
 import getPrefix from './getPrefix.js';
@@ -12,10 +12,13 @@ class Slider extends Component {
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
     slidesToShow: PropTypes.number,
-    slidesToMove: PropTypes.number
+    slidesToMove: PropTypes.number,
+    autoHeight: PropTypes.bool,
+    forceAutoHeight: PropTypes.bool
   }
 
   static defaultProps = {
+    component: 'ul',
     draggable: true,
     currentKey: 0,
     //currentIndex: 0, soon
@@ -23,7 +26,9 @@ class Slider extends Component {
     swipeThreshold: 10,
     flickTimeout: 300,
     slidesToShow: 1,
-    slidesToMove: 1
+    slidesToMove: 1,
+    autoHeight: true,
+    forceAutoHeight: false
   }
 
   slideCount = this.props.children.length
@@ -71,12 +76,12 @@ class Slider extends Component {
     return index
   }
 
-  _getChildByIndex(i) {
+  _getChildByIndex(index) {
     const { children } = this.props
     let child = null
 
-    Children.forEach(children, (_child, _i) => {
-      if(i === _i) {
+    Children.forEach(children, (_child, _index) => {
+      if(index === _index) {
         child = _child
         return
       }
@@ -171,65 +176,73 @@ class Slider extends Component {
   }
   
   render() {
-    const { children, springConfig, draggable } = this.props;
+    const { component, children, springConfig, draggable, autoHeight, forceAutoHeight } = this.props;
     const { currIndex, direction, sliderWidth } = this.state;
     // normalize index when on end slides
     const slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove;
     const destX = -((direction + (currIndex * slidesToMove)) * 100) / this.slideCount;
     const currChild = this._getChildByIndex(currIndex)
     const dimensions = this.state.dimensions[currChild.key]
-    const height = dimensions && dimensions.height || 0
+    const destHeight = dimensions && dimensions.height || 0
 
     return(
       <Spring
-        endValue={{val: {height, x: destX}, config: springConfig}}
+        endValue={{val: {height: destHeight, x: destX}, config: springConfig}}
       >
         {({val: {height, x}}) => {
-          this.isSliding = x !== destX;
-
-          let sliderClassName = 'slider';
-          let modifiers = [];
+          this.isSliding = x !== destX
+          let sliderClassName = 'slider'
+          let modifiers = []
 
           if(this.isSliding) {
-            modifiers.push('is-sliding');
+            modifiers.push('is-sliding')
           }
 
           if(draggable) {
-            modifiers.push('is-draggable');
+            modifiers.push('is-draggable')
           }
 
           if(this.isDragging) {
-            modifiers.push('is-dragging');
+            modifiers.push('is-dragging')
           }
 
-          sliderClassName += modifiers.map(modifier => ` ${sliderClassName}--${modifier}`).join('');
+          sliderClassName += modifiers.map(modifier => ` ${sliderClassName}--${modifier}`).join('')
+
+          const childrenToRender = Children.map(children, (child, i) => {
+            return createElement(
+              Measure,
+              {
+                //forceAutoHeight: true,
+                //clone: true,
+                whitelist:['height'],
+                onChange: this._storeDimensions.bind(null, child.key)
+              },
+              child
+            )
+          })
 
           return(
             <div className={sliderClassName}>
-              <ul
-                className="slider__track"
-                onMouseDown={draggable && this._dragStart}
-                onMouseMove={draggable && this._dragMove}
-                onMouseUp={draggable && this._dragEnd}
-                onMouseLeave={draggable && this._dragPast}
-                onTouchStart={draggable && this._dragStart}
-                onTouchMove={draggable && this._dragMove}
-                onTouchEnd={draggable && this._dragEnd}
-                style={{
-                  height,
-                  width: sliderWidth + '%',
-                  [this.transform]: `translate3d(${x}%, 0, 0)`
-                }}
-              >
-                {Children.map(children, child =>
-                  <Measure
-                    whitelist={['height']}
-                    onChange={this._storeDimensions.bind(null, child.key)}
-                  >
-                    {child}
-                  </Measure>
-                )}
-              </ul>
+              {createElement(
+                component,
+                {
+                  className: 'slider__track',
+                // onMouseDown: draggable && this._dragStart,
+                // onMouseMove: draggable && this._dragMove,
+                // onMouseUp: draggable && this._dragEnd,
+                // onMouseLeave: draggable && this._dragPast,
+                // onTouchStart: draggable && this._dragStart,
+                // onTouchMove: draggable && this._dragMove,
+                // onTouchEnd: draggable && this._dragEnd,
+                  style: {
+                    //height: height === destHeight ? '' : height,
+                    //height,
+                    width: sliderWidth + '%',
+                    [this.transform]: `translate3d(${x}%, 0, 0)`
+                  }
+                },
+                childrenToRender
+              )}
             </div>
           );
         }}

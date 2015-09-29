@@ -519,8 +519,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._cloneMounted = function (dimensions) {
 	      _this._update(dimensions);
 
-	      // remove component and portal since we no longer need it
-	      _react2['default'].unmountComponentAtNode(_this._portal);
+	      // remove portal since we no longer need it
 	      _this._closePortal();
 	    };
 	  }
@@ -564,14 +563,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '_closePortal',
 	    value: function _closePortal() {
+	      _react2['default'].unmountComponentAtNode(this._portal);
 	      this._portal.parentNode.removeChild(this._portal);
 	    }
 	  }, {
 	    key: '_cloneComponent',
 	    value: function _cloneComponent() {
+	      var forceAutoHeight = this.props.forceAutoHeight;
+
 	      var onMount = this._cloneMounted;
 	      var clone = (0, _react.cloneElement)(this.props.children);
-	      var child = _react2['default'].createElement(_MeasureChild2['default'], { onMount: onMount }, clone);
+	      var child = _react2['default'].createElement(_MeasureChild2['default'], { onMount: onMount, forceAutoHeight: forceAutoHeight }, clone);
 
 	      // create a portal to append clone to
 	      this._openPortal();
@@ -606,6 +608,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'propTypes',
 	    value: {
 	      clone: _react.PropTypes.bool,
+	      forceAutoHeight: _react.PropTypes.bool,
 	      whitelist: _react.PropTypes.array,
 	      blacklist: _react.PropTypes.array,
 	      onChange: _react.PropTypes.func
@@ -615,6 +618,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'defaultProps',
 	    value: {
 	      clone: false,
+	      forceAutoHeight: false,
 	      blacklist: [],
 	      onChange: function onChange() {
 	        return null;
@@ -706,6 +710,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      var node = _react2['default'].findDOMNode(this);
+
+	      if (this.props.forceAutoHeight) {
+	        var family = node.getElementsByTagName('*');
+
+	        for (var i = family.length; i--;) {
+	          family[i].style.height = 'auto';
+	        }
+	      }
 
 	      // fire a callback to let Measure know our dimensions
 	      this.props.onMount((0, _getNodeDimensions2['default'])(node, true));
