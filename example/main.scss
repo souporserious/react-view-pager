@@ -24,20 +24,26 @@
 }
 
 .slider__track {
-  display: flex;
+  //display: flex;
   padding: 0;
   margin: 0;
   list-style: none;
+  position: relative;
 }
 
 .slide {
-  flex: 1;
-  align-self: flex-start;
+  //flex: 1;
+  //align-self: flex-start;
 
   // & + & {
   //   margin-left: 16px;
   // }
-  
+  padding: 12px;
+
+  h1 {
+    margin-top: 0;
+  }
+
   &:nth-of-type(1) {
     background: #FFA820;
   }

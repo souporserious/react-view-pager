@@ -25,7 +25,7 @@ class Slideable extends Component {
 
   render() {
     const { toggle, component, className, defaultHeight, springConfig, style, children, forceAutoHeight } = this.props;
-console.log('test')
+    
     return(
       <Measure
         clone={true}

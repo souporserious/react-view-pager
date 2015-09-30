@@ -24,7 +24,7 @@ class RouterStore {
     const {moveTo} = routerActions
     this.bindListeners({moveTo})
   }
-  currentRoute = 'slide-1'
+  currentRoute = 'slide-0'
 
   moveTo = (route) => {
     this.currentRoute = route
@@ -56,7 +56,7 @@ class Two extends Component {
     this.setState({toggle: !this.state.toggle});
   }
 
-  render() {
+  renders() {
     return(
       <div className="c c2">
         <button onClick={this._handleToggle}>Toggle</button>
@@ -71,6 +71,18 @@ class Two extends Component {
       </div>
     )
   }
+  render() {
+    return(
+      <div className="c c2">
+        <h1>Component 2</h1>
+        <div>
+          <a href="#" onClick={() => routerActions.moveTo('slide-2')}>
+            Move to Component Three.
+          </a>
+        </div>
+      </div>
+    )
+  }
 }
 
 class Three extends Component {
@@ -82,7 +94,7 @@ class Three extends Component {
     this.refs['slider'].next();
   }
 
-  render() {
+  renders() {
     return(
       <div className="c c3">
         <h1>Component 3</h1>
@@ -102,12 +114,29 @@ class Three extends Component {
       </div>
     )
   }
+
+  render() {
+    return(
+      <div className="c c3">
+        <h1>Component 3</h1>
+        <div>
+          <a href="#" onClick={() => routerActions.moveTo('slide-2')}>
+            Move to Component Three.
+          </a>
+        </div>
+      </div>
+    )
+  }
 }
 
 class View extends Component {
   render() {
+    const { style } = this.props
     return(
-      <div className="slide" style={{width: this.props.width + '%'}}>
+      <div
+        className="slide"
+        style={style}
+      >
         {this.props.children}
       </div>
     )
