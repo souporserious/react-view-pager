@@ -8,6 +8,10 @@
 
 .slider {
   overflow: hidden;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  position: relative;
 
   &:hover {
     cursor: grab;
@@ -21,14 +25,6 @@
 }
 
 .slider--is-dragging {
-}
-
-.slider__track {
-  //display: flex;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  position: relative;
 }
 
 .slide {
@@ -75,6 +71,25 @@
 
 .slider__control--next {
   
+}
+
+.slider__pager {
+  display: flex;
+  justify-content: center;
+  max-width: 300px;
+  margin: 25px auto 0;
+}
+
+.slider__page {
+  flex: 1;
+  max-width: 35px;
+  height: 35px;
+  margin: 12px;
+  text-align: center;
+  line-height: 35px;
+  border: 1px solid #D4D4D4;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
 // components

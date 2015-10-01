@@ -85,8 +85,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
@@ -97,13 +95,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _reactMotion = __webpack_require__(3);
 
-	var _reactMeasure = __webpack_require__(4);
+	var _Slide = __webpack_require__(4);
 
-	var _reactMeasure2 = _interopRequireDefault(_reactMeasure);
-
-	var _getPrefixJs = __webpack_require__(8);
-
-	var _getPrefixJs2 = _interopRequireDefault(_getPrefixJs);
+	var _Slide2 = _interopRequireDefault(_Slide);
 
 	var Slider = (function (_Component) {
 	  function Slider() {
@@ -113,170 +107,155 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _get(Object.getPrototypeOf(Slider.prototype), 'constructor', this).apply(this, arguments);
 
-	    this.slideCount = this.props.children.length;
-	    this.isSliding = false;
-	    this.transform = (0, _getPrefixJs2['default'])('transform');
-	    this.supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
-	    this.deltaX = false;
-	    this.deltaY = false;
-	    this.startX = false;
-	    this.startY = false;
-	    this.isDragging = false;
-	    this.isSwiping = false;
-	    this.isFlick = false;
 	    this.state = {
-	      currIndex: this._getCurrentChildIndex(this.props),
+	      currIndex: this._getIndexFromKey(this.props),
+	      nextIndex: null,
 	      direction: null,
-	      dimensions: {},
-	      sliderWidth: this.slideCount * 100 / this.props.slidesToShow
+	      isSliding: false,
+	      currHeight: null
+	    };
+	    this._slideCount = this.props.children.length;
+
+	    this.setHeight = function (height) {
+	      _this.setState({
+	        currHeight: isNaN(height) ? _this._node.scrollHeight : height
+	      });
 	    };
 
-	    this._dragStart = function (e) {
-	      // get proper event
-	      var touch = e.touches && e.touches[0] || e;
-
-	      // we're now dragging
-	      _this.isDragging = true;
-
-	      // reset deltas
-	      _this.deltaX = _this.deltaY = 0;
-
-	      // store the initial starting coordinates
-	      _this.startX = touch.pageX;
-	      _this.startY = touch.pageY;
-
-	      // determine if a flick or not
-	      _this.isFlick = true;
-
-	      setTimeout(function () {
-	        _this.isFlick = false;
-	      }, _this.props.flickTimeout);
-	    };
-
-	    this._dragMove = function (e) {
-	      // if we aren't dragging bail
-	      if (!_this.isDragging) return;
-
-	      var touch = e.touches && e.touches[0] || e;
+	    this._handleSlideEnd = function (newIndex) {
 	      var _state = _this.state;
 	      var currIndex = _state.currIndex;
-	      var sliderWidth = _state.sliderWidth;
+	      var nextIndex = _state.nextIndex;
 
-	      var threshold = sliderWidth / 2;
-
-	      // determine how much we have moved
-	      _this.deltaX = _this.startX - touch.pageX;
-	      _this.deltaY = _this.startY - touch.pageY;
-
-	      if (_this._isSwipe(_this.props.swipeThreshold)) {
-	        e.preventDefault();
-	        e.stopPropagation();
-	        _this.isSwiping = true;
-	      }
-
-	      if (_this.isSwiping) {
-	        _this.setState({ direction: _this.deltaX / sliderWidth });
-	      }
-	    };
-
-	    this._dragEnd = function () {
-	      var _state2 = _this.state;
-	      var currIndex = _state2.currIndex;
-	      var sliderWidth = _state2.sliderWidth;
-
-	      var threshold = _this.isFlick ? _this.props.swipeThreshold : sliderWidth / 2;
-
-	      // handle swipe
-	      if (_this._isSwipe(threshold)) {
-	        // id if an end slide, we still need to set the direction
-	        if (_this._isEndSlide()) {
-	          _this.setState({ direction: 0 });
+	      _this.setState({
+	        currIndex: newIndex,
+	        nextIndex: null,
+	        direction: null,
+	        isSliding: false
+	      }, function () {
+	        // fire callback if values changed
+	        if (currIndex !== newIndex) {
+	          var key = _this._getKeyFromIndex(newIndex);
+	          _this.props.onChange(key, newIndex);
 	        }
-	        _this.deltaX < 0 ? _this.prev() : _this.next();
-	      } else {
-	        _this.setState({ direction: 0 });
-	      }
-
-	      // we are no longer swiping or dragging
-	      _this.isSwiping = _this.isDragging = false;
-	    };
-
-	    this._dragPast = function () {
-	      // perform a dragend if we dragged past component
-	      if (_this.isDragging) {
-	        _this._dragEnd();
-	      }
-	    };
-
-	    this._storeDimensions = function (key, childDimensions) {
-	      var dimensions = _this.state.dimensions;
-
-	      dimensions[key] = childDimensions;
-	      _this.setState({ dimensions: dimensions });
+	      });
 	    };
 	  }
 
 	  _inherits(Slider, _Component);
 
 	  _createClass(Slider, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this._node = _react2['default'].findDOMNode(this);
+	    }
+	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
-	      this.setState({ currIndex: this._getCurrentChildIndex(nextProps) });
+	      var _state2 = this.state;
+	      var currIndex = _state2.currIndex;
+	      var isSliding = _state2.isSliding;
+
+	      var nextIndex = this._getIndexFromKey(nextProps);
+
+	      // keep an up to date count
+	      this._slideCount = nextProps.children.length;
+
+	      // don't update state if index hasn't changed and we're not in the middle of a slide
+	      if (currIndex !== nextIndex && !isSliding) {
+	        this.setState({
+	          nextIndex: nextIndex,
+	          direction: this._getDirection(nextIndex),
+	          isSliding: true
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'shouldComponentUpdate',
+
+	    // don't update unless height has changed or we have stopped sliding
+	    value: function shouldComponentUpdate(nextProps, nextState) {
+	      var _state3 = this.state;
+	      var currIndex = _state3.currIndex;
+	      var currHeight = _state3.currHeight;
+	      var isSliding = _state3.isSliding;
+
+	      var newIndex = this._getIndexFromKey(nextProps);
+
+	      return currHeight !== nextState.currHeight || !isSliding;
 	    }
 	  }, {
 	    key: 'prev',
 	    value: function prev() {
-	      if (this.state.currIndex <= 0) return;
-	      this.setState({ currIndex: this.state.currIndex - 1, direction: null });
+	      this._slide('prev');
 	    }
 	  }, {
 	    key: 'next',
 	    value: function next() {
-	      if (this.state.currIndex >= this.slideCount - 1) return;
-	      this.setState({ currIndex: this.state.currIndex + 1, direction: null });
+	      this._slide('next');
 	    }
 	  }, {
-	    key: '_getCurrentChildIndex',
-	    value: function _getCurrentChildIndex(props) {
+	    key: '_getDirection',
+	    value: function _getDirection(nextIndex) {
+	      return this.state.currIndex > nextIndex ? 'prev' : 'next';
+	    }
+	  }, {
+	    key: '_slide',
+	    value: function _slide(direction) {
+	      var _state4 = this.state;
+	      var currIndex = _state4.currIndex;
+	      var isSliding = _state4.isSliding;
+
+	      var nextIndex = this._getNewIndex(direction);
+
+	      if (isSliding || currIndex === nextIndex) return;
+
+	      this.setState({
+	        nextIndex: nextIndex,
+	        direction: direction,
+	        isSliding: true
+	      });
+	    }
+	  }, {
+	    key: '_getKeyFromIndex',
+	    value: function _getKeyFromIndex(index) {
+	      var children = this.props.children;
+
+	      var key = null;
+
+	      _react.Children.forEach(children, function (child, _index) {
+	        if (index === _index) {
+	          key = child.key;
+	          return;
+	        }
+	      });
+	      return key;
+	    }
+	  }, {
+	    key: '_getIndexFromKey',
+	    value: function _getIndexFromKey(props) {
 	      var children = props.children;
 	      var currentKey = props.currentKey;
 
 	      var index = 0;
 
-	      _react.Children.forEach(children, function (child, i) {
+	      _react.Children.forEach(children, function (child, _index) {
 	        if (child.key === currentKey) {
-	          index = i;
+	          index = _index;
 	          return;
 	        }
 	      });
 	      return index;
 	    }
 	  }, {
-	    key: '_getChildByIndex',
-	    value: function _getChildByIndex(i) {
-	      var children = this.props.children;
-
-	      var child = null;
-
-	      _react.Children.forEach(children, function (_child, _i) {
-	        if (i === _i) {
-	          child = _child;
-	          return;
-	        }
-	      });
-	      return child;
-	    }
-	  }, {
-	    key: '_isEndSlide',
-	    value: function _isEndSlide() {
+	    key: '_getNewIndex',
+	    value: function _getNewIndex(direction) {
 	      var currIndex = this.state.currIndex;
 
-	      return currIndex === 0 || currIndex === this.slideCount - 1;
-	    }
-	  }, {
-	    key: '_isSwipe',
-	    value: function _isSwipe(threshold) {
-	      return Math.abs(this.deltaX) > Math.max(threshold, Math.abs(this.deltaY));
+	      var delta = direction === 'prev' ? -1 : 1;
+	      var willWrap = direction === 'prev' && currIndex === 0 || direction === 'next' && currIndex === this._slideCount - 1;
+
+	      return willWrap ? currIndex : (currIndex + delta) % this._slideCount;
 	    }
 	  }, {
 	    key: 'render',
@@ -284,110 +263,69 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _this2 = this;
 
 	      var _props = this.props;
+	      var component = _props.component;
 	      var children = _props.children;
-	      var springConfig = _props.springConfig;
-	      var draggable = _props.draggable;
-	      var _state3 = this.state;
-	      var currIndex = _state3.currIndex;
-	      var direction = _state3.direction;
-	      var sliderWidth = _state3.sliderWidth;
+	      var className = _props.className;
+	      var autoHeight = _props.autoHeight;
+	      var sliderConfig = _props.sliderConfig;
+	      var slideConfig = _props.slideConfig;
+	      var _state5 = this.state;
+	      var currIndex = _state5.currIndex;
+	      var nextIndex = _state5.nextIndex;
+	      var direction = _state5.direction;
+	      var isSliding = _state5.isSliding;
+	      var currHeight = _state5.currHeight;
 
-	      // normalize index when on end slides
-	      var slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove;
-	      var destX = -((direction + currIndex * slidesToMove) * 100) / this.slideCount;
-	      var currChild = this._getChildByIndex(currIndex);
-	      var dimensions = this.state.dimensions[currChild.key];
-	      var height = dimensions && dimensions.height || 0;
+	      var childrenToRender = _react.Children.map(children, function (child, index) {
+	        return (0, _react.createElement)(_Slide2['default'], {
+	          index: index,
+	          currIndex: currIndex,
+	          nextIndex: nextIndex,
+	          direction: direction,
+	          isSliding: isSliding,
+	          slideConfig: slideConfig,
+	          onSlideEnd: _this2._handleSlideEnd,
+	          onGetHeight: _this2.setHeight
+	        }, child);
+	      });
 
-	      return _react2['default'].createElement(
-	        _reactMotion.Spring,
-	        {
-	          endValue: { val: { height: height, x: destX }, config: springConfig }
-	        },
-	        function (_ref2) {
-	          var _ref2$val = _ref2.val;
-	          var height = _ref2$val.height;
-	          var x = _ref2$val.x;
-
-	          _this2.isSliding = x !== destX;
-
-	          var sliderClassName = 'slider';
-	          var modifiers = [];
-
-	          if (_this2.isSliding) {
-	            modifiers.push('is-sliding');
-	          }
-
-	          if (draggable) {
-	            modifiers.push('is-draggable');
-	          }
-
-	          if (_this2.isDragging) {
-	            modifiers.push('is-dragging');
-	          }
-
-	          sliderClassName += modifiers.map(function (modifier) {
-	            return ' ' + sliderClassName + '--' + modifier;
-	          }).join('');
-
-	          return _react2['default'].createElement(
-	            'div',
-	            { className: sliderClassName },
-	            _react2['default'].createElement(
-	              'ul',
-	              {
-	                className: 'slider__track',
-	                onMouseDown: draggable && _this2._dragStart,
-	                onMouseMove: draggable && _this2._dragMove,
-	                onMouseUp: draggable && _this2._dragEnd,
-	                onMouseLeave: draggable && _this2._dragPast,
-	                onTouchStart: draggable && _this2._dragStart,
-	                onTouchMove: draggable && _this2._dragMove,
-	                onTouchEnd: draggable && _this2._dragEnd,
-	                style: _defineProperty({
-	                  height: height,
-	                  width: sliderWidth + '%'
-	                }, _this2.transform, 'translate3d(' + x + '%, 0, 0)')
-	              },
-	              _react.Children.map(children, function (child) {
-	                return _react2['default'].createElement(
-	                  _reactMeasure2['default'],
-	                  {
-	                    whitelist: ['height'],
-	                    onChange: _this2._storeDimensions.bind(null, child.key)
-	                  },
-	                  child
-	                );
-	              })
-	            )
-	          );
+	      return !autoHeight ? (0, _react.createElement)(component, { className: className }, childrenToRender) : (0, _react.createElement)(_reactMotion.Spring, {
+	        endValue: {
+	          val: { height: currHeight }, sliderConfig: sliderConfig
 	        }
-	      );
+	      }, function (_ref) {
+	        var height = _ref.val.height;
+
+	        return (0, _react.createElement)(component, {
+	          className: className,
+	          style: {
+	            height: isSliding ? height : null
+	          }
+	        }, childrenToRender);
+	      });
 	    }
 	  }], [{
 	    key: 'propTypes',
 	    value: {
-	      draggable: _react.PropTypes.bool,
+	      component: _react.PropTypes.string,
 	      currentKey: _react.PropTypes.any,
-	      //currentIndex: PropTypes.number,
-	      springConfig: _react.PropTypes.array,
-	      swipeThreshold: _react.PropTypes.number,
-	      flickTimeout: _react.PropTypes.number,
-	      slidesToShow: _react.PropTypes.number,
-	      slidesToMove: _react.PropTypes.number
+	      autoHeight: _react.PropTypes.bool,
+	      sliderConfig: _react.PropTypes.array,
+	      slideConfig: _react.PropTypes.array,
+	      onChange: _react.PropTypes.func
 	    },
 	    enumerable: true
 	  }, {
 	    key: 'defaultProps',
 	    value: {
-	      draggable: true,
+	      component: 'div',
 	      currentKey: 0,
-	      //currentIndex: 0, soon
-	      springConfig: _reactMotion.presets.noWobble,
-	      swipeThreshold: 10,
-	      flickTimeout: 300,
-	      slidesToShow: 1,
-	      slidesToMove: 1
+	      autoHeight: false,
+	      sliderConfig: _reactMotion.presets.noWobble,
+	      slideConfig: _reactMotion.presets.noWobble,
+	      onChange: function onChange() {
+	        return null;
+	      }
 	    },
 	    enumerable: true
 	  }]);
@@ -397,6 +335,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports['default'] = Slider;
 	module.exports = exports['default'];
+
+	// does not animate to new height, but primes the slider whenever it moves to
+	// a new slide so you don't get a jump from having an old height, useful if
+	// children are affecting the wrapper height after moving to a new slide
 
 /***/ },
 /* 2 */
@@ -420,364 +362,164 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { 'default': obj };
-	}
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _Measure = __webpack_require__(5);
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-	var _Measure2 = _interopRequireDefault(_Measure);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	exports['default'] = _Measure2['default'];
-	module.exports = exports['default'];
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () {
-	  function defineProperties(target, props) {
-	    for (var i = 0; i < props.length; i++) {
-	      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-	    }
-	  }return function (Constructor, protoProps, staticProps) {
-	    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-	  };
-	})();
-
-	var _get = function get(_x, _x2, _x3) {
-	  var _again = true;_function: while (_again) {
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;desc = parent = getter = undefined;_again = false;if (object === null) object = Function.prototype;var desc = Object.getOwnPropertyDescriptor(object, property);if (desc === undefined) {
-	      var parent = Object.getPrototypeOf(object);if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;_x2 = property;_x3 = receiver;_again = true;continue _function;
-	      }
-	    } else if ('value' in desc) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;if (getter === undefined) {
-	        return undefined;
-	      }return getter.call(receiver);
-	    }
-	  }
-	};
-
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { 'default': obj };
-	}
-
-	function _classCallCheck(instance, Constructor) {
-	  if (!(instance instanceof Constructor)) {
-	    throw new TypeError('Cannot call a class as a function');
-	  }
-	}
-
-	function _inherits(subClass, superClass) {
-	  if (typeof superClass !== 'function' && superClass !== null) {
-	    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
-	  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-	}
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _MeasureChild = __webpack_require__(6);
+	var _reactMotion = __webpack_require__(3);
 
-	var _MeasureChild2 = _interopRequireDefault(_MeasureChild);
+	var TRANSFORM = __webpack_require__(5)('transform');
 
-	var _getNodeDimensions = __webpack_require__(7);
-
-	var _getNodeDimensions2 = _interopRequireDefault(_getNodeDimensions);
-
-	var Measure = (function (_Component) {
-	  _inherits(Measure, _Component);
-
-	  function Measure() {
+	var Slide = (function (_Component) {
+	  function Slide() {
 	    var _this = this;
 
-	    _classCallCheck(this, Measure);
+	    _classCallCheck(this, Slide);
 
-	    _get(Object.getPrototypeOf(Measure.prototype), 'constructor', this).apply(this, arguments);
+	    _get(Object.getPrototypeOf(Slide.prototype), 'constructor', this).apply(this, arguments);
 
-	    this._whitelist = this.props.whitelist || ['width', 'height', 'top', 'right', 'bottom', 'left'];
-	    this._properties = this._whitelist.filter(function (prop) {
-	      return _this.props.blacklist.indexOf(prop) < 0;
-	    });
-	    this._portal = null;
-	    this._lastDimensions = {};
+	    this._firstPass = true;
+	    this._lastHeight = null;
 
-	    this._cloneMounted = function (dimensions) {
-	      _this._update(dimensions);
+	    this._getEndValue = function (prevValue) {
+	      var _props = _this.props;
+	      var nextIndex = _props.nextIndex;
+	      var isSliding = _props.isSliding;
+	      var slideConfig = _props.slideConfig;
 
-	      // remove portal since we no longer need it
-	      _this._closePortal();
+	      var config = isSliding ? slideConfig : [];
+	      var x = isSliding ? 100 : 0;
+
+	      if (prevValue && prevValue.val.x === x && isSliding) {
+	        // reset x value so we don't immediately hit onSlideEnd again
+	        x = 0;
+
+	        // fire callback to Slider
+	        _this.props.onSlideEnd(nextIndex);
+	      }
+
+	      return { val: { x: x }, config: config };
 	    };
 	  }
 
-	  _createClass(Measure, [{
+	  _inherits(Slide, _Component);
+
+	  _createClass(Slide, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      this._node = _react2['default'].findDOMNode(this);
-
-	      if (this.props.clone) {
-	        this._cloneComponent();
-	      } else {
-	        this._update((0, _getNodeDimensions2['default'])(this._node));
-	      }
+	      this._getHeight(this.props.currIndex);
 	    }
 	  }, {
 	    key: 'componentDidUpdate',
 	    value: function componentDidUpdate() {
-	      // we check for parent node because we we're getting some weird issues
-	      // with React Motion specifically and it causing an error on unmount
-	      // because parent would return null, might be a bigger problem to look into
-	      if (this.props.clone && this._node.parentNode) {
-	        this._cloneComponent();
-	      } else {
-	        this._update((0, _getNodeDimensions2['default'])(this._node));
+	      this._firstPass = false;
+	      this._getHeight(this.props.nextIndex);
+	    }
+	  }, {
+	    key: '_getHeight',
+	    value: function _getHeight(nextIndex) {
+	      var index = this.props.index;
+
+	      var height = this._node.scrollHeight;
+
+	      if (index === nextIndex && height !== this._lastHeight) {
+	        this.props.onGetHeight(height);
 	      }
+
+	      this._lastHeight = height;
 	    }
 	  }, {
-	    key: '_openPortal',
-	    value: function _openPortal() {
-	      var portal = document.createElement('div');
+	    key: '_getStyles',
+	    value: function _getStyles(x) {
+	      var _props2 = this.props;
+	      var index = _props2.index;
+	      var currIndex = _props2.currIndex;
+	      var nextIndex = _props2.nextIndex;
+	      var direction = _props2.direction;
+	      var isSliding = _props2.isSliding;
 
-	      // set styles to hide portal from view
-	      portal.style.cssText = '\n      height: 0;\n      position: relative;\n      overflow: hidden;\n    ';
+	      var style = {
+	        width: '100%',
+	        position: null,
+	        top: 0,
+	        left: 0
+	      };
 
-	      this._portal = portal;
+	      // only apply styles to slides that need to move
+	      if (currIndex === index || nextIndex === index) {
+	        var translateX = direction === 'prev' ? x : -x;
 
-	      // append portal next to this component
-	      this._node.parentNode.insertBefore(portal, this._node.nextSibling);
+	        if (nextIndex === index) {
+	          style.position = 'absolute';
+
+	          if (direction === 'prev') {
+	            translateX -= 100;
+	          } else {
+	            translateX += 100;
+	          }
+	        }
+
+	        // don't apply any styles if we aren't sliding
+	        if (!isSliding) {
+	          style = {};
+	        } else {
+	          style[TRANSFORM] = 'translate3d(' + translateX + '%, 0, 0)';
+	        }
+	      } else {
+	        // don't set outside slides to "display: none" on first pass, this allows
+	        // proper DOM calculation for height to be achieved
+	        if (this._firstPass) {
+	          style = {
+	            width: '100%',
+	            height: 0,
+	            overflow: 'hidden'
+	          };
+	        } else {
+	          style = { display: 'none' };
+	        }
+	      }
+
+	      return style;
 	    }
 	  }, {
-	    key: '_closePortal',
-	    value: function _closePortal() {
-	      _react2['default'].unmountComponentAtNode(this._portal);
-	      this._portal.parentNode.removeChild(this._portal);
-	    }
-	  }, {
-	    key: '_cloneComponent',
-	    value: function _cloneComponent() {
-	      var forceAutoHeight = this.props.forceAutoHeight;
-
-	      var onMount = this._cloneMounted;
-	      var clone = (0, _react.cloneElement)(this.props.children);
-	      var child = _react2['default'].createElement(_MeasureChild2['default'], { onMount: onMount, forceAutoHeight: forceAutoHeight }, clone);
-
-	      // create a portal to append clone to
-	      this._openPortal();
-
-	      // render clone to the portal
-	      _react2['default'].render(child, this._portal);
-	    }
-	  }, {
-	    key: '_update',
-	    value: function _update(dimensions) {
+	    key: 'render',
+	    value: function render() {
 	      var _this2 = this;
 
-	      // determine if we need to update our callback with new dimensions or not
-	      this._properties.forEach(function (prop) {
-	        if (dimensions[prop] !== _this2._lastDimensions[prop]) {
-	          _this2.props.onChange(dimensions);
+	      var child = _react.Children.only(this.props.children);
 
-	          // store last dimensions to compare changes
-	          _this2._lastDimensions = dimensions;
+	      return (0, _react.createElement)(_reactMotion.Spring, {
+	        endValue: this._getEndValue
+	      }, function (_ref) {
+	        var x = _ref.val.x;
 
-	          // we don't need to look any further, bail out
-	          return;
-	        }
+	        _this2._lastX = x;
+	        return (0, _react.cloneElement)(child, {
+	          style: _this2._getStyles(x)
+	        });
 	      });
 	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react.Children.only(this.props.children);
-	    }
-	  }], [{
-	    key: 'propTypes',
-	    value: {
-	      clone: _react.PropTypes.bool,
-	      forceAutoHeight: _react.PropTypes.bool,
-	      whitelist: _react.PropTypes.array,
-	      blacklist: _react.PropTypes.array,
-	      onChange: _react.PropTypes.func
-	    },
-	    enumerable: true
-	  }, {
-	    key: 'defaultProps',
-	    value: {
-	      clone: false,
-	      forceAutoHeight: false,
-	      blacklist: [],
-	      onChange: function onChange() {
-	        return null;
-	      }
-	    },
-	    enumerable: true
 	  }]);
 
-	  return Measure;
+	  return Slide;
 	})(_react.Component);
 
-	exports['default'] = Measure;
+	exports['default'] = Slide;
 	module.exports = exports['default'];
 
 /***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () {
-	  function defineProperties(target, props) {
-	    for (var i = 0; i < props.length; i++) {
-	      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-	    }
-	  }return function (Constructor, protoProps, staticProps) {
-	    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-	  };
-	})();
-
-	var _get = function get(_x, _x2, _x3) {
-	  var _again = true;_function: while (_again) {
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;desc = parent = getter = undefined;_again = false;if (object === null) object = Function.prototype;var desc = Object.getOwnPropertyDescriptor(object, property);if (desc === undefined) {
-	      var parent = Object.getPrototypeOf(object);if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;_x2 = property;_x3 = receiver;_again = true;continue _function;
-	      }
-	    } else if ('value' in desc) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;if (getter === undefined) {
-	        return undefined;
-	      }return getter.call(receiver);
-	    }
-	  }
-	};
-
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { 'default': obj };
-	}
-
-	function _classCallCheck(instance, Constructor) {
-	  if (!(instance instanceof Constructor)) {
-	    throw new TypeError('Cannot call a class as a function');
-	  }
-	}
-
-	function _inherits(subClass, superClass) {
-	  if (typeof superClass !== 'function' && superClass !== null) {
-	    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
-	  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-	}
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _getNodeDimensions = __webpack_require__(7);
-
-	var _getNodeDimensions2 = _interopRequireDefault(_getNodeDimensions);
-
-	var MeasureChild = (function (_Component) {
-	  _inherits(MeasureChild, _Component);
-
-	  function MeasureChild() {
-	    _classCallCheck(this, MeasureChild);
-
-	    _get(Object.getPrototypeOf(MeasureChild.prototype), 'constructor', this).apply(this, arguments);
-	  }
-
-	  _createClass(MeasureChild, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      var node = _react2['default'].findDOMNode(this);
-
-	      if (this.props.forceAutoHeight) {
-	        var family = node.getElementsByTagName('*');
-
-	        for (var i = family.length; i--;) {
-	          family[i].style.height = 'auto';
-	        }
-	      }
-
-	      // fire a callback to let Measure know our dimensions
-	      this.props.onMount((0, _getNodeDimensions2['default'])(node, true));
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return this.props.children;
-	    }
-	  }]);
-
-	  return MeasureChild;
-	})(_react.Component);
-
-	exports['default'] = MeasureChild;
-	module.exports = exports['default'];
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-	exports['default'] = getNodeDimensions;
-
-	function getNodeDimensions(node) {
-	  var clone = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-	  if (clone) {
-	    // set width/height to auto to get a true calculation
-	    node.style.width = 'auto';
-	    node.style.height = 'auto';
-
-	    // move node exactly on top of it's clone to calculate proper position
-	    // this also overrides any transform already set, so something like scale
-	    // won't affect the calculation, could be bad to do this,
-	    // but we'll see what happens
-	    node.style.transform = 'translateY(-100%)';
-	    node.style.WebkitTransform = 'translateY(-100%)';
-	  }
-
-	  var rect = node.getBoundingClientRect();
-
-	  return {
-	    width: rect.width,
-	    height: rect.height,
-	    top: rect.top,
-	    right: rect.right,
-	    bottom: rect.bottom,
-	    left: rect.left
-	  };
-	}
-
-	module.exports = exports['default'];
-
-/***/ },
-/* 8 */
+/* 5 */
 /***/ function(module, exports) {
 
 	'use strict';
