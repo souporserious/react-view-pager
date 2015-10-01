@@ -1,5 +1,5 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
-import { Spring, presets } from 'react-motion'
+import { StaggeredMotion, spring, presets } from 'react-motion'
 
 const TRANSFORM = require('./getPrefix.js')('transform')
 
@@ -28,12 +28,12 @@ class Slide extends Component {
     this._lastHeight = height
   }
 
-  _getEndValue = (prevValue) => {
+  _getEndValues = (prevValue) => {
     const { nextIndex, isSliding, slideConfig } = this.props
     const config = isSliding ? slideConfig : []
     let x = isSliding ? 100 : 0
 
-    if(prevValue && prevValue.val.x === x && isSliding) {
+    if(prevValue && prevValue[0].x === x && isSliding) {
       // reset x value so we don't immediately hit onSlideEnd again
       x = 0
 
@@ -41,7 +41,7 @@ class Slide extends Component {
       this.props.onSlideEnd(nextIndex)
     }
 
-    return {val: {x}, config}
+    return [{x: spring(x, slideConfig)}]
   }
 
   _getStyles(x) {
@@ -52,7 +52,7 @@ class Slide extends Component {
       top: 0,
       left: 0
     }
-
+    
     // only apply styles to slides that need to move
     if(currIndex === index || nextIndex === index) {
       let translateX = (direction === 'prev') ? x : -x
@@ -94,14 +94,13 @@ class Slide extends Component {
     const child = Children.only(this.props.children)
 
     return createElement(
-      Spring,
+      StaggeredMotion,
       {
-        endValue: this._getEndValue
+        styles: this._getEndValues
       },
-      ({val: {x}}) => {
-        this._lastX = x
+      (values) => {
         return cloneElement(child, {
-          style: this._getStyles(x)
+          style: this._getStyles(values[0].x)
         })
       }
     )

@@ -1,5 +1,5 @@
 import React, { Component, PropTypes, createElement } from 'react'
-import { Spring, presets } from 'react-motion'
+import { StaggeredMotion, spring, presets } from 'react-motion'
 import Measure from 'react-measure'
 
 class Slideable extends Component {
@@ -34,29 +34,29 @@ class Slideable extends Component {
            this.state.height !== nextState.height
   }
 
-  _getEndValue = (prevValue) => {
+  _getEndValues = (prevValue) => {
     const { toggle, defaultHeight, springConfig, instant } = this.props
     const config = instant ? [] : springConfig
     const height = toggle ? (this.state.height || defaultHeight) : defaultHeight
 
-    if(prevValue && prevValue.val.height === height) {
+    if(prevValue && prevValue[0].height === height) {
       this.props.onSlideEnd()
     }
 
-    return {
-      val: { height }, config
-    }
+    return [{height: spring(height, config)}]
   }
 
   render() {
     const { toggle, component, className, defaultHeight, springConfig, style, children, forceAutoHeight, measure, instant } = this.props;
     const childrenToRender = createElement(
-      Spring,
+      StaggeredMotion,
       {
-        endValue: this._getEndValue
+        styles: this._getEndValues
       },
-      ({val: {height}}) =>
-        createElement(
+      (values) => {
+        const height = values[0].height
+        
+        return createElement(
           component,
           {
             className,
@@ -68,6 +68,7 @@ class Slideable extends Component {
           },
           children
         )
+      }
     )
 
     return createElement(

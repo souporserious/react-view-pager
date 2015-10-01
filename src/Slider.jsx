@@ -1,5 +1,5 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
-import { Spring, presets } from 'react-motion'
+import { Motion, spring, presets } from 'react-motion'
 import Slide from './Slide'
 
 class Slider extends Component {
@@ -170,13 +170,13 @@ class Slider extends Component {
       !autoHeight ?
       createElement(component, {className}, childrenToRender) :
       createElement(
-        Spring,
+        Motion,
         {
-          endValue: {
-            val: {height: currHeight}, sliderConfig
+          style: {
+            height: spring(currHeight || 0, sliderConfig)
           }
         },
-        ({val: {height}}) => {
+        ({height}) => {
           return createElement(
             component,
             {

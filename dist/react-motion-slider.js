@@ -87,7 +87,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _react = __webpack_require__(2);
 
@@ -100,6 +100,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _Slide2 = _interopRequireDefault(_Slide);
 
 	var Slider = (function (_Component) {
+	  _inherits(Slider, _Component);
+
 	  function Slider() {
 	    var _this = this;
 
@@ -142,8 +144,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	  }
 
-	  _inherits(Slider, _Component);
-
 	  _createClass(Slider, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
@@ -170,10 +170,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	      }
 	    }
-	  }, {
-	    key: 'shouldComponentUpdate',
 
 	    // don't update unless height has changed or we have stopped sliding
+	  }, {
+	    key: 'shouldComponentUpdate',
 	    value: function shouldComponentUpdate(nextProps, nextState) {
 	      var _state3 = this.state;
 	      var currIndex = _state3.currIndex;
@@ -194,6 +194,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function next() {
 	      this._slide('next');
 	    }
+
+	    // does not animate to new height, but primes the slider whenever it moves to
+	    // a new slide so you don't get a jump from having an old height, useful if
+	    // children are affecting the wrapper height after moving to a new slide
 	  }, {
 	    key: '_getDirection',
 	    value: function _getDirection(nextIndex) {
@@ -289,12 +293,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }, child);
 	      });
 
-	      return !autoHeight ? (0, _react.createElement)(component, { className: className }, childrenToRender) : (0, _react.createElement)(_reactMotion.Spring, {
-	        endValue: {
-	          val: { height: currHeight }, sliderConfig: sliderConfig
+	      return !autoHeight ? (0, _react.createElement)(component, { className: className }, childrenToRender) : (0, _react.createElement)(_reactMotion.Motion, {
+	        style: {
+	          height: (0, _reactMotion.spring)(currHeight || 0, sliderConfig)
 	        }
 	      }, function (_ref) {
-	        var height = _ref.val.height;
+	        var height = _ref.height;
 
 	        return (0, _react.createElement)(component, {
 	          className: className,
@@ -336,10 +340,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = Slider;
 	module.exports = exports['default'];
 
-	// does not animate to new height, but primes the slider whenever it moves to
-	// a new slide so you don't get a jump from having an old height, useful if
-	// children are affecting the wrapper height after moving to a new slide
-
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
@@ -370,7 +370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _react = __webpack_require__(2);
 
@@ -381,6 +381,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TRANSFORM = __webpack_require__(5)('transform');
 
 	var Slide = (function (_Component) {
+	  _inherits(Slide, _Component);
+
 	  function Slide() {
 	    var _this = this;
 
@@ -391,7 +393,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._firstPass = true;
 	    this._lastHeight = null;
 
-	    this._getEndValue = function (prevValue) {
+	    this._getEndValues = function (prevValue) {
 	      var _props = _this.props;
 	      var nextIndex = _props.nextIndex;
 	      var isSliding = _props.isSliding;
@@ -400,7 +402,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var config = isSliding ? slideConfig : [];
 	      var x = isSliding ? 100 : 0;
 
-	      if (prevValue && prevValue.val.x === x && isSliding) {
+	      if (prevValue && prevValue[0].x === x && isSliding) {
 	        // reset x value so we don't immediately hit onSlideEnd again
 	        x = 0;
 
@@ -408,11 +410,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.props.onSlideEnd(nextIndex);
 	      }
 
-	      return { val: { x: x }, config: config };
+	      return [{ x: (0, _reactMotion.spring)(x, slideConfig) }];
 	    };
 	  }
-
-	  _inherits(Slide, _Component);
 
 	  _createClass(Slide, [{
 	    key: 'componentDidMount',
@@ -499,14 +499,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var child = _react.Children.only(this.props.children);
 
-	      return (0, _react.createElement)(_reactMotion.Spring, {
-	        endValue: this._getEndValue
-	      }, function (_ref) {
-	        var x = _ref.val.x;
-
-	        _this2._lastX = x;
+	      return (0, _react.createElement)(_reactMotion.StaggeredMotion, {
+	        styles: this._getEndValues
+	      }, function (values) {
 	        return (0, _react.cloneElement)(child, {
-	          style: _this2._getStyles(x)
+	          style: _this2._getStyles(values[0].x)
 	        });
 	      });
 	    }

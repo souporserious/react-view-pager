@@ -1,4 +1,4 @@
-## React Motion Slider 0.2.0
+## React Motion Slider 0.3.0
 
 Slider/Carousel powered by React Motion.
 
@@ -29,6 +29,10 @@ This is highly experimental. API is changing right now and props are going in an
 ```
 
 ## CHANGELOG
+### 0.3.0
+**Breaking Changes**
+Upgraded to React Motion 0.3.0
+
 ### 0.2.0
 **Breaking Changes**
 Refactored almost all code, somewhat similiar API, touch support and some other props were removed for now, will be back in soon
