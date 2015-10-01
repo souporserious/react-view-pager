@@ -1,6 +1,6 @@
 {
   "name": "react-motion-slider",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Slider/Carousel powered by React Motion.",
   "main": "lib/react-motion-slider.js",
   "scripts": {
@@ -45,7 +45,7 @@
     "node-libs-browser": "^0.5.2",
     "node-sass": "^3.2.0",
     "react": "^0.13.3 || ^0.14.0-beta1",
-    "react-measure": "^0.1.2",
+    "react-measure": "^0.1.3",
     "sass-loader": "^1.0.2",
     "style-loader": "^0.12.3",
     "webpack": "^1.9.12",

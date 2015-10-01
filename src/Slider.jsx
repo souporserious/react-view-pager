@@ -1,239 +1,195 @@
-import React, { Component, PropTypes, Children } from 'react';
-import { Spring, presets } from 'react-motion';
-import Measure from 'react-measure';
-import getPrefix from './getPrefix.js';
+import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
+import { Spring, presets } from 'react-motion'
+import Slide from './Slide'
 
 class Slider extends Component {
   static propTypes = {
-    draggable: PropTypes.bool,
+    component: PropTypes.string,
     currentKey: PropTypes.any,
-    //currentIndex: PropTypes.number,
-    springConfig: PropTypes.array,
-    swipeThreshold: PropTypes.number,
-    flickTimeout: PropTypes.number,
-    slidesToShow: PropTypes.number,
-    slidesToMove: PropTypes.number
+    autoHeight: PropTypes.bool,
+    sliderConfig: PropTypes.array,
+    slideConfig: PropTypes.array,
+    onChange: PropTypes.func
   }
 
   static defaultProps = {
-    draggable: true,
+    component: 'div',
     currentKey: 0,
-    //currentIndex: 0, soon
-    springConfig: presets.noWobble,
-    swipeThreshold: 10,
-    flickTimeout: 300,
-    slidesToShow: 1,
-    slidesToMove: 1
+    autoHeight: false,
+    sliderConfig: presets.noWobble,
+    slideConfig: presets.noWobble,
+    onChange: () => null
   }
 
-  slideCount = this.props.children.length
-  isSliding = false
-  transform = getPrefix('transform')
-  deltaX = false
-  deltaY = false
-  startX = false
-  startY = false
-  isDragging = false
-  isSwiping = false
-  isFlick = false
   state = {
-    currIndex: this._getCurrentChildIndex(this.props),
+    currIndex: this._getIndexFromKey(this.props),
+    nextIndex: null,
     direction: null,
-    dimensions: {},
-    sliderWidth: (this.slideCount * 100) / this.props.slidesToShow
+    isSliding: false,
+    currHeight: null
+  }
+  _slideCount = this.props.children.length
+
+  componentDidMount() {
+    this._node = React.findDOMNode(this)
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({currIndex: this._getCurrentChildIndex(nextProps)})
+    const { currIndex, isSliding } = this.state
+    const nextIndex = this._getIndexFromKey(nextProps)
+
+    // keep an up to date count
+    this._slideCount = nextProps.children.length
+
+    // don't update state if index hasn't changed and we're not in the middle of a slide
+    if(currIndex !== nextIndex && !isSliding) {
+      this.setState({
+        nextIndex,
+        direction: this._getDirection(nextIndex),
+        isSliding: true
+      })
+    }
+  }
+
+  // don't update unless height has changed or we have stopped sliding
+  shouldComponentUpdate(nextProps, nextState) {
+    const { currIndex, currHeight, isSliding } = this.state
+    const newIndex = this._getIndexFromKey(nextProps)
+
+    return (currHeight !== nextState.currHeight) || !isSliding
   }
   
   prev() {
-    if(this.state.currIndex <= 0) return;
-    this.setState({currIndex: this.state.currIndex - 1, direction: null});
+    this._slide('prev')
   }
   
   next() {
-    if(this.state.currIndex >= this.slideCount-1) return;
-    this.setState({currIndex: this.state.currIndex + 1, direction: null});
+    this._slide('next')
   }
 
-  _getCurrentChildIndex(props) {
+  // does not animate to new height, but primes the slider whenever it moves to
+  // a new slide so you don't get a jump from having an old height, useful if
+  // children are affecting the wrapper height after moving to a new slide
+  setHeight = (height) => {
+    this.setState({
+      currHeight: isNaN(height) ? this._node.scrollHeight : height
+    })
+  }
+
+  _getDirection(nextIndex) {
+    return this.state.currIndex > nextIndex ? 'prev' : 'next'
+  }
+
+  _slide(direction) {
+    const { currIndex, isSliding } = this.state
+    const nextIndex = this._getNewIndex(direction)
+
+    if(isSliding || currIndex === nextIndex) return
+
+    this.setState({
+      nextIndex,
+      direction,
+      isSliding: true
+    })
+  }
+
+  _getKeyFromIndex(index) {
+    const { children } = this.props
+    let key = null
+
+    Children.forEach(children, (child, _index) => {
+      if(index === _index) {
+        key = child.key
+        return
+      }
+    })
+    return key
+  }
+
+  _getIndexFromKey(props) {
     const { children, currentKey } = props
     let index = 0
 
-    Children.forEach(children, (child, i) => {
+    Children.forEach(children, (child, _index) => {
       if(child.key === currentKey) {
-        index = i
+        index = _index
         return
       }
     })
     return index
   }
 
-  _getChildByIndex(i) {
-    const { children } = this.props
-    let child = null
+  _getNewIndex(direction) {
+    const { currIndex } = this.state
+    const delta = (direction === 'prev') ? -1 : 1
+    const willWrap = (direction === 'prev' && currIndex === 0) ||
+                     (direction === 'next' && currIndex === this._slideCount - 1)
 
-    Children.forEach(children, (_child, _i) => {
-      if(i === _i) {
-        child = _child
-        return
+    return willWrap ? currIndex : (currIndex + delta) % this._slideCount
+  }
+
+  _handleSlideEnd = (newIndex) => {
+    const { currIndex, nextIndex } = this.state
+
+    this.setState({
+      currIndex: newIndex,
+      nextIndex: null,
+      direction: null,
+      isSliding: false
+    }, () => {
+      // fire callback if values changed
+      if(currIndex !== newIndex) {
+        const key = this._getKeyFromIndex(newIndex)
+        this.props.onChange(key, newIndex)
       }
     })
-    return child
-  }
-
-  _isEndSlide() {
-    const { currIndex } = this.state;
-    return currIndex === 0 || currIndex === this.slideCount - 1;
-  }
-  
-  _isSwipe(threshold) {
-    return Math.abs(this.deltaX) > Math.max(threshold, Math.abs(this.deltaY));
-  }
-  
-  _dragStart = (e) =>  {
-    // get proper event
-    const touch = e.touches && e.touches[0] || e;
-
-    // we're now dragging
-    this.isDragging = true;
-
-    // reset deltas
-    this.deltaX = this.deltaY = 0;
-
-    // store the initial starting coordinates
-    this.startX = touch.pageX;
-    this.startY = touch.pageY;
-
-    // determine if a flick or not
-    this.isFlick = true;
-
-    setTimeout(() => {
-      this.isFlick = false;
-    }, this.props.flickTimeout);
-  }
-
-  _dragMove = (e) =>  {
-    // if we aren't dragging bail
-    if(!this.isDragging) return;
-
-    const touch = e.touches && e.touches[0] || e;
-    const { currIndex, sliderWidth } = this.state;
-    const threshold = sliderWidth / 2;
-
-    // determine how much we have moved
-    this.deltaX = this.startX - touch.pageX;
-    this.deltaY = this.startY - touch.pageY;
-
-    if(this._isSwipe(this.props.swipeThreshold)) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.isSwiping = true;
-    }
-
-    if(this.isSwiping) {
-      this.setState({direction: this.deltaX / sliderWidth});
-    }
-  }
-
-  _dragEnd = () =>  {
-    const { currIndex, sliderWidth } = this.state;
-    const threshold = this.isFlick ? this.props.swipeThreshold : sliderWidth / 2;
-
-    // handle swipe
-    if(this._isSwipe(threshold)) {
-      // id if an end slide, we still need to set the direction
-      if(this._isEndSlide()) {
-        this.setState({direction: 0});
-      }
-      (this.deltaX < 0) ? this.prev() : this.next();
-    } else {
-      this.setState({direction: 0});
-    }
-
-    // we are no longer swiping or dragging
-    this.isSwiping = this.isDragging = false;
-  }
-
-  _dragPast = () =>  {
-    // perform a dragend if we dragged past component
-    if(this.isDragging) {
-      this._dragEnd();
-    }
-  }
-
-  _storeDimensions = (key, childDimensions) => {
-    const { dimensions } = this.state
-    dimensions[key] = childDimensions
-    this.setState({dimensions})
   }
   
   render() {
-    const { children, springConfig, draggable } = this.props;
-    const { currIndex, direction, sliderWidth } = this.state;
-    // normalize index when on end slides
-    const slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove;
-    const destX = -((direction + (currIndex * slidesToMove)) * 100) / this.slideCount;
-    const currChild = this._getChildByIndex(currIndex)
-    const dimensions = this.state.dimensions[currChild.key]
-    const height = dimensions && dimensions.height || 0
+    const { component, children, className, autoHeight, sliderConfig, slideConfig } = this.props;
+    const { currIndex, nextIndex, direction, isSliding, currHeight } = this.state;
+
+    const childrenToRender = Children.map(children, (child, index) => {
+      return createElement(
+        Slide,
+        {
+          index,
+          currIndex,
+          nextIndex,
+          direction,
+          isSliding,
+          slideConfig,
+          onSlideEnd: this._handleSlideEnd,
+          onGetHeight: this.setHeight
+        },
+        child
+      )
+    })
 
     return(
-      <Spring
-        endValue={{val: {height, x: destX}, config: springConfig}}
-      >
-        {({val: {height, x}}) => {
-          this.isSliding = x !== destX;
-
-          let sliderClassName = 'slider';
-          let modifiers = [];
-
-          if(this.isSliding) {
-            modifiers.push('is-sliding');
+      !autoHeight ?
+      createElement(component, {className}, childrenToRender) :
+      createElement(
+        Spring,
+        {
+          endValue: {
+            val: {height: currHeight}, sliderConfig
           }
-
-          if(draggable) {
-            modifiers.push('is-draggable');
-          }
-
-          if(this.isDragging) {
-            modifiers.push('is-dragging');
-          }
-
-          sliderClassName += modifiers.map(modifier => ` ${sliderClassName}--${modifier}`).join('');
-
-          return(
-            <div className={sliderClassName}>
-              <ul
-                className="slider__track"
-                onMouseDown={draggable && this._dragStart}
-                onMouseMove={draggable && this._dragMove}
-                onMouseUp={draggable && this._dragEnd}
-                onMouseLeave={draggable && this._dragPast}
-                onTouchStart={draggable && this._dragStart}
-                onTouchMove={draggable && this._dragMove}
-                onTouchEnd={draggable && this._dragEnd}
-                style={{
-                  height,
-                  width: sliderWidth + '%',
-                  [this.transform]: `translate3d(${x}%, 0, 0)`
-                }}
-              >
-                {Children.map(children, child =>
-                  <Measure
-                    whitelist={['height']}
-                    onChange={this._storeDimensions.bind(null, child.key)}
-                  >
-                    {child}
-                  </Measure>
-                )}
-              </ul>
-            </div>
-          );
-        }}
-      </Spring>
-    );
+        },
+        ({val: {height}}) => {
+          return createElement(
+            component,
+            {
+              className,
+              style: {
+                height: isSliding ? height : null
+              }
+            },
+            childrenToRender
+          )
+        }
+      )
+    )
   }
 }
 
