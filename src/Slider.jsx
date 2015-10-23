@@ -1,10 +1,12 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import { Motion, spring, presets } from 'react-motion'
+import modulo from './modulo';
 import Slide from './Slide'
 
 class Slider extends Component {
   static propTypes = {
     component: PropTypes.string,
+    wrap: PropTypes.bool,
     currentKey: PropTypes.any,
     autoHeight: PropTypes.bool,
     sliderConfig: PropTypes.array,
@@ -15,6 +17,7 @@ class Slider extends Component {
   static defaultProps = {
     component: 'div',
     currentKey: 0,
+    wrap: true,
     autoHeight: false,
     sliderConfig: presets.noWobble,
     slideConfig: presets.noWobble,
@@ -58,11 +61,11 @@ class Slider extends Component {
 
     return (currHeight !== nextState.currHeight) || !isSliding
   }
-  
+
   prev() {
     this._slide('prev')
   }
-  
+
   next() {
     this._slide('next')
   }
@@ -122,6 +125,10 @@ class Slider extends Component {
   _getNewIndex(direction) {
     const { currIndex } = this.state
     const delta = (direction === 'prev') ? -1 : 1
+
+    if(this.props.wrap) {
+      return modulo(currIndex + delta, this._slideCount)
+    }
     const willWrap = (direction === 'prev' && currIndex === 0) ||
                      (direction === 'next' && currIndex === this._slideCount - 1)
 
@@ -144,7 +151,7 @@ class Slider extends Component {
       }
     })
   }
-  
+
   render() {
     const { component, children, className, autoHeight, sliderConfig, slideConfig } = this.props;
     const { currIndex, nextIndex, direction, isSliding, currHeight } = this.state;
