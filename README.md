@@ -1,5 +1,7 @@
 ## React Motion Slider 0.3.0
 
+[![Dependency Status](https://david-dm.org/souporserious/react-motion-slider.svg)](https://david-dm.org/souporserious/react-motion-slider)
+
 Slider/Carousel powered by React Motion.
 
 ## Disclaimer
