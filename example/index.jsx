@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
 import Alt from 'alt'
 import connectToStores from 'alt/utils/connectToStores'
-import Slideable from './Slideable'
 import Slider from '../src/react-motion-slider'
 
 import './main.scss';
@@ -80,17 +80,9 @@ class Two extends Component {
     return(
       <div className="c c2">
         <button onClick={this._handleToggle}>Toggle</button>
-        <Slideable
-          forceAutoHeight={true}
-          toggle={!this.state.toggle}
-          onSlideEnd={() => {
-            this.props.onHeightUpdate()
-          }}
-        >
-          <div>
-            <h1>Component 2</h1>
-          </div>
-        </Slideable>
+        <div>
+          <h1>Component 2</h1>
+        </div>
       </div>
     )
   }
@@ -192,7 +184,7 @@ class App extends Component {
           <Slider
             ref="slider"
             className="slider"
-            autoHeight={true}
+            //autoHeight={true}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}
           >
@@ -228,4 +220,4 @@ class App extends Component {
   }
 }
 
-React.render(<App />, document.body);
+ReactDOM.render(<App />, document.getElementById('app'))

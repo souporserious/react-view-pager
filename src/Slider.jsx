@@ -1,4 +1,5 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
+import ReactDOM from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import modulo from './modulo';
 import Slide from './Slide'
@@ -35,7 +36,7 @@ class Slider extends Component {
   _slideCount = this.props.children.length
 
   componentDidMount() {
-    this._node = React.findDOMNode(this)
+    this._node = ReactDOM.findDOMNode(this)
   }
 
   componentWillReceiveProps(nextProps) {

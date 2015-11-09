@@ -29,7 +29,8 @@
   },
   "homepage": "https://github.com/souporserious/react-motion-slider",
   "dependencies": {
-    "react": ">=0.13.2 || ^0.14.0-beta1",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
     "react-motion": "^0.3.0",
     "get-prefix": "^1.0.0"
   },

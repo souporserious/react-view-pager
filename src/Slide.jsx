@@ -1,4 +1,5 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
+import ReactDOM from 'react-dom'
 import { StaggeredMotion, spring, presets } from 'react-motion'
 
 const TRANSFORM = require('get-prefix')('transform')
@@ -8,7 +9,7 @@ class Slide extends Component {
   _lastHeight = null
 
   componentDidMount() {
-    this._node = React.findDOMNode(this)
+    this._node = ReactDOM.findDOMNode(this)
     this._getHeight(this.props.currIndex)
   }
 
