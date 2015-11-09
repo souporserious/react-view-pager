@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import Alt from 'alt'
 import connectToStores from 'alt/utils/connectToStores'
+import Collapse from 'react-collapse'
 import Slider from '../src/react-motion-slider'
 
 import './main.scss';
@@ -68,21 +69,26 @@ class One extends Component {
 }
 
 class Two extends Component {
-  state = {toggle: false}
-  
-  _handleToggle = () => {
-    this.setState({toggle: !this.state.toggle})
+  state = {
+    toggle: true
   }
 
   render() {
     const { isCurrentSlide } = this.props
+    const { toggle } = this.state
 
     return(
       <div className="c c2">
-        <button onClick={this._handleToggle}>Toggle</button>
-        <div>
-          <h1>Component 2</h1>
-        </div>
+        <button
+          onClick={() => this.setState({toggle: !toggle})}
+        >
+          Toggle
+        </button>
+        <Collapse isOpened={toggle}>
+          <div>
+            <h1 style={{margin: 0}}>Component 2</h1>
+          </div>
+        </Collapse>
       </div>
     )
   }
