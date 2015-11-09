@@ -1,7 +1,7 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import { StaggeredMotion, spring, presets } from 'react-motion'
 
-const TRANSFORM = require('./getPrefix.js')('transform')
+const TRANSFORM = require('get-prefix')('transform')
 
 class Slide extends Component {
   _firstPass = true

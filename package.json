@@ -28,11 +28,10 @@
     "url": "https://github.com/souporserious/react-motion-slider/issues"
   },
   "homepage": "https://github.com/souporserious/react-motion-slider",
-  "peerDependencies": {
-    "react": ">=0.13.2 || ^0.14.0-beta1"
-  },
   "dependencies": {
-    "react-motion": "^0.3.0"
+    "react": ">=0.13.2 || ^0.14.0-beta1",
+    "react-motion": "^0.3.0",
+    "get-prefix": "^1.0.0"
   },
   "devDependencies": {
     "alt": "^0.17.3",
