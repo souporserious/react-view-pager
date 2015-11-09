@@ -21,7 +21,7 @@ class Slide extends Component {
     const { index } = this.props
     const height = this._node.scrollHeight
     
-    if(index === nextIndex && height !== this._lastHeight) {
+    if (index === nextIndex && height !== this._lastHeight) {
       this.props.onGetHeight(height)
     }
 
@@ -33,7 +33,7 @@ class Slide extends Component {
     const config = isSliding ? slideConfig : []
     let x = isSliding ? 100 : 0
 
-    if(prevValue && prevValue[0].x === x && isSliding) {
+    if (prevValue && prevValue[0].x === x && isSliding) {
       // reset x value so we don't immediately hit onSlideEnd again
       x = 0
 
@@ -54,10 +54,10 @@ class Slide extends Component {
     }
     
     // only apply styles to slides that need to move
-    if(currIndex === index || nextIndex === index) {
+    if (currIndex === index || nextIndex === index) {
       let translateX = (direction === 'prev') ? x : -x
 
-      if(nextIndex === index) {
+      if (nextIndex === index) {
         style.position = 'absolute'
 
         if(direction === 'prev') {
@@ -68,7 +68,7 @@ class Slide extends Component {
       }
 
       // don't apply any styles if we aren't sliding
-      if(!isSliding) {
+      if (!isSliding) {
         style = {}
       } else {
         style[TRANSFORM] = `translate3d(${translateX}%, 0, 0)`
@@ -76,7 +76,7 @@ class Slide extends Component {
     } else {
       // don't set outside slides to "display: none" on first pass, this allows
       // proper DOM calculation for height to be achieved
-      if(this._firstPass) {
+      if (this._firstPass) {
         style = {
           width: '100%',
           height: 0,

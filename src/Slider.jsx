@@ -31,6 +31,7 @@ class Slider extends Component {
     isSliding: false,
     currHeight: null
   }
+
   _slideCount = this.props.children.length
 
   componentDidMount() {
@@ -45,7 +46,7 @@ class Slider extends Component {
     this._slideCount = nextProps.children.length
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
-    if(currIndex !== nextIndex && !isSliding) {
+    if (currIndex !== nextIndex && !isSliding) {
       this.setState({
         nextIndex,
         direction: this._getDirection(nextIndex),
@@ -87,7 +88,7 @@ class Slider extends Component {
     const { currIndex, isSliding } = this.state
     const nextIndex = this._getNewIndex(direction)
 
-    if(isSliding || currIndex === nextIndex) return
+    if (currIndex === nextIndex) return
 
     this.setState({
       nextIndex,
@@ -101,7 +102,7 @@ class Slider extends Component {
     let key = null
 
     Children.forEach(children, (child, _index) => {
-      if(index === _index) {
+      if (index === _index) {
         key = child.key
         return
       }
@@ -114,7 +115,7 @@ class Slider extends Component {
     let index = 0
 
     Children.forEach(children, (child, _index) => {
-      if(child.key === currentKey) {
+      if (child.key === currentKey) {
         index = _index
         return
       }
@@ -126,9 +127,10 @@ class Slider extends Component {
     const { currIndex } = this.state
     const delta = (direction === 'prev') ? -1 : 1
 
-    if(this.props.wrap) {
+    if (this.props.wrap) {
       return modulo(currIndex + delta, this._slideCount)
     }
+
     const willWrap = (direction === 'prev' && currIndex === 0) ||
                      (direction === 'next' && currIndex === this._slideCount - 1)
 
@@ -145,7 +147,7 @@ class Slider extends Component {
       isSliding: false
     }, () => {
       // fire callback if values changed
-      if(currIndex !== newIndex) {
+      if (currIndex !== newIndex) {
         const key = this._getKeyFromIndex(newIndex)
         this.props.onChange(key, newIndex)
       }
@@ -200,4 +202,4 @@ class Slider extends Component {
   }
 }
 
-export default Slider;
+export default Slider
