@@ -8,6 +8,7 @@ class Slider extends Component {
   static propTypes = {
     component: PropTypes.string,
     wrap: PropTypes.bool,
+    vertical: PropTypes.bool,
     currentKey: PropTypes.any,
     autoHeight: PropTypes.bool,
     sliderConfig: PropTypes.array,
@@ -17,8 +18,9 @@ class Slider extends Component {
 
   static defaultProps = {
     component: 'div',
-    currentKey: 0,
     wrap: true,
+    vertical: false,
+    currentKey: 0,
     autoHeight: false,
     sliderConfig: presets.noWobble,
     slideConfig: presets.noWobble,
@@ -156,8 +158,8 @@ class Slider extends Component {
   }
 
   render() {
-    const { component, children, className, autoHeight, sliderConfig, slideConfig } = this.props;
-    const { currIndex, nextIndex, direction, isSliding, currHeight } = this.state;
+    const { component, children, className, vertical, autoHeight, sliderConfig, slideConfig } = this.props
+    const { currIndex, nextIndex, direction, isSliding, currHeight } = this.state
 
     const childrenToRender = Children.map(children, (child, index) => {
       return createElement(
@@ -168,6 +170,7 @@ class Slider extends Component {
           nextIndex,
           direction,
           isSliding,
+          vertical,
           slideConfig,
           onSlideEnd: this._handleSlideEnd,
           onGetHeight: this.setHeight

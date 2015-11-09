@@ -46,7 +46,7 @@ class Slide extends Component {
   }
 
   _getStyles(x) {
-    const { index, currIndex, nextIndex, direction, isSliding } = this.props
+    const { index, currIndex, nextIndex, direction, isSliding, vertical } = this.props
     let style = {
       width: '100%',
       position: null,
@@ -56,15 +56,15 @@ class Slide extends Component {
     
     // only apply styles to slides that need to move
     if (currIndex === index || nextIndex === index) {
-      let translateX = (direction === 'prev') ? x : -x
+      let translate = (direction === 'prev') ? x : -x
 
       if (nextIndex === index) {
         style.position = 'absolute'
 
         if(direction === 'prev') {
-          translateX -= 100
+          translate -= 100
         } else {
-          translateX += 100
+          translate += 100
         }
       }
 
@@ -72,7 +72,12 @@ class Slide extends Component {
       if (!isSliding) {
         style = {}
       } else {
-        style[TRANSFORM] = `translate3d(${translateX}%, 0, 0)`
+        let translateAxis = `translate3d(${translate}%, 0, 0)`
+
+        if (vertical) {
+          translateAxis = `translate3d(0, ${translate}%, 0)`
+        }
+        style[TRANSFORM] = translateAxis
       }
     } else {
       // don't set outside slides to "display: none" on first pass, this allows
