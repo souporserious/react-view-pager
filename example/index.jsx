@@ -138,7 +138,7 @@ class View extends Component {
     return(
       <div
         className="slide"
-        style={style}
+        style={{...style, height: 200}}
       >
         {this.props.children}
       </div>
@@ -166,11 +166,11 @@ class App extends Component {
   componentDidUpdate() {
   }
 
-  prev() {
+  prev = () => {
     this.refs['slider'].prev()
   }
 
-  next() {
+  next = () => {
     this.refs['slider'].next()
   }
 
@@ -190,7 +190,9 @@ class App extends Component {
           <Slider
             ref="slider"
             className="slider"
-            //autoHeight={true}
+            //vertical={true}
+            autoHeight={true}
+            slideConfig={[300, 30]}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}
           >
@@ -206,10 +208,10 @@ class App extends Component {
             }
           </Slider>
         </div>
-        {/*<nav className="slider__controls">
-          <a className="slider__control slider__control--prev" onClick={this.prev.bind(this)}>Prev</a>
-          <a className="slider__control slider__control--next" onClick={this.next.bind(this)}>Next</a>
-        </nav>*/}
+        <nav className="slider__controls">
+          <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
+          <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
+        </nav>
         <nav className="slider__pager">
           {this.state.slides.map((slide, i) =>
             <a
