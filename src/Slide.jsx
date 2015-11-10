@@ -2,6 +2,7 @@ import React, { Component, PropTypes, Children, cloneElement, createElement } fr
 import ReactDOM from 'react-dom'
 import shallowCompare from 'react-addons-shallow-compare'
 import { StaggeredMotion, spring, presets } from 'react-motion'
+import getDifference from './get-difference'
 
 const TRANSFORM = require('get-prefix')('transform')
 
@@ -27,7 +28,7 @@ class Slide extends Component {
     const height = this._slide.scrollHeight
     
     if (index === nextIndex && height !== this._lastHeight) {
-      this.props.onGetHeight(height)
+      this.props.onGetHeight(height, index)
     }
 
     this._lastHeight = height
@@ -72,6 +73,11 @@ class Slide extends Component {
         } else {
           translate += 100
         }
+      }
+
+      if (this._lastHeight < this.props.nextHeight && isSliding) {
+        const difference = getDifference(this._lastHeight, this.props.nextHeight)
+        translate += Math.abs(difference)
       }
 
       // don't apply any styles if we aren't sliding

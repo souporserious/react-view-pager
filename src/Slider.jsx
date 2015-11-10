@@ -93,9 +93,10 @@ class Slider extends Component {
   // does not animate to new height, but primes the slider whenever it moves to
   // a new slide so you don't get a jump from having an old height, useful if
   // children are affecting the wrapper height after moving to a new slide
-  setHeight = (height) => {
+  setHeight = (height, index) => {
     this.setState({
-      currHeight: isNaN(height) ? this._node.scrollHeight : height
+      currHeight: isNaN(height) ? this._node.scrollHeight : height,
+      nextHeight: index === this.state.nextIndex ? height : null
     })
   }
 
@@ -186,7 +187,7 @@ class Slider extends Component {
 
   render() {
     const { component, children, className, vertical, autoHeight, sliderConfig, slideConfig } = this.props
-    const { currIndex, nextIndex, direction, isSliding, currHeight } = this.state
+    const { currIndex, nextIndex, nextHeight, direction, isSliding, currHeight } = this.state
 
     const childrenToRender = Children.map(children, (child, index) => {
       return createElement(
@@ -195,6 +196,7 @@ class Slider extends Component {
           index,
           currIndex,
           nextIndex,
+          nextHeight,
           direction,
           isSliding,
           vertical,
