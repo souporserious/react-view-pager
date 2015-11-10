@@ -4,12 +4,27 @@ import { Motion, spring, presets } from 'react-motion'
 import modulo from './modulo';
 import Slide from './Slide'
 
+// ** for vertical slides **
+// find the bigger of the two slides and see how
+// much smaller it is compared to the bigger one
+// so if
+// a = 100%
+// b = 120% (b might equal this)
+// this way we get an even slide 
+// could work well for horizontal as well width odd width slides
+// 
+// 
+// touch / swipe
+// http://codepen.io/barTsoury/post/optimization-of-swipe-gesture-on-list-items
+// https://github.com/kenwheeler/nuka-carousel/blob/master/src/carousel.js#L162
+
 class Slider extends Component {
   static propTypes = {
     component: PropTypes.string,
     wrap: PropTypes.bool,
     vertical: PropTypes.bool,
     currentKey: PropTypes.any,
+    currentIndex: PropTypes.number,
     autoHeight: PropTypes.bool,
     sliderConfig: PropTypes.array,
     slideConfig: PropTypes.array,
@@ -21,6 +36,7 @@ class Slider extends Component {
     wrap: true,
     vertical: false,
     currentKey: 0,
+    currentIndex: 0,
     autoHeight: false,
     sliderConfig: presets.noWobble,
     slideConfig: presets.noWobble,
@@ -28,7 +44,7 @@ class Slider extends Component {
   }
 
   state = {
-    currIndex: this._getIndexFromKey(this.props),
+    currIndex: this._getNextIndex(this.props),
     nextIndex: null,
     direction: null,
     isSliding: false,
@@ -43,7 +59,7 @@ class Slider extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { currIndex, isSliding } = this.state
-    const nextIndex = this._getIndexFromKey(nextProps)
+    const nextIndex = this._getNextIndex(nextProps)
 
     // keep an up to date count
     this._slideCount = nextProps.children.length
@@ -83,21 +99,31 @@ class Slider extends Component {
     })
   }
 
+  _getNextIndex(props) {
+    return this.props.currentIndex || this._getIndexFromKey(props)
+  }
+
   _getDirection(nextIndex) {
     return this.state.currIndex > nextIndex ? 'prev' : 'next'
   }
 
   _slide(direction) {
-    const { currIndex, isSliding } = this.state
     const nextIndex = this._getNewIndex(direction)
-
-    if (currIndex === nextIndex) return
-
+//console.log(nextIndex)
+    // if same index, bail out
+    //if (this._lastIndex === nextIndex) return
+    
     this.setState({
       nextIndex,
       direction,
       isSliding: true
     })
+
+    // only store last index if we are not sliding
+    // we only want to move ahead two ahead at a time
+    //if (!this.state.isSliding) {
+      this._lastIndex = nextIndex
+    //}
   }
 
   _getKeyFromIndex(index) {
@@ -127,7 +153,8 @@ class Slider extends Component {
   }
 
   _getNewIndex(direction) {
-    const { currIndex } = this.state
+    // use the last index if we're in the middle of a slide since currIndex will be stale
+    const currIndex = this.state.isSliding ? this._lastIndex : this.state.currIndex
     const delta = (direction === 'prev') ? -1 : 1
 
     if (this.props.wrap) {
