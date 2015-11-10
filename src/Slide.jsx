@@ -1,5 +1,6 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import ReactDOM from 'react-dom'
+import shallowCompare from 'react-addons-shallow-compare'
 import { StaggeredMotion, spring, presets } from 'react-motion'
 
 const TRANSFORM = require('get-prefix')('transform')
@@ -9,9 +10,12 @@ class Slide extends Component {
   _lastHeight = null
 
   componentDidMount() {
-    this._node = ReactDOM.findDOMNode(this)
     this._getHeight(this.props.currIndex)
   }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return shallowCompare(this, nextProps, nextState)
+  // }
 
   componentDidUpdate() {
     this._firstPass = false
@@ -20,7 +24,7 @@ class Slide extends Component {
 
   _getHeight(nextIndex) {
     const { index } = this.props
-    const height = this._node.scrollHeight
+    const height = this._slide.scrollHeight
     
     if (index === nextIndex && height !== this._lastHeight) {
       this.props.onGetHeight(height)
@@ -32,20 +36,22 @@ class Slide extends Component {
   _getEndValues = (prevValue) => {
     const { nextIndex, isSliding, slideConfig } = this.props
     const config = isSliding ? slideConfig : []
-    let x = isSliding ? 100 : 0
+    let endValue = isSliding ? 100 : 0
 
-    if (prevValue && prevValue[0].x === x && isSliding) {
+    if (prevValue &&
+        (prevValue[0].endValue).toFixed(2) === (endValue).toFixed(2) &&
+        isSliding) {
       // reset x value so we don't immediately hit onSlideEnd again
-      x = 0
+      endValue = 0
 
       // fire callback to Slider
       this.props.onSlideEnd(nextIndex)
     }
 
-    return [{x: spring(x, slideConfig)}]
+    return [{endValue: spring(endValue, slideConfig)}]
   }
 
-  _getStyles(x) {
+  _getStyles(endValue) {
     const { index, currIndex, nextIndex, direction, isSliding, vertical } = this.props
     let style = {
       width: '100%',
@@ -56,7 +62,7 @@ class Slide extends Component {
     
     // only apply styles to slides that need to move
     if (currIndex === index || nextIndex === index) {
-      let translate = (direction === 'prev') ? x : -x
+      let translate = (direction === 'prev') ? endValue : -endValue
 
       if (nextIndex === index) {
         style.position = 'absolute'
@@ -104,9 +110,10 @@ class Slide extends Component {
       {
         styles: this._getEndValues
       },
-      (values) => {
+      ([{endValue}]) => {
         return cloneElement(child, {
-          style: this._getStyles(values[0].x)
+          ref: c => this._slide = ReactDOM.findDOMNode(c),
+          style: this._getStyles(endValue)
         })
       }
     )
