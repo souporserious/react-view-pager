@@ -138,7 +138,7 @@ class View extends Component {
     return(
       <div
         className="slide"
-        style={{...style, height: 200}}
+        style={{...style}}
       >
         {this.props.children}
       </div>
@@ -190,7 +190,7 @@ class App extends Component {
           <Slider
             ref="slider"
             className="slider"
-            //vertical={true}
+            vertical
             autoHeight={true}
             slideConfig={[300, 30]}
             currentKey={this.props.currentRoute}

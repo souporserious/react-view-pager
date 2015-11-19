@@ -4,16 +4,6 @@ import { Motion, spring, presets } from 'react-motion'
 import modulo from './modulo';
 import Slide from './Slide'
 
-// ** for vertical slides **
-// find the bigger of the two slides and see how
-// much smaller it is compared to the bigger one
-// so if
-// a = 100%
-// b = 120% (b might equal this)
-// this way we get an even slide 
-// could work well for horizontal as well width odd width slides
-// 
-// 
 // touch / swipe
 // http://codepen.io/barTsoury/post/optimization-of-swipe-gesture-on-list-items
 // https://github.com/kenwheeler/nuka-carousel/blob/master/src/carousel.js#L162
@@ -110,7 +100,7 @@ class Slider extends Component {
 
   _slide(direction) {
     const nextIndex = this._getNewIndex(direction)
-//console.log(nextIndex)
+    
     // if same index, bail out
     //if (this._lastIndex === nextIndex) return
     
