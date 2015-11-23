@@ -56,7 +56,7 @@ const heightStore = alt.createStore(HeightStore);
 class One extends Component {
   render() {
     return(
-      <div className="c c1">
+      <div>
         <h1>Component 1</h1>
         <div>
           <a href="#" onClick={() => routerActions.moveTo('slide-1')}>
@@ -78,7 +78,7 @@ class Two extends Component {
     const { toggle } = this.state
 
     return(
-      <div className="c c2">
+      <div>
         <button
           onClick={() => this.setState({toggle: !toggle})}
         >
@@ -105,7 +105,7 @@ class Three extends Component {
 
   render() {
     return(
-      <div className="c c3">
+      <div>
         <h1>Component 3</h1>
         <div className="slider-wrapper">
           <Slider
@@ -133,12 +133,15 @@ class Three extends Component {
 
 class View extends Component {
   render() {
-    const { style } = this.props
+    const { style, index } = this.props
 
     return(
       <div
-        className="slide"
-        style={{...style}}
+        className={`slide slide--${index + 1}`}
+        style={{
+          ...style,
+          height: 200
+        }}
       >
         {this.props.children}
       </div>
@@ -186,6 +189,10 @@ class App extends Component {
 
     return(
       <div>
+        <nav className="slider__controls">
+          <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
+          <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
+        </nav>
         <div className="slider-wrapper">
           <Slider
             ref="slider"
@@ -198,7 +205,7 @@ class App extends Component {
           >
             {
               this.state.slides.map((InnerView, i) => 
-                <View key={`slide-${i}`}>
+                <View key={`slide-${i}`} index={i}>
                   <InnerView
                     isCurrentSlide={this.props.currentRoute === `slide-${i}`}
                     onHeightUpdate={this._handleHeightUpdate}
@@ -208,10 +215,6 @@ class App extends Component {
             }
           </Slider>
         </div>
-        <nav className="slider__controls">
-          <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
-          <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
-        </nav>
         <nav className="slider__pager">
           {this.state.slides.map((slide, i) =>
             <a

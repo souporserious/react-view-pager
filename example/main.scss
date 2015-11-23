@@ -7,7 +7,7 @@
 }
 
 .slider {
-  //overflow: hidden;
+  overflow: hidden;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -28,25 +28,20 @@
 }
 
 .slide {
-  //flex: 1;
-  //align-self: flex-start;
-
-  // & + & {
-  //   margin-left: 16px;
-  // }
-  padding: 12px;
+  text-align: center;
 
   h1 {
     margin-top: 0;
+    color: #fff;
   }
 
-  &:nth-of-type(1) {
+  &--1 {
     background: #FFA820;
   }
-  &:nth-of-type(2) {
+  &--2 {
     background: #b4da55;
   }
-  &:nth-of-type(3) {
+  &--3 {
     background: #6EC1FF;
   }
 }
@@ -90,21 +85,6 @@
   border: 1px solid #D4D4D4;
   border-radius: 3px;
   cursor: pointer;
-}
-
-// components
-.c {
-  text-align: center;
-
-  h1 {
-    color: #fff;
-  }
-}
-
-.c1 {
-  a {
-    color: #FFDB99;
-  }
 }
 
 // layout specific
