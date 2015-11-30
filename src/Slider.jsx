@@ -3,34 +3,24 @@ import ReactDOM from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import isInteger from 'is-integer'
 import Slide from './Slide'
+import getIndexFromKey from './get-index-from-key'
 import modulo from './modulo'
 
 // touch / swipe
 // http://codepen.io/barTsoury/post/optimization-of-swipe-gesture-on-list-items
 // https://github.com/kenwheeler/nuka-carousel/blob/master/src/carousel.js#L162
 
-function getIndexFromKey(key, children) {
-  let index = null
-
-  Children.forEach(children, (child, _index) => {
-    if (child.key === key) {
-      index = _index
-      return
-    }
-  })
-
-  return index
-}
-
 class Slider extends Component {
   static propTypes = {
     component: PropTypes.string,
     currentKey: PropTypes.any,
-    currentIndex: PropTypes.number
+    currentIndex: PropTypes.number,
+    vertical: PropTypes.bool
   }
 
   static defaultProps = {
-    component: 'div'
+    component: 'div',
+    vertical: false
   }
 
   state = {
@@ -91,7 +81,7 @@ class Slider extends Component {
   }
 
   render() {
-    const { component, children } = this.props
+    const { component, children, vertical } = this.props
     const { current, outgoing, speed, direction } = this.state
     const destValue = (speed * 100)
     const instant = (speed === 0)
@@ -107,6 +97,7 @@ class Slider extends Component {
           position,
           speed,
           direction,
+          vertical,
           outgoing,
           isCurrent,
           isOutgoing,

@@ -1,8 +1,5 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import ReactDOM from 'react-dom'
-import shallowCompare from 'react-addons-shallow-compare'
-import { StaggeredMotion, spring, presets } from 'react-motion'
-import getDifference from './get-difference'
 
 const TRANSFORM = require('get-prefix')('transform')
 
@@ -21,7 +18,8 @@ class Slide extends Component {
   }
 
   render() {
-    const { speed, direction, position, outgoing, isCurrent, isOutgoing, currValue, destValue, hasEnded, children } = this.props
+    const { speed, direction, vertical, position, outgoing, isCurrent, isOutgoing, currValue, destValue, hasEnded, children } = this.props
+    const axis = vertical ? 'Y' : 'X'
     let style = {}
 
     if (isOutgoing && isOutgoing !== isCurrent) {
@@ -33,13 +31,13 @@ class Slide extends Component {
         position: 'absolute',
         top: 0,
         left: 0,
-        [TRANSFORM]: `translateX(${(direction === -1 ? -translate : translate)}%)`
+        [TRANSFORM]: `translate${axis}(${(direction === -1 ? -translate : translate)}%)`
       }
     }
 
     if (isCurrent && !hasEnded) {
       const translate = (destValue - currValue)
-      style[TRANSFORM] = `translateX(${direction === -1 ? -translate : translate}%)`
+      style[TRANSFORM] = `translate${axis}(${direction === -1 ? -translate : translate}%)`
     }
 
     return cloneElement(Children.only(children), {style})
