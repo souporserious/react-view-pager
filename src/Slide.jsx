@@ -12,10 +12,11 @@ class Slide extends Component {
   }
 
   componentDidUpdate(lastProps) {
-    const { isCurrent, hasEnded } = this.props
+    const { index, isCurrent, hasEnded } = this.props
 
-    if (lastProps.hasEnded !== hasEnded && hasEnded === true) {
-      this.props.onSlideEnd()
+    if (isCurrent && lastProps.hasEnded !== hasEnded &&
+        hasEnded === true) {
+      this.props.onSlideEnd(index)
     }
   }
 
@@ -24,14 +25,6 @@ class Slide extends Component {
     let style = {}
 
     if (isOutgoing && isOutgoing !== isCurrent) {
-      // const percentMoved = 1 - ((destValue - currValue) / destValue)
-      // const outgoingPosition = (position + 1)
-      // const translate = -(percentMoved * outgoingPosition * 100)
-
-      // speed = (speed - 1) // get 0 based speed
-      // const pos = (25 - 0) % 25
-      // const pos = (speed - position) / speed
-      
       const slideOffset = -((outgoing.length - 1 - position) * 100)
       const translate = (-currValue + ((speed - 1) * 100)) + slideOffset
 
@@ -40,13 +33,13 @@ class Slide extends Component {
         position: 'absolute',
         top: 0,
         left: 0,
-        transform: `translateX(${(direction === -1 ? -translate : translate)}%)`
+        [TRANSFORM]: `translateX(${(direction === -1 ? -translate : translate)}%)`
       }
     }
 
     if (isCurrent && !hasEnded) {
-      const translate = destValue - currValue
-      style.transform = `translateX(${direction === -1 ? -translate : translate}%)`
+      const translate = (destValue - currValue)
+      style[TRANSFORM] = `translateX(${direction === -1 ? -translate : translate}%)`
     }
 
     return cloneElement(Children.only(children), {style})

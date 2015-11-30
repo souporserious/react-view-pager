@@ -29,11 +29,12 @@
   },
   "homepage": "https://github.com/souporserious/react-motion-slider",
   "dependencies": {
+    "get-prefix": "^1.0.0",
+    "is-integer": "^1.0.6",
     "react": "^0.14.0",
     "react-dom": "^0.14.0",
     "react-addons-shallow-compare": "^0.14.0",
-    "react-motion": "^0.3.0",
-    "get-prefix": "^1.0.0"
+    "react-motion": "^0.3.0"
   },
   "devDependencies": {
     "alt": "^0.17.3",
@@ -43,8 +44,10 @@
     "babel-loader": "^5.2.2",
     "css-loader": "^0.15.1",
     "http-server": "^0.8.0",
+    "install": "^0.3.0",
     "node-libs-browser": "^0.5.2",
     "node-sass": "^3.2.0",
+    "npm": "^3.5.0",
     "react": "^0.13.3 || ^0.14.0-beta1",
     "react-collapse": "^1.4.0",
     "react-measure": "^0.1.3",

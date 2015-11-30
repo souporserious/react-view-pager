@@ -12,7 +12,7 @@
   margin: 0;
   list-style: none;
   position: relative;
-  background: teal;
+  background: #E6E6E6;
 
   &:hover {
     cursor: grab;
@@ -29,12 +29,8 @@
 }
 
 .slide {
+  padding: 12px;
   text-align: center;
-
-  h1 {
-    margin-top: 0;
-    color: #fff;
-  }
 
   &--1 {
     background: #FFA820;
@@ -44,6 +40,11 @@
   }
   &--3 {
     background: #6EC1FF;
+  }
+
+  h1 {
+    margin-top: 0;
+    color: #fff;
   }
 }
 
