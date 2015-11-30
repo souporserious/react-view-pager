@@ -140,7 +140,8 @@ class View extends Component {
         className={`slide slide--${index + 1}`}
         style={{
           ...style,
-          height: 200
+          height: 200,
+          //opacity: 0.8
         }}
       >
         {this.props.children}
