@@ -4,6 +4,14 @@ import ReactDOM from 'react-dom'
 const TRANSFORM = require('get-prefix')('transform')
 
 class Slide extends Component {
+  _lastHeight = null
+
+  componentDidMount() {
+    this._node = ReactDOM.findDOMNode(this)
+    this._getDimensions()
+    this._onHeightChange()
+  }
+
   shouldComponentUpdate(nextProps) {
     return !nextProps.instant
   }
@@ -11,10 +19,24 @@ class Slide extends Component {
   componentDidUpdate(lastProps) {
     const { index, isCurrent, hasEnded } = this.props
 
+    if (lastProps.isCurrent !== isCurrent &&
+        isCurrent === true) {
+      this._onHeightChange()
+    }
+
     if (isCurrent && lastProps.hasEnded !== hasEnded &&
         hasEnded === true) {
       this.props.onSlideEnd(index)
     }
+  }
+
+  _getDimensions() {
+    this._width = this._node.offsetWidth
+    this._height = this._node.offsetHeight
+  }
+
+  _onHeightChange() {
+    this.props.onSlideHeight(this._height)
   }
 
   render() {

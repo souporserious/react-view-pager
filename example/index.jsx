@@ -140,8 +140,7 @@ class View extends Component {
         className={`slide slide--${index + 1}`}
         style={{
           ...style,
-          height: 200,
-          //opacity: 0.8
+          height: 200
         }}
       >
         {this.props.children}
@@ -153,7 +152,9 @@ class View extends Component {
 @connectToStores
 class App extends Component {
   state = {
-    slides: [One, Two, Three]
+    slides: [One, Two, Three],
+    autoHeight: false,
+    vertical: false
   }
 
   static getStores() {
@@ -186,10 +187,24 @@ class App extends Component {
   }
   
   render() {
-    const { slides } = this.state
+    const { slides, autoHeight, vertical } = this.state
 
     return(
       <div>
+        <label>
+          <input
+            type="checkbox"
+            onChange={() => this.setState({autoHeight: !autoHeight})}
+          />
+          Auto Height
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            onChange={() => this.setState({vertical: !vertical})}
+          />
+          Vertical
+        </label>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
           <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
@@ -198,8 +213,8 @@ class App extends Component {
           <Slider
             ref="slider"
             className="slider"
-            vertical
-            autoHeight={true}
+            vertical={vertical}
+            autoHeight={autoHeight}
             slideConfig={[300, 30]}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}

@@ -6,28 +6,39 @@ import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
 import modulo from './modulo'
 
-// touch / swipe
-// http://codepen.io/barTsoury/post/optimization-of-swipe-gesture-on-list-items
-// https://github.com/kenwheeler/nuka-carousel/blob/master/src/carousel.js#L162
-
 class Slider extends Component {
   static propTypes = {
     component: PropTypes.string,
+    draggable: PropTypes.bool,
+    vertical: PropTypes.bool,
     currentKey: PropTypes.any,
     currentIndex: PropTypes.number,
-    vertical: PropTypes.bool
+    swipeThreshold: PropTypes.number,
+    flickTimeout: PropTypes.number
   }
 
   static defaultProps = {
     component: 'div',
-    vertical: false
+    draggable: false,
+    vertical: false,
+    swipeThreshold: 10,
+    flickTimeout: 300
   }
 
   state = {
     current: this._getNextIndex(this.props),
     outgoing: [],
-    speed: 0
+    speed: 0,
+    height: 0
   }
+
+  _deltaX = false
+  _deltaY = false
+  _startX = false
+  _startY = false
+  _isDragging = false
+  _isSwiping = false
+  _isFlick = false
 
   componentWillReceiveProps(nextProps) {
     const { current } = this.state
@@ -80,9 +91,103 @@ class Slider extends Component {
     }
   }
 
+  _handleSlideHeight = (height) => {
+    this.setState({height})
+  }
+
+  _isEndSlide() {
+    const { current } = this.state
+    return current === 0 || current === this.props.children.length - 1
+  }
+
+  _isSwipe(threshold) {
+    return Math.abs(this._deltaX) > Math.max(threshold, Math.abs(this._deltaY))
+  }
+
+  _onDragStart = (e) => {
+    // get proper event
+    const touch = e.touches && e.touches[0] || e
+
+    // we're now dragging
+    this._isDragging = true
+
+    // reset deltas
+    this._deltaX = this._deltaY = 0
+
+    // store the initial starting coordinates
+    this._startX = touch.pageX
+    this._startY = touch.pageY
+
+    // determine if a flick or not
+    this._isFlick = true
+
+    setTimeout(() => {
+      this._isFlick = false
+    }, this.props.flickTimeout)
+  }
+
+  _onDragMove = (e) =>  {
+    // if we aren't dragging bail
+    if(!this._isDragging) return;
+
+    const touch = e.touches && e.touches[0] || e
+    const threshold = 50
+
+    // determine how much we have moved
+    this._deltaX = this._startX - touch.pageX
+    this._deltaY = this._startY - touch.pageY
+
+    if(this._isSwipe(this.props.swipeThreshold)) {
+      e.preventDefault()
+      e.stopPropagation()
+      this._isSwiping = true
+    }
+
+    if(this._isSwiping) {
+      this.slide(this._deltaX / 100)
+    }
+  }
+
+  _dragEnd = () =>  {
+    const threshold = this._isFlick ? this.props.swipeThreshold : 50
+
+    // handle swipe
+    if(this._isSwipe(threshold)) {
+      // if an end slide, we still need to set the direction
+      if(this._isEndSlide()) {
+        this.slide(0)
+      }
+      (this._deltaX < 0) ? this.prev() : this.next()
+    } else {
+      this.slide(0)
+    }
+
+    // we are no longer swiping or dragging
+    this._isSwiping = this._isDragging = false
+  }
+
+  _dragPast = () =>  {
+    // perform a dragend if we dragged past component
+    if(this._isDragging) {
+      this._dragEnd()
+    }
+  }
+
+  _getTouchEvents() {
+    return this.props.draggable && {
+      onMouseDown: this._onDragStart,
+      onMouseMove: this._onDragMove,
+      onMouseUp: this._onDragEnd,
+      onMouseLeave: this._onDragPast,
+      onTouchStart: this._onDragStart,
+      onTouchMove: this._onDragMove,
+      onTouchEnd: this._onDragEnd
+    }
+  }
+
   render() {
     const { component, children, vertical } = this.props
-    const { current, outgoing, speed, direction } = this.state
+    const { current, outgoing, speed, direction, height } = this.state
     const destValue = (speed * 100)
     const instant = (speed === 0)
 
@@ -105,7 +210,8 @@ class Slider extends Component {
           destValue,
           instant,
           hasEnded: (currValue === destValue),
-          onSlideEnd: this._handleSlideEnd
+          onSlideEnd: this._handleSlideEnd,
+          onSlideHeight: this._handleSlideHeight
         },
         child
       )
@@ -116,13 +222,18 @@ class Slider extends Component {
       {
         style: {
           //currValue: instant ? destValue : spring(destValue, [9, 5])
-          currValue: instant ? destValue : spring(destValue)
+          currValue: instant ? destValue : spring(destValue),
+          wrapperHeight: instant ? height : spring(height)
         }
       },
-      ({currValue}) => createElement(
+      ({currValue, wrapperHeight}) => createElement(
         component,
         {
-          className: 'slider'
+          className: 'slider',
+          ...this._getTouchEvents(),
+          style: {
+            height: wrapperHeight
+          }
         },
         childrenToRender(currValue, destValue, instant)
       )
