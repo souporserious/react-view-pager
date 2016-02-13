@@ -24,8 +24,8 @@ This is highly experimental. API is changing right now and props are going in an
     )}
   </Slider>
   <nav className="slider__controls">
-    <a className="slider__control slider__control--prev" onClick={() => this.refs['slider].prev()}>Prev</a>
-    <a className="slider__control slider__control--next" onClick={() => this.refs['slider].next()}>Next</a>
+    <a className="slider__control slider__control--prev" onClick={() => this.refs['slider'].prev()}>Prev</a>
+    <a className="slider__control slider__control--next" onClick={() => this.refs['slider'].next()}>Next</a>
   </nav>
 </div>
 ```
