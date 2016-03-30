@@ -17,15 +17,15 @@ class Slide extends Component {
   }
 
   componentDidUpdate(lastProps) {
-    const { index, isCurrent, hasEnded } = this.props
+    const { index, isCurrent, isSliding } = this.props
 
     if (lastProps.isCurrent !== isCurrent &&
         isCurrent === true) {
       this._onHeightChange()
     }
 
-    if (isCurrent && lastProps.hasEnded !== hasEnded &&
-        hasEnded === true) {
+    if (isCurrent && lastProps.isSliding !== isSliding &&
+        isSliding === false) {
       this.props.onSlideEnd(index)
     }
   }
@@ -40,7 +40,7 @@ class Slide extends Component {
   }
 
   render() {
-    const { speed, direction, vertical, position, outgoing, isCurrent, isOutgoing, currValue, destValue, hasEnded, children } = this.props
+    const { speed, direction, vertical, position, outgoing, isCurrent, isOutgoing, isSliding, currValue, destValue, children } = this.props
     const axis = vertical ? 'Y' : 'X'
     let style = {}
 
@@ -57,12 +57,12 @@ class Slide extends Component {
       }
     }
 
-    if (isCurrent && !hasEnded) {
+    if (isCurrent && isSliding) {
       const translate = (destValue - currValue)
       style[TRANSFORM] = `translate${axis}(${direction === -1 ? -translate : translate}%)`
     }
 
-    return cloneElement(Children.only(children), {style})
+    return cloneElement(Children.only(children), { style })
   }
 }
 

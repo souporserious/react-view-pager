@@ -14,7 +14,8 @@ class Slider extends Component {
     currentKey: PropTypes.any,
     currentIndex: PropTypes.number,
     swipeThreshold: PropTypes.number,
-    flickTimeout: PropTypes.number
+    flickTimeout: PropTypes.number,
+    renderSlidesAtRest: PropTypes.bool
   }
 
   static defaultProps = {
@@ -22,7 +23,8 @@ class Slider extends Component {
     draggable: false,
     vertical: false,
     swipeThreshold: 10,
-    flickTimeout: 300
+    flickTimeout: 300,
+    renderSlidesAtRest: true
   }
 
   state = {
@@ -36,6 +38,7 @@ class Slider extends Component {
   _deltaY = false
   _startX = false
   _startY = false
+  _isSliding = false
   _isDragging = false
   _isSwiping = false
   _isFlick = false
@@ -46,7 +49,8 @@ class Slider extends Component {
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (current !== nextIndex && nextIndex !== null) {
-      this.slide((current > nextIndex) ? -1 : 1, nextIndex)
+      const direction = (current > nextIndex) ? -1 : 1
+      this.slide(direction, nextIndex)
     }
   }
 
@@ -59,11 +63,11 @@ class Slider extends Component {
   }
 
   slide(direction, index) {
-    const outgoing = this.state.outgoing.slice(0)
     const { current, speed } = this.state
     const newIndex = isInteger(index) ? index : modulo(current + direction, this.props.children.length)
+    const outgoing = this.state.outgoing.slice(0)
     const outgoingPos = outgoing.indexOf(newIndex)
-    
+
     // if new index exists in outgoing, remove it
     if (outgoingPos > -1) {
       outgoing.splice(outgoingPos, 1)
@@ -73,26 +77,27 @@ class Slider extends Component {
       current: newIndex,
       outgoing: outgoing.concat([current]),
       speed: speed + 1,
-      direction
+      direction,
+      isSliding: true
     })
   }
 
-  _getNextIndex({currentIndex, currentKey, children}) {
+  _getNextIndex({ currentIndex, currentKey, children }) {
     return (
-      currentKey ?
-      getIndexFromKey(currentKey, children) :
-      (currentIndex || 0)
+      currentKey
+      ? getIndexFromKey(currentKey, children)
+      : (currentIndex || 0)
     )
   }
 
   _handleSlideEnd = () => {
     if (this.state.outgoing.length > 0) {
-      this.setState({outgoing: [], speed: 0})
+      this.setState({ outgoing: [], speed: 0 })
     }
   }
 
   _handleSlideHeight = (height) => {
-    this.setState({height})
+    this.setState({ height })
   }
 
   _isEndSlide() {
@@ -128,7 +133,7 @@ class Slider extends Component {
 
   _onDragMove = (e) =>  {
     // if we aren't dragging bail
-    if(!this._isDragging) return;
+    if (!this._isDragging) return
 
     const touch = e.touches && e.touches[0] || e
     const threshold = 50
@@ -137,13 +142,13 @@ class Slider extends Component {
     this._deltaX = this._startX - touch.pageX
     this._deltaY = this._startY - touch.pageY
 
-    if(this._isSwipe(this.props.swipeThreshold)) {
+    if (this._isSwipe(this.props.swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
       this._isSwiping = true
     }
 
-    if(this._isSwiping) {
+    if (this._isSwiping) {
       this.slide(this._deltaX / 100)
     }
   }
@@ -152,7 +157,7 @@ class Slider extends Component {
     const threshold = this._isFlick ? this.props.swipeThreshold : 50
 
     // handle swipe
-    if(this._isSwipe(threshold)) {
+    if (this._isSwipe(threshold)) {
       // if an end slide, we still need to set the direction
       if(this._isEndSlide()) {
         this.slide(0)
@@ -168,7 +173,7 @@ class Slider extends Component {
 
   _dragPast = () =>  {
     // perform a dragend if we dragged past component
-    if(this._isDragging) {
+    if (this._isDragging) {
       this._dragEnd()
     }
   }
@@ -185,57 +190,64 @@ class Slider extends Component {
     }
   }
 
+  _childrenToRender(currValue, destValue, instant) {
+    const { children, vertical } = this.props
+    const { current, outgoing, speed, direction, isSliding } = this.state
+
+    return (
+      Children.map(children, (child, index) => {
+        const position = outgoing.indexOf(index)
+        const isCurrent = (current === index)
+        const isOutgoing = (position > -1)
+
+        return (isCurrent || isOutgoing) && createElement(
+          Slide,
+          {
+            position,
+            speed,
+            direction,
+            vertical,
+            outgoing,
+            isCurrent,
+            isOutgoing,
+            currValue,
+            destValue,
+            instant,
+            isSliding,
+            onSlideEnd: this._handleSlideEnd,
+            onSlideHeight: this._handleSlideHeight
+          },
+          child
+        )
+      })
+    )
+  }
+
   render() {
-    const { component, children, vertical } = this.props
-    const { current, outgoing, speed, direction, height } = this.state
+    const { component } = this.props
+    const { speed, height } = this.state
     const destValue = (speed * 100)
     const instant = (speed === 0)
-
-    const childrenToRender = (currValue, destValue, instant) => Children.map(children, (child, index) => {
-      const position = outgoing.indexOf(index)
-      const isCurrent = (current === index)
-      const isOutgoing = (position > -1)
-
-      return (isCurrent || isOutgoing) && createElement(
-        Slide,
-        {
-          position,
-          speed,
-          direction,
-          vertical,
-          outgoing,
-          isCurrent,
-          isOutgoing,
-          currValue,
-          destValue,
-          instant,
-          hasEnded: (currValue === destValue),
-          onSlideEnd: this._handleSlideEnd,
-          onSlideHeight: this._handleSlideHeight
-        },
-        child
-      )
-    })
 
     return createElement(
       Motion,
       {
         style: {
-          //currValue: instant ? destValue : spring(destValue, [9, 5])
           currValue: instant ? destValue : spring(destValue),
           wrapperHeight: instant ? height : spring(height)
-        }
+        },
+        onRest: () => this.setState({ isSliding: false })
       },
-      ({currValue, wrapperHeight}) => createElement(
+      ({ currValue, wrapperHeight }) => createElement(
         component,
         {
           className: 'slider',
-          ...this._getTouchEvents(),
           style: {
             height: wrapperHeight
-          }
+          },
+          ...this._getTouchEvents()
         },
-        childrenToRender(currValue, destValue, instant)
+        this._childrenToRender(currValue, destValue, instant)
       )
     )
   }
