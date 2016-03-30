@@ -185,7 +185,7 @@ class App extends Component {
   _handleHeightUpdate = () => {
     this.refs['slider'].setHeight()
   }
-  
+
   render() {
     const { slides, autoHeight, vertical } = this.state
 
@@ -220,7 +220,7 @@ class App extends Component {
             onChange={this._handleChange}
           >
             {
-              this.state.slides.map((InnerView, i) => 
+              this.state.slides.map((InnerView, i) =>
                 <View key={`slide-${i}`} index={i}>
                   <InnerView
                     isCurrentSlide={this.props.currentRoute === `slide-${i}`}
