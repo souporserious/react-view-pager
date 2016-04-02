@@ -40,8 +40,7 @@ class Slide extends Component {
   }
 
   render() {
-    const { speed, direction, vertical, position, outgoing, isCurrent, isOutgoing, isSliding, currValue, destValue, children } = this.props
-    const axis = vertical ? 'Y' : 'X'
+    const { speed, direction, axis, position, outgoing, isCurrent, isOutgoing, isSliding, currValue, destValue, children } = this.props
     let style = {}
 
     if (isOutgoing && isOutgoing !== isCurrent) {

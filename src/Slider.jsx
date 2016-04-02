@@ -15,37 +15,45 @@ class Slider extends Component {
     currentIndex: PropTypes.number,
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
+    slidesToShow: PropTypes.number,
+    slidesToMove: PropTypes.number,
     renderSlidesAtRest: PropTypes.bool
   }
 
   static defaultProps = {
     component: 'div',
-    draggable: false,
+    draggable: true,
     vertical: false,
     swipeThreshold: 10,
     flickTimeout: 300,
+    slidesToShow: 1,
+    slidesToMove: 1,
     renderSlidesAtRest: true
   }
 
-  state = {
-    current: this._getNextIndex(this.props),
-    outgoing: [],
-    speed: 0,
-    height: 0
-  }
-
+  _slideCount = Children.count(this.props.children)
   _deltaX = false
   _deltaY = false
   _startX = false
   _startY = false
-  _isSliding = false
   _isDragging = false
-  _isSwiping = false
   _isFlick = false
+  _isSliding = false
+
+  state = {
+    current: this._getNextIndex(this.props),
+    outgoing: [],
+    direction: 0,
+    speed: 0,
+    height: 0,
+    sliderWidth: (this._slideCount * 100) / this.props.slidesToShow
+  }
 
   componentWillReceiveProps(nextProps) {
     const { current } = this.state
     const nextIndex = this._getNextIndex(nextProps)
+
+    this._slideCount = Children.count(nextProps.children)
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (current !== nextIndex && nextIndex !== null) {
@@ -64,8 +72,8 @@ class Slider extends Component {
 
   slide(direction, index) {
     const { current, speed } = this.state
-    const newIndex = isInteger(index) ? index : modulo(current + direction, this.props.children.length)
-    const outgoing = this.state.outgoing.slice(0)
+    const newIndex = isInteger(index) ? index : modulo(current + direction, this._slideCount)
+    const outgoing = [...this.state.outgoing]
     const outgoingPos = outgoing.indexOf(newIndex)
 
     // if new index exists in outgoing, remove it
@@ -102,7 +110,7 @@ class Slider extends Component {
 
   _isEndSlide() {
     const { current } = this.state
-    return current === 0 || current === this.props.children.length - 1
+    return current === 0 || current === this._slideCount - 1
   }
 
   _isSwipe(threshold) {
@@ -135,8 +143,8 @@ class Slider extends Component {
     // if we aren't dragging bail
     if (!this._isDragging) return
 
+    const { current, sliderWidth } = this.state
     const touch = e.touches && e.touches[0] || e
-    const threshold = 50
 
     // determine how much we have moved
     this._deltaX = this._startX - touch.pageX
@@ -145,36 +153,32 @@ class Slider extends Component {
     if (this._isSwipe(this.props.swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
-      this._isSwiping = true
-    }
-
-    if (this._isSwiping) {
-      this.slide(this._deltaX / 100)
+      this.setState({ direction: this._deltaX / sliderWidth })
     }
   }
 
-  _dragEnd = () =>  {
-    const threshold = this._isFlick ? this.props.swipeThreshold : 50
+  _onDragEnd = () =>  {
+    const threshold = this._isFlick ? this.props.swipeThreshold : (this.state.sliderWidth / 2)
 
     // handle swipe
     if (this._isSwipe(threshold)) {
       // if an end slide, we still need to set the direction
-      if(this._isEndSlide()) {
-        this.slide(0)
+      if (this._isEndSlide()) {
+        this.setState({ direction: 0 })
       }
       (this._deltaX < 0) ? this.prev() : this.next()
     } else {
-      this.slide(0)
+      this.setState({ direction: 0 })
     }
 
-    // we are no longer swiping or dragging
-    this._isSwiping = this._isDragging = false
+    // we are no longer dragging
+    this._isDragging = false
   }
 
-  _dragPast = () =>  {
+  _onDragPast = () =>  {
     // perform a dragend if we dragged past component
     if (this._isDragging) {
-      this._dragEnd()
+      this._onDragEnd()
     }
   }
 
@@ -206,7 +210,7 @@ class Slider extends Component {
             position,
             speed,
             direction,
-            vertical,
+            axis: vertical ? 'Y' : 'X',
             outgoing,
             isCurrent,
             isOutgoing,
@@ -224,7 +228,7 @@ class Slider extends Component {
   }
 
   render() {
-    const { component } = this.props
+    const { component, children } = this.props
     const { speed, height } = this.state
     const destValue = (speed * 100)
     const instant = (speed === 0)
