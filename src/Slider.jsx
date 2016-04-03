@@ -9,25 +9,25 @@ import modulo from './modulo'
 class Slider extends Component {
   static propTypes = {
     component: PropTypes.string,
-    draggable: PropTypes.bool,
     vertical: PropTypes.bool,
     currentKey: PropTypes.any,
     currentIndex: PropTypes.number,
-    swipeThreshold: PropTypes.number,
-    flickTimeout: PropTypes.number,
     slidesToShow: PropTypes.number,
     slidesToMove: PropTypes.number,
+    swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
+    swipeThreshold: PropTypes.number,
+    flickTimeout: PropTypes.number,
     renderSlidesAtRest: PropTypes.bool
   }
 
   static defaultProps = {
     component: 'div',
-    draggable: true,
     vertical: false,
-    swipeThreshold: 10,
-    flickTimeout: 300,
     slidesToShow: 1,
     slidesToMove: 1,
+    swipe: true,
+    swipeThreshold: 10,
+    flickTimeout: 300,
     renderSlidesAtRest: true
   }
 
@@ -36,7 +36,7 @@ class Slider extends Component {
   _deltaY = false
   _startX = false
   _startY = false
-  _isDragging = false
+  _isSwiping = false
   _isFlick = false
   _isSliding = false
 
@@ -117,12 +117,12 @@ class Slider extends Component {
     return Math.abs(this._deltaX) > Math.max(threshold, Math.abs(this._deltaY))
   }
 
-  _onDragStart = (e) => {
+  _onSwipeStart = (e) => {
     // get proper event
     const touch = e.touches && e.touches[0] || e
 
-    // we're now dragging
-    this._isDragging = true
+    // we're now swiping
+    this._isSwiping = true
 
     // reset deltas
     this._deltaX = this._deltaY = 0
@@ -139,9 +139,9 @@ class Slider extends Component {
     }, this.props.flickTimeout)
   }
 
-  _onDragMove = (e) =>  {
-    // if we aren't dragging bail
-    if (!this._isDragging) return
+  _onSwipeMove = (e) =>  {
+    // bail if we aren't swiping
+    if (!this._isSwiping) return
 
     const { current, sliderWidth } = this.state
     const touch = e.touches && e.touches[0] || e
@@ -157,7 +157,7 @@ class Slider extends Component {
     }
   }
 
-  _onDragEnd = () =>  {
+  _onSwipeEnd = () =>  {
     const threshold = this._isFlick ? this.props.swipeThreshold : (this.state.sliderWidth / 2)
 
     // handle swipe
@@ -171,27 +171,40 @@ class Slider extends Component {
       this.setState({ direction: 0 })
     }
 
-    // we are no longer dragging
-    this._isDragging = false
+    // we are no longer swiping
+    this._isSwiping = false
   }
 
-  _onDragPast = () =>  {
-    // perform a dragend if we dragged past component
-    if (this._isDragging) {
-      this._onDragEnd()
+  _onSwipePast = () =>  {
+    // perform a swipe end if we swiped past the component
+    if (this._isSwiping) {
+      this._onSwipeEnd()
     }
   }
 
-  _getTouchEvents() {
-    return this.props.draggable && {
-      onMouseDown: this._onDragStart,
-      onMouseMove: this._onDragMove,
-      onMouseUp: this._onDragEnd,
-      onMouseLeave: this._onDragPast,
-      onTouchStart: this._onDragStart,
-      onTouchMove: this._onDragMove,
-      onTouchEnd: this._onDragEnd
+  _getSwipeEvents() {
+    const { swipe } = this.props
+    let swipeEvents = {}
+
+    if (swipe === true || swipe === 'mouse') {
+      swipeEvents = {
+        onMouseDown: this._onSwipeStart,
+        onMouseMove: this._onSwipeMove,
+        onMouseUp: this._onSwipeEnd,
+        onMouseLeave: this._onSwipePast
+      }
     }
+
+    if (swipe === true || swipe === 'touch') {
+      swipeEvents = {
+        ...swipeEvents,
+        onTouchStart: this._onSwipeStart,
+        onTouchMove: this._onSwipeMove,
+        onTouchEnd: this._onSwipeEnd
+      }
+    }
+
+    return swipeEvents
   }
 
   _childrenToRender(currValue, destValue, instant) {
@@ -249,7 +262,7 @@ class Slider extends Component {
           style: {
             height: wrapperHeight
           },
-          ...this._getTouchEvents()
+          ...this._getSwipeEvents()
         },
         this._childrenToRender(currValue, destValue, instant)
       )
