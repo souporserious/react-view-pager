@@ -114,12 +114,19 @@ class Slider extends Component {
   }
 
   _isSwipe(threshold) {
-    return Math.abs(this._deltaX) > Math.max(threshold, Math.abs(this._deltaY))
+    let x = this._deltaX
+    let y = this._deltaY
+
+    if (this.props.vertical) {
+      [y, x] = [x, y]
+    }
+
+    return Math.abs(x) > Math.max(threshold, Math.abs(y))
   }
 
   _onSwipeStart = (e) => {
     // get proper event
-    const touch = e.touches && e.touches[0] || e
+    const swipe = e.touches && e.touches[0] || e
 
     // we're now swiping
     this._isSwiping = true
@@ -128,8 +135,8 @@ class Slider extends Component {
     this._deltaX = this._deltaY = 0
 
     // store the initial starting coordinates
-    this._startX = touch.pageX
-    this._startY = touch.pageY
+    this._startX = swipe.pageX
+    this._startY = swipe.pageY
 
     // determine if a flick or not
     this._isFlick = true
@@ -144,16 +151,17 @@ class Slider extends Component {
     if (!this._isSwiping) return
 
     const { current, sliderWidth } = this.state
-    const touch = e.touches && e.touches[0] || e
+    const swipe = e.touches && e.touches[0] || e
 
     // determine how much we have moved
-    this._deltaX = this._startX - touch.pageX
-    this._deltaY = this._startY - touch.pageY
+    this._deltaX = this._startX - swipe.pageX
+    this._deltaY = this._startY - swipe.pageY
 
     if (this._isSwipe(this.props.swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
-      this.setState({ direction: this._deltaX / sliderWidth })
+      const axis = this.props.vertical ? this._deltaY : this._deltaX
+      this.setState({ direction: axis / sliderWidth })
     }
   }
 
