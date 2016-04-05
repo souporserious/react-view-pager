@@ -1,10 +1,11 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import ReactDOM from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
-import isInteger from 'is-integer'
 import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
 import getValidIndex from './get-valid-index'
+
+const TRANSFORM = require('get-prefix')('transform')
 
 class Slider extends Component {
   static propTypes = {
@@ -48,7 +49,8 @@ class Slider extends Component {
     direction: 0,
     speed: 0,
     translate: 0,
-    instant: false
+    instant: false,
+    height: 0
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,9 +69,6 @@ class Slider extends Component {
 
   componentDidMount() {
     this._node = ReactDOM.findDOMNode(this)
-    // setTimeout(() => {
-    //   this.slide(5, 1)
-    // }, 2000)
   }
 
   componentDidUpdate() {
@@ -106,7 +105,7 @@ class Slider extends Component {
       leaving: leaving.concat([current]),
       direction,
       speed: speed + 1,
-      translate: 100 // change this value for swipe
+      translate: 100
     })
   }
 
@@ -145,7 +144,6 @@ class Slider extends Component {
   }
 
   _onSwipeStart = (e) => {
-    // get proper event
     const swipe = e.touches && e.touches[0] || e
 
     // we're now swiping
@@ -175,34 +173,27 @@ class Slider extends Component {
     if (!this._isSwiping) return
 
     const { vertical, swipeThreshold } = this.props
-    const { current, sliderWidth } = this.state
     const swipe = e.touches && e.touches[0] || e
 
     // determine how much we have moved
     this._deltaX = this._startX - swipe.pageX
     this._deltaY = this._startY - swipe.pageY
 
-    if (this._isSwipe(swipeThreshold)) {
-      e.preventDefault()
-      e.stopPropagation()
-      const axis = vertical ? this._deltaY : this._deltaX
-      const dimension = vertical ? this.sliderHeight : this.sliderWidth
-      this.setState({ translate: axis / dimension })
-    }
+    // if (this._isSwipe(swipeThreshold)) {
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    //   const axis = vertical ? this._deltaY : this._deltaX
+    //   const dimension = vertical ? this.sliderHeight : this.sliderWidth
+    //   this.setState({ translate: axis / dimension })
+    // }
   }
 
   _onSwipeEnd = () =>  {
-    const threshold = this._isFlick ? this.props.swipeThreshold : (this.state.sliderWidth / 2)
+    const threshold = this._isFlick ? this.props.swipeThreshold : (this.sliderWidth / 2)
 
     // handle swipe
     if (this._isSwipe(threshold)) {
-      // if an end slide, we still need to set the direction
-      if (this._isEndSlide()) {
-        this.setState({ direction: 0 })
-      }
       (this._deltaX < 0) ? this.prev() : this.next()
-    } else {
-      this.setState({ direction: 0 })
     }
 
     // we are no longer swiping
@@ -241,6 +232,10 @@ class Slider extends Component {
     return swipeEvents
   }
 
+  _handleSlideHeight = (height) => {
+    this.setState({ height })
+  }
+
   _calcSlidePosition(index) {
     const { current, leaving, direction, speed } = this.state
     const speedOffset = (direction * (speed - 1))
@@ -256,26 +251,35 @@ class Slider extends Component {
   }
 
   render() {
-    const { children, slidesToShow, springConfig } = this.props
-    const { current, leaving, instant, translate, direction, speed } = this.state
+    const { children, vertical, springConfig } = this.props
+    const { current, leaving, instant, translate, direction, speed, height } = this.state
     const destValue = (translate * speed)
+    const axis = vertical ? 'Y' : 'X'
 
     return (
       <Motion
-        style={{ translate: instant ? destValue : spring(destValue, springConfig) }}
+        style={{
+          translate: instant ? destValue : spring(destValue, springConfig),
+          wrapperHeight: instant ? height : spring(height, springConfig)
+        }}
         onRest={this._onSlideEnd}
       >
-        {({ translate }) =>
-          <div className="slider" {...this._getSwipeEvents()}>
+        {({ translate, wrapperHeight }) =>
+          <div
+            className="slider"
+            style={{ height: wrapperHeight }}
+            {...this._getSwipeEvents()}
+          >
             {Children.map(children, (child, index) => {
               const slidePosition = this._calcSlidePosition(index)
+              const isCurrent = (index === current)
               let style = {
                 width: this._slideWidth + '%',
-                transform: `translateX(${slidePosition - (translate * direction)}%)`
+                transform: `translate${axis}(${slidePosition - (translate * direction)}%)`
               }
 
               // apply an absolute position to every slide except the current one
-              if (index !== current) {
+              if (!isCurrent) {
                 style = {
                   ...style,
                   position: 'absolute',
@@ -284,6 +288,7 @@ class Slider extends Component {
                 }
               }
 
+              // make sure leaving slide shows
               if (leaving.indexOf(index) > -1) {
                 style = {
                   ...style,
@@ -291,7 +296,15 @@ class Slider extends Component {
                 }
               }
 
-              return cloneElement(child, { style })
+              return createElement(
+                Slide,
+                {
+                  style,
+                  isCurrent,
+                  onSlideHeight: this._handleSlideHeight
+                },
+                child
+              )
             })}
           </div>
         }

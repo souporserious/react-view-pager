@@ -138,10 +138,7 @@ class View extends Component {
     return(
       <div
         className={`slide slide--${index + 1}`}
-        style={{
-          ...style,
-          height: 200
-        }}
+        style={{ ...style }}
       >
         {this.props.children}
       </div>
@@ -164,7 +161,8 @@ class App extends Component {
   state = {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
-    vertical: false
+    vertical: false,
+    slidesToShow: 1
   }
 
   static getStores() {
@@ -197,7 +195,7 @@ class App extends Component {
   }
 
   render() {
-    const { slides, autoHeight, vertical } = this.state
+    const { slides, autoHeight, vertical, slidesToShow } = this.state
 
     return(
       <div>
@@ -215,6 +213,14 @@ class App extends Component {
           />
           Vertical
         </label>
+        <label>
+          <input
+            type="number"
+            onChange={e => this.setState({slidesToShow: e.target.value})}
+            value={slidesToShow}
+          />
+          Slides To Show
+        </label>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
           <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
@@ -224,8 +230,8 @@ class App extends Component {
             ref="slider"
             className="slider"
             vertical={vertical}
+            slidesToShow={slidesToShow}
             autoHeight={autoHeight}
-            slideConfig={[300, 30]}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}
           >

@@ -1,32 +1,21 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import ReactDOM from 'react-dom'
 
-const TRANSFORM = require('get-prefix')('transform')
-
 class Slide extends Component {
-  _lastHeight = null
-
   componentDidMount() {
     this._node = ReactDOM.findDOMNode(this)
     this._getDimensions()
-    this._onHeightChange()
-  }
 
-  shouldComponentUpdate(nextProps) {
-    return !nextProps.instant
+    if (this.props.isCurrent) {
+      this._onHeightChange()
+    }
   }
 
   componentDidUpdate(lastProps) {
-    const { index, isCurrent, isSliding } = this.props
-
+    const { isCurrent } = this.props
     if (lastProps.isCurrent !== isCurrent &&
         isCurrent === true) {
       this._onHeightChange()
-    }
-
-    if (isCurrent && lastProps.isSliding !== isSliding &&
-        isSliding === false) {
-      this.props.onSlideEnd(index)
     }
   }
 
@@ -40,27 +29,7 @@ class Slide extends Component {
   }
 
   render() {
-    const { speed, direction, axis, position, outgoing, isCurrent, isOutgoing, isSliding, currValue, destValue, children } = this.props
-    let style = {}
-
-    if (isOutgoing && isOutgoing !== isCurrent) {
-      const slideOffset = -((outgoing.length - 1 - position) * 100)
-      const translate = (-currValue + ((speed - 1) * 100)) + slideOffset
-
-      style = {
-        width: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        [TRANSFORM]: `translate${axis}(${(direction === -1 ? -translate : translate)}%)`
-      }
-    }
-
-    if (isCurrent && isSliding) {
-      const translate = (destValue - currValue)
-      style[TRANSFORM] = `translate${axis}(${direction === -1 ? -translate : translate}%)`
-    }
-
+    const { children, style } = this.props
     return cloneElement(Children.only(children), { style })
   }
 }
