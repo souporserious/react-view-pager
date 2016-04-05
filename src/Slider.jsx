@@ -35,7 +35,8 @@ class Slider extends Component {
   _node = null
   _sliderWidth = 0
   _slideCount = Children.count(this.props.children)
-  _slideWidth = 100 / this.props.slidesToShow
+  _slideWidth = 100 / this._slideCount
+  _trackWidth = (this._slideCount * 100) / this.props.slidesToShow
   _deltaX = false
   _deltaY = false
   _startX = false
@@ -45,12 +46,13 @@ class Slider extends Component {
 
   state = {
     current: 0,
-    leaving: [],
-    direction: 0,
-    speed: 0,
-    translate: 0,
+    direction: null,
     instant: false,
     height: 0
+  }
+
+  componentDidMount() {
+    this._node = ReactDOM.findDOMNode(this)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,17 +60,13 @@ class Slider extends Component {
     const nextIndex = this._getNextIndex(nextProps)
 
     this._slideCount = Children.count(nextProps.children)
-    this._slideWidth = 100 / nextProps.slidesToShow
+    this._slideWidth = 100 / this._slideCount
+    this._trackWidth = (this._slideCount * 100) / nextProps.slidesToShow
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (current !== nextIndex && nextIndex !== null) {
-      const direction = (current > nextIndex) ? -1 : 1
-      this.slide(nextIndex, direction)
+      this.setState({ current: nextIndex })
     }
-  }
-
-  componentDidMount() {
-    this._node = ReactDOM.findDOMNode(this)
   }
 
   componentDidUpdate() {
@@ -78,35 +76,15 @@ class Slider extends Component {
   }
 
   prev() {
-    this.navigate(-1)
+    const { current } = this.state
+    if (current <= 0) return
+    this.setState({ current: current - 1, direction: null })
   }
 
   next() {
-    this.navigate(1)
-  }
-
-  navigate(direction) {
-    this.slide(this.state.current + (this.props.slidesToMove * direction), direction)
-  }
-
-  slide(index, direction = 1) {
-    const { current, speed, translate } = this.state
-    const newIndex = getValidIndex(index, this._slideCount)
-    const leaving = [...this.state.leaving]
-    const leavingPos = leaving.indexOf(newIndex)
-
-    // if new index exists in leaving array, remove it
-    if (leavingPos > -1) {
-      leaving.splice(leavingPos, 1)
-    }
-
-    this.setState({
-      current: newIndex,
-      leaving: leaving.concat([current]),
-      direction,
-      speed: speed + 1,
-      translate: 100
-    })
+    const { current } = this.state
+    if (current >= this._slideCount - 1 ) return
+    this.setState({ current: current + 1, direction: null })
   }
 
   _getNextIndex({ currentIndex, currentKey, children }) {
@@ -115,16 +93,6 @@ class Slider extends Component {
       ? getIndexFromKey(currentKey, children)
       : (currentIndex || 0)
     )
-  }
-
-  _onSlideEnd = () => {
-    this.setState({
-      leaving: [],
-      direction: 0,
-      speed: 0,
-      translate: 0,
-      instant: true
-    })
   }
 
   _isEndSlide() {
@@ -157,8 +125,8 @@ class Slider extends Component {
     this._startY = swipe.pageY
 
     // store slider dimensions
-    this.sliderWidth = this._node.offsetWidth
-    this.sliderHeight = this._node.offsetHeight
+    this._sliderWidth = this._node.offsetWidth
+    this._sliderHeight = this._node.offsetHeight
 
     // determine if a flick or not
     this._isFlick = true
@@ -179,21 +147,27 @@ class Slider extends Component {
     this._deltaX = this._startX - swipe.pageX
     this._deltaY = this._startY - swipe.pageY
 
-    // if (this._isSwipe(swipeThreshold)) {
-    //   e.preventDefault()
-    //   e.stopPropagation()
-    //   const axis = vertical ? this._deltaY : this._deltaX
-    //   const dimension = vertical ? this.sliderHeight : this.sliderWidth
-    //   this.setState({ translate: axis / dimension })
-    // }
+    if (this._isSwipe(swipeThreshold)) {
+      e.preventDefault()
+      e.stopPropagation()
+      const axis = vertical ? this._deltaY : this._deltaX
+      const dimension = vertical ? this.sliderHeight : this._sliderWidth
+      this.setState({ direction: axis / dimension })
+    }
   }
 
   _onSwipeEnd = () =>  {
-    const threshold = this._isFlick ? this.props.swipeThreshold : (this.sliderWidth / 2)
+    const threshold = this._isFlick ? this.props.swipeThreshold : (this._sliderWidth / 2)
 
     // handle swipe
     if (this._isSwipe(threshold)) {
+      // if an end slide, we still need to set the direction
+      if (this._isEndSlide()) {
+        this.setState({ direction: 0 })
+      }
       (this._deltaX < 0) ? this.prev() : this.next()
+    } else {
+      this.setState({ direction: 0 })
     }
 
     // we are no longer swiping
@@ -236,24 +210,11 @@ class Slider extends Component {
     this.setState({ height })
   }
 
-  _calcSlidePosition(index) {
-    const { current, leaving, direction, speed } = this.state
-    const speedOffset = (direction * (speed - 1))
-    const leavingPos = leaving.indexOf(index)
-
-    if (leavingPos > -1) {
-      const indexOffset = ((leaving.length - 1) - leavingPos)
-      return (((speed - 1) * 100) + (indexOffset * -100)) * direction
-    } else {
-      const indexOffset = (index + direction)
-      return (indexOffset - (current - speedOffset)) * 100
-    }
-  }
-
   render() {
     const { children, vertical, springConfig } = this.props
     const { current, leaving, instant, translate, direction, speed, height } = this.state
-    const destValue = (translate * speed)
+    const slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove
+    const destValue = -((direction + (current * slidesToMove)) * 100) / this._slideCount
     const axis = vertical ? 'Y' : 'X'
 
     return (
@@ -262,50 +223,25 @@ class Slider extends Component {
           translate: instant ? destValue : spring(destValue, springConfig),
           wrapperHeight: instant ? height : spring(height, springConfig)
         }}
-        onRest={this._onSlideEnd}
       >
         {({ translate, wrapperHeight }) =>
-          <div
-            className="slider"
-            style={{ height: wrapperHeight }}
-            {...this._getSwipeEvents()}
-          >
-            {Children.map(children, (child, index) => {
-              const slidePosition = this._calcSlidePosition(index)
-              const isCurrent = (index === current)
-              let style = {
-                width: this._slideWidth + '%',
-                transform: `translate${axis}(${slidePosition - (translate * direction)}%)`
-              }
-
-              // apply an absolute position to every slide except the current one
-              if (!isCurrent) {
-                style = {
-                  ...style,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0
-                }
-              }
-
-              // make sure leaving slide shows
-              if (leaving.indexOf(index) > -1) {
-                style = {
-                  ...style,
-                  zIndex: 1
-                }
-              }
-
-              return createElement(
-                Slide,
-                {
-                  style,
-                  isCurrent,
+          <div className="slider">
+            <div
+              className="slider__track"
+              style={{
+                width: this._trackWidth + '%',
+                height: wrapperHeight,
+                [TRANSFORM]: `translate3d(${translate}%, 0, 0)`
+              }}
+              {...this._getSwipeEvents()}
+            >
+              {Children.map(children, (child, index) =>
+                createElement(Slide, {
+                  isCurrent: current === index,
                   onSlideHeight: this._handleSlideHeight
-                },
-                child
-              )
-            })}
+                }, child)
+              )}
+            </div>
           </div>
         }
       </Motion>

@@ -7,7 +7,6 @@
 }
 
 .slider {
-  display: flex;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -28,7 +27,12 @@
 .slider--is-dragging {
 }
 
+.slider__track {
+  display: flex;
+}
+
 .slide {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,7 +43,8 @@
 
   @for $i from 1 through 9 {
     &--#{$i} {
-      height: 50 * $i + px;
+      //height: 50 * $i + px;
+      height: 200px;
       background: darken(#B2D8FF, 7% * $i);
     }
   }
