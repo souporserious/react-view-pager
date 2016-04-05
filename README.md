@@ -6,8 +6,8 @@ Slider/Carousel powered by React Motion.
 
 ![react-motion-slider](images/react-motion-slider.gif)
 
-## Disclaimer
-This is highly experimental. API is changing right now and props are going in and out. Working on a stable release as soon as possible. Any ideas or problems, please file an issue.
+## Help Wanted
+This is highly experimental right now. The idea behind this slider is it moves each slide independently rather than on a track. The main benefit of this is that it allows moving to the next slide immediately rather than traveling through every slide in between as well as having an infinite slider. Working on a stable release as soon as possible. Any ideas or problems, please file an issue. Any help is greatly appreciated and welcome.
 
 ## Example Usage
 ```js
