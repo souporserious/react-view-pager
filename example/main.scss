@@ -2,17 +2,17 @@
   max-width: 400px;
   margin: 24px auto;
   border-radius: 3px;
-  background: #fff;
-  padding: 12px;
+  // background: #fff;
+  // padding: 12px;
 }
 
 .slider {
-  overflow: hidden;
+  display: flex;
   padding: 0;
   margin: 0;
   list-style: none;
   position: relative;
-  background: #E6E6E6;
+  overflow: hidden;
 
   &:hover {
     cursor: grab;
@@ -29,17 +29,19 @@
 }
 
 .slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
   padding: 12px;
   text-align: center;
+  color: #fff;
 
-  &--1 {
-    background: #FFA820;
-  }
-  &--2 {
-    background: #b4da55;
-  }
-  &--3 {
-    background: #6EC1FF;
+  @for $i from 1 through 9 {
+    &--#{$i} {
+      height: 50 * $i + px;
+      background: darken(#B2D8FF, 7% * $i);
+    }
   }
 
   h1 {
@@ -67,7 +69,7 @@
 }
 
 .slider__control--next {
-  
+
 }
 
 .slider__pager {
@@ -78,9 +80,7 @@
 }
 
 .slider__page {
-  flex: 1;
-  max-width: 35px;
-  height: 35px;
+  flex: 0 0 35px;
   margin: 12px;
   text-align: center;
   line-height: 35px;

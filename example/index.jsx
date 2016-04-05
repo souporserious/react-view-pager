@@ -138,13 +138,19 @@ class View extends Component {
     return(
       <div
         className={`slide slide--${index + 1}`}
-        style={{
-          ...style,
-          height: 200,
-          //opacity: 0.8
-        }}
+        style={{ ...style }}
       >
         {this.props.children}
+      </div>
+    )
+  }
+}
+
+class Slide extends Component {
+  render() {
+    return (
+      <div>
+        Slide {this.props.index + 1}
       </div>
     )
   }
@@ -153,7 +159,10 @@ class View extends Component {
 @connectToStores
 class App extends Component {
   state = {
-    slides: [One, Two, Three]
+    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
+    autoHeight: false,
+    vertical: false,
+    slidesToShow: 1
   }
 
   static getStores() {
@@ -184,12 +193,34 @@ class App extends Component {
   _handleHeightUpdate = () => {
     this.refs['slider'].setHeight()
   }
-  
+
   render() {
-    const { slides } = this.state
+    const { slides, autoHeight, vertical, slidesToShow } = this.state
 
     return(
       <div>
+        <label>
+          <input
+            type="checkbox"
+            onChange={() => this.setState({autoHeight: !autoHeight})}
+          />
+          Auto Height
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            onChange={() => this.setState({vertical: !vertical})}
+          />
+          Vertical
+        </label>
+        <label>
+          <input
+            type="number"
+            onChange={e => this.setState({slidesToShow: e.target.value})}
+            value={slidesToShow}
+          />
+          Slides To Show
+        </label>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
           <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
@@ -198,16 +229,17 @@ class App extends Component {
           <Slider
             ref="slider"
             className="slider"
-            vertical
-            autoHeight={true}
-            slideConfig={[300, 30]}
+            vertical={vertical}
+            slidesToShow={slidesToShow}
+            autoHeight={autoHeight}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}
           >
             {
-              this.state.slides.map((InnerView, i) => 
+              this.state.slides.map((InnerView, i) =>
                 <View key={`slide-${i}`} index={i}>
                   <InnerView
+                    index={i}
                     isCurrentSlide={this.props.currentRoute === `slide-${i}`}
                     onHeightUpdate={this._handleHeightUpdate}
                   />
