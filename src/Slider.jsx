@@ -4,7 +4,7 @@ import { Motion, spring, presets } from 'react-motion'
 import isInteger from 'is-integer'
 import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
-import modulo from './modulo'
+import getValidIndex from './get-valid-index'
 
 class Slider extends Component {
   static propTypes = {
@@ -17,7 +17,7 @@ class Slider extends Component {
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
-    renderSlidesAtRest: PropTypes.bool
+    springConfig: React.PropTypes.objectOf(React.PropTypes.number)
   }
 
   static defaultProps = {
@@ -28,24 +28,25 @@ class Slider extends Component {
     swipe: true,
     swipeThreshold: 10,
     flickTimeout: 300,
-    renderSlidesAtRest: true
+    springConfig: presets.noWobble
   }
 
   _slideCount = Children.count(this.props.children)
+  _slideWidth = 100 / this.props.slidesToShow
   _deltaX = false
   _deltaY = false
   _startX = false
   _startY = false
   _isSwiping = false
   _isFlick = false
-  _isSliding = false
 
   state = {
-    current: this._getNextIndex(this.props),
-    outgoing: [],
+    current: 0,
+    leaving: [],
     direction: 0,
     speed: 0,
-    height: 0,
+    translate: 0,
+    instant: false,
     sliderWidth: (this._slideCount * 100) / this.props.slidesToShow
   }
 
@@ -54,39 +55,56 @@ class Slider extends Component {
     const nextIndex = this._getNextIndex(nextProps)
 
     this._slideCount = Children.count(nextProps.children)
+    this._slideWidth = 100 / nextProps.slidesToShow
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (current !== nextIndex && nextIndex !== null) {
       const direction = (current > nextIndex) ? -1 : 1
-      this.slide(direction, nextIndex)
+      this.slide(nextIndex, direction)
+    }
+  }
+
+  componentDidMount() {
+    // setTimeout(() => {
+    //   this.slide(5, 1)
+    // }, 2000)
+  }
+
+  componentDidUpdate() {
+    if (this.state.instant) {
+      this.setState({ instant: false })
     }
   }
 
   prev() {
-    this.slide(-1)
+    this.navigate(-1)
   }
 
   next() {
-    this.slide(1)
+    this.navigate(1)
   }
 
-  slide(direction, index) {
-    const { current, speed } = this.state
-    const newIndex = isInteger(index) ? index : modulo(current + direction, this._slideCount)
-    const outgoing = [...this.state.outgoing]
-    const outgoingPos = outgoing.indexOf(newIndex)
+  navigate(direction) {
+    this.slide(this.state.current + (this.props.slidesToMove * direction), direction)
+  }
 
-    // if new index exists in outgoing, remove it
-    if (outgoingPos > -1) {
-      outgoing.splice(outgoingPos, 1)
+  slide(index, direction = 1) {
+    const { current, speed, translate } = this.state
+    const newIndex = getValidIndex(index, this._slideCount)
+    const leaving = [...this.state.leaving]
+    const leavingPos = leaving.indexOf(newIndex)
+
+    // if new index exists in leaving array, remove it
+    if (leavingPos > -1) {
+      leaving.splice(leavingPos, 1)
     }
 
     this.setState({
       current: newIndex,
-      outgoing: outgoing.concat([current]),
-      speed: speed + 1,
+      leaving: leaving.concat([current]),
       direction,
-      isSliding: true
+      speed: speed + 1,
+      translate: 100 // change this value for swipe
     })
   }
 
@@ -98,14 +116,14 @@ class Slider extends Component {
     )
   }
 
-  _handleSlideEnd = () => {
-    if (this.state.outgoing.length > 0) {
-      this.setState({ outgoing: [], speed: 0 })
-    }
-  }
-
-  _handleSlideHeight = (height) => {
-    this.setState({ height })
+  _onSlideEnd = () => {
+    this.setState({
+      leaving: [],
+      direction: 0,
+      speed: 0,
+      translate: 0,
+      instant: true
+    })
   }
 
   _isEndSlide() {
@@ -150,6 +168,7 @@ class Slider extends Component {
     // bail if we aren't swiping
     if (!this._isSwiping) return
 
+    const { vertical, swipeThreshold } = this.props
     const { current, sliderWidth } = this.state
     const swipe = e.touches && e.touches[0] || e
 
@@ -157,11 +176,11 @@ class Slider extends Component {
     this._deltaX = this._startX - swipe.pageX
     this._deltaY = this._startY - swipe.pageY
 
-    if (this._isSwipe(this.props.swipeThreshold)) {
+    if (this._isSwipe(swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
-      const axis = this.props.vertical ? this._deltaY : this._deltaX
-      this.setState({ direction: axis / sliderWidth })
+      const axis = vertical ? this._deltaY : this._deltaX
+      this.setState({ translate: axis / sliderWidth })
     }
   }
 
@@ -215,65 +234,61 @@ class Slider extends Component {
     return swipeEvents
   }
 
-  _childrenToRender(currValue, destValue, instant) {
-    const { children, vertical } = this.props
-    const { current, outgoing, speed, direction, isSliding } = this.state
+  _calcSlidePosition(index) {
+    const { current, leaving, direction, speed } = this.state
+    const speedOffset = (direction * (speed - 1))
+    const leavingPos = leaving.indexOf(index)
 
-    return (
-      Children.map(children, (child, index) => {
-        const position = outgoing.indexOf(index)
-        const isCurrent = (current === index)
-        const isOutgoing = (position > -1)
-
-        return (isCurrent || isOutgoing) && createElement(
-          Slide,
-          {
-            position,
-            speed,
-            direction,
-            axis: vertical ? 'Y' : 'X',
-            outgoing,
-            isCurrent,
-            isOutgoing,
-            currValue,
-            destValue,
-            instant,
-            isSliding,
-            onSlideEnd: this._handleSlideEnd,
-            onSlideHeight: this._handleSlideHeight
-          },
-          child
-        )
-      })
-    )
+    if (leavingPos > -1) {
+      const indexOffset = ((leaving.length - 1) - leavingPos)
+      return (((speed - 1) * 100) + (indexOffset * -100)) * direction
+    } else {
+      const indexOffset = (index + direction)
+      return (indexOffset - (current - speedOffset)) * 100
+    }
   }
 
   render() {
-    const { component, children } = this.props
-    const { speed, height } = this.state
-    const destValue = (speed * 100)
-    const instant = (speed === 0)
+    const { children, slidesToShow, springConfig } = this.props
+    const { current, leaving, instant, translate, direction, speed } = this.state
+    const destValue = (translate * speed)
 
-    return createElement(
-      Motion,
-      {
-        style: {
-          currValue: instant ? destValue : spring(destValue),
-          wrapperHeight: instant ? height : spring(height)
-        },
-        onRest: () => this.setState({ isSliding: false })
-      },
-      ({ currValue, wrapperHeight }) => createElement(
-        component,
-        {
-          className: 'slider',
-          style: {
-            height: wrapperHeight
-          },
-          ...this._getSwipeEvents()
-        },
-        this._childrenToRender(currValue, destValue, instant)
-      )
+    return (
+      <Motion
+        style={{ translate: instant ? destValue : spring(destValue, springConfig) }}
+        onRest={this._onSlideEnd}
+      >
+        {({ translate }) =>
+          <div className="slider" {...this._getSwipeEvents()}>
+            {Children.map(children, (child, index) => {
+              const slidePosition = this._calcSlidePosition(index)
+              let style = {
+                width: this._slideWidth + '%',
+                transform: `translateX(${slidePosition - (translate * direction)}%)`
+              }
+
+              // apply an absolute position to every slide except the current one
+              if (index !== current) {
+                style = {
+                  ...style,
+                  position: 'absolute',
+                  top: 0,
+                  left: 0
+                }
+              }
+
+              if (leaving.indexOf(index) > -1) {
+                style = {
+                  ...style,
+                  zIndex: 1
+                }
+              }
+
+              return cloneElement(child, { style })
+            })}
+          </div>
+        }
+      </Motion>
     )
   }
 }

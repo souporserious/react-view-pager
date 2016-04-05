@@ -149,10 +149,20 @@ class View extends Component {
   }
 }
 
+class Slide extends Component {
+  render() {
+    return (
+      <div>
+        Slide {this.props.index + 1}
+      </div>
+    )
+  }
+}
+
 @connectToStores
 class App extends Component {
   state = {
-    slides: [One, Two, Three],
+    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
     vertical: false
   }
@@ -223,6 +233,7 @@ class App extends Component {
               this.state.slides.map((InnerView, i) =>
                 <View key={`slide-${i}`} index={i}>
                   <InnerView
+                    index={i}
                     isCurrentSlide={this.props.currentRoute === `slide-${i}`}
                     onHeightUpdate={this._handleHeightUpdate}
                   />
