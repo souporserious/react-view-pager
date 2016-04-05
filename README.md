@@ -1,8 +1,10 @@
-## React Motion Slider 0.3.0
+## React Motion Slider
 
 [![Dependency Status](https://david-dm.org/souporserious/react-motion-slider.svg)](https://david-dm.org/souporserious/react-motion-slider)
 
 Slider/Carousel powered by React Motion.
+
+![react-motion-slider](images/react-motion-slider.gif)
 
 ## Disclaimer
 This is highly experimental. API is changing right now and props are going in and out. Working on a stable release as soon as possible. Any ideas or problems, please file an issue.
@@ -12,23 +14,52 @@ This is highly experimental. API is changing right now and props are going in an
 <div>
   <Slider
     ref="slider"
-    component={'ul'} // define what tag to use for wrapper
-    currentKey={'slide-1'} // move to a specific slide by passing it's key
+    component="ul" // define what tag to use for wrapper
+    currentKey="slide-1" // move to a specific slide by passing it's key
     autoHeight={true} // animate slider wrapper
-    sliderConfig={[262, 24]} // RM config for slider if using autoHeight
-    slideConfig={[262, 24]} // RM config for slides 
-    onChange={this._handleChange} // callback after moving to a new slide
   >
     {this.state.slides.map((slide, i) =>
       <li key={`slide-${i}`} className="slide" />
     )}
   </Slider>
   <nav className="slider__controls">
-    <a className="slider__control slider__control--prev" onClick={() => this.refs['slider].prev()}>Prev</a>
-    <a className="slider__control slider__control--next" onClick={() => this.refs['slider].next()}>Next</a>
+    <a className="slider__control slider__control--prev" onClick={() => this.refs['slider'].prev()}>Prev</a>
+    <a className="slider__control slider__control--next" onClick={() => this.refs['slider'].next()}>Next</a>
   </nav>
 </div>
 ```
+
+## Props
+#### `component`: PropTypes.string
+#### `vertical`: PropTypes.bool
+#### `currentKey`: PropTypes.any
+#### `currentIndex`: PropTypes.number
+#### `slidesToShow`: PropTypes.number
+#### `slidesToMove`: PropTypes.number
+#### `swipe`: PropTypes.oneOf([true, false, 'mouse', 'touch'])
+#### `swipeThreshold`: PropTypes.number
+#### `flickTimeout`: PropTypes.number
+#### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number
+
+## Running Locally
+
+clone repo
+
+`git clone git@github.com:souporserious/react-motion-slider.git`
+
+move into folder
+
+`cd ~/react-motion-slider`
+
+install dependencies
+
+`npm install`
+
+run dev mode
+
+`npm run dev`
+
+open your browser and visit: `http://localhost:8080/`
 
 ## CHANGELOG
 ### 0.3.0
