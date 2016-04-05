@@ -31,6 +31,8 @@ class Slider extends Component {
     springConfig: presets.noWobble
   }
 
+  _node = null
+  _sliderWidth = 0
   _slideCount = Children.count(this.props.children)
   _slideWidth = 100 / this.props.slidesToShow
   _deltaX = false
@@ -46,8 +48,7 @@ class Slider extends Component {
     direction: 0,
     speed: 0,
     translate: 0,
-    instant: false,
-    sliderWidth: (this._slideCount * 100) / this.props.slidesToShow
+    instant: false
   }
 
   componentWillReceiveProps(nextProps) {
@@ -65,6 +66,7 @@ class Slider extends Component {
   }
 
   componentDidMount() {
+    this._node = ReactDOM.findDOMNode(this)
     // setTimeout(() => {
     //   this.slide(5, 1)
     // }, 2000)
@@ -156,6 +158,10 @@ class Slider extends Component {
     this._startX = swipe.pageX
     this._startY = swipe.pageY
 
+    // store slider dimensions
+    this.sliderWidth = this._node.offsetWidth
+    this.sliderHeight = this._node.offsetHeight
+
     // determine if a flick or not
     this._isFlick = true
 
@@ -180,7 +186,8 @@ class Slider extends Component {
       e.preventDefault()
       e.stopPropagation()
       const axis = vertical ? this._deltaY : this._deltaX
-      this.setState({ translate: axis / sliderWidth })
+      const dimension = vertical ? this.sliderHeight : this.sliderWidth
+      this.setState({ translate: axis / dimension })
     }
   }
 
