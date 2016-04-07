@@ -1,5 +1,5 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
-import ReactDOM from 'react-dom'
+import { findDOMNode } from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
@@ -7,7 +7,169 @@ import getValidIndex from './get-valid-index'
 
 const TRANSFORM = require('get-prefix')('transform')
 
+
+const range = (a, b) => Array(b).fill().map((_, i) => i + a)
+
+const overlaps = (function () {
+    function getPositions(el) {
+        const rect = el.getBoundingClientRect()
+        return [[rect.left, rect.right], [rect.top, rect.bottom]]
+    }
+
+    function comparePositions(p1, p2) {
+        const r1 = p1[0] < p2[0] ? p1 : p2
+        const r2 = p1[0] < p2[0] ? p2 : p1
+        return r1[1] > r2[0] || r1[0] === r2[0]
+    }
+
+    return function (a, b) {
+        const pos1 = getPositions( a )
+        const pos2 = getPositions( b )
+        return comparePositions(pos1[0], pos2[0]) && comparePositions(pos1[1], pos2[1])
+    }
+})()
+
 class Slider extends Component {
+  static propTypes = {
+    component: PropTypes.string,
+    vertical: PropTypes.bool,
+    currentKey: PropTypes.any,
+    currentIndex: PropTypes.number,
+    slidesToShow: PropTypes.number,
+    slidesToMove: PropTypes.number,
+    springConfig: React.PropTypes.objectOf(React.PropTypes.number)
+  }
+
+  static defaultProps = {
+    component: 'div',
+    vertical: false,
+    slidesToShow: 1,
+    slidesToMove: 1,
+    //springConfig: presets.noWobble
+    springConfig: { stiffness: 33, damping: 35 }
+  }
+
+  _node = null
+  _sliderWidth = 0
+  _slideCount = Children.count(this.props.children)
+  _slideWidth = 100 / this._slideCount
+  _trackWidth = (this._slideCount * 100) / this.props.slidesToShow
+  _currentTween = 0
+
+  state = {
+    currentIndex: 0,
+    direction: null,
+    instant: false,
+    height: 0
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { currentIndex } = this.state
+    const nextIndex = this._getNextIndex(nextProps)
+
+    this._slideCount = Children.count(nextProps.children)
+    this._slideWidth = 100 / this._slideCount
+    this._trackWidth = (this._slideCount * 100) / nextProps.slidesToShow
+
+    // don't update state if index hasn't changed and we're not in the middle of a slide
+    if (currentIndex !== nextIndex && nextIndex !== null) {
+      this.setState({ currentIndex: nextIndex })
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.state.instant) {
+      this.setState({ instant: false })
+    }
+  }
+
+  prev() {
+    const { currentIndex } = this.state
+    if (currentIndex <= 0) return
+
+    this.slide()
+
+    this.setState({ currentIndex: currentIndex - 1, direction: null })
+  }
+
+  next() {
+    const { currentIndex } = this.state
+    if (currentIndex >= this._slideCount - 1) return
+
+    this.slide()
+
+    this.setState({ currentIndex: currentIndex + 1, direction: null })
+  }
+
+  slide() {
+    const slider = findDOMNode(this)
+    const slides = slider.querySelectorAll('.slide')
+    const indices = []
+
+    for (let i = slides.length; i--;) {
+      const slide = slides[i]
+
+      if (overlaps(slider, slide)) {
+        indices.push(i)
+      }
+    }
+
+    const visibleIndex = Math.abs(this._currentTween / (this._slideCount - 1))
+
+    console.log(indices, visibleIndex)
+  }
+
+  _getNextIndex({ currentIndex, currentKey, children }) {
+    return (
+      currentKey
+      ? getIndexFromKey(currentKey, children)
+      : (currentIndex || 0)
+    )
+  }
+
+  _isEndSlide() {
+    const { currentIndex } = this.state
+    return (currentIndex === 0) || (currentIndex === this._slideCount - 1)
+  }
+
+  render() {
+    const { children, vertical, springConfig } = this.props
+    const { currentIndex, leaving, instant, translate, direction, speed, height } = this.state
+    const slidesToMove = this._isEndSlide() ? 1 : this.props.slidesToMove
+    const destValue = ((direction - (currentIndex * slidesToMove)) * 100) / this._slideCount
+    const axis = vertical ? 'Y' : 'X'
+
+    return (
+      <Motion
+        style={{
+          translate: instant ? destValue : spring(destValue, springConfig),
+          wrapperHeight: instant ? height : spring(height, springConfig)
+        }}
+      >
+        {({ translate, wrapperHeight }) => {
+          this._currentTween = translate
+          return (
+            <div className="slider">
+              <div
+                className="slider__track"
+                style={{
+                  width: this._trackWidth + '%',
+                  [TRANSFORM]: `translate3d(${translate}%, 0, 0)`
+                }}
+              >
+                {Children.map(children, (child, index) =>
+                  cloneElement(child)
+                )}
+              </div>
+            </div>
+          )
+        }}
+      </Motion>
+    )
+  }
+}
+
+class Sliders extends Component {
   static propTypes = {
     component: PropTypes.string,
     vertical: PropTypes.bool,
@@ -83,7 +245,7 @@ class Slider extends Component {
 
   next() {
     const { current } = this.state
-    if (current >= this._slideCount - 1 ) return
+    if (current >= this._slideCount - 1) return
     this.setState({ current: current + 1, direction: null })
   }
 
