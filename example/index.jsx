@@ -150,7 +150,7 @@ class Slide extends Component {
   render() {
     return (
       <div>
-        Slide {this.props.index + 1}
+        Slide {this.props.index}
       </div>
     )
   }
@@ -162,7 +162,8 @@ class App extends Component {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
     vertical: false,
-    slidesToShow: 1
+    slidesToShow: 3,
+    slidesToMove: 3
   }
 
   static getStores() {
@@ -195,7 +196,7 @@ class App extends Component {
   }
 
   render() {
-    const { slides, autoHeight, vertical, slidesToShow } = this.state
+    const { slides, autoHeight, vertical, slidesToShow, slidesToMove } = this.state
 
     return(
       <div>
@@ -216,10 +217,18 @@ class App extends Component {
         <label>
           <input
             type="number"
-            onChange={e => this.setState({slidesToShow: e.target.value})}
+            onChange={e => this.setState({slidesToShow: +e.target.value})}
             value={slidesToShow}
           />
           Slides To Show
+        </label>
+        <label>
+          <input
+            type="number"
+            onChange={e => this.setState({slidesToMove: +e.target.value})}
+            value={slidesToMove}
+          />
+          Slides To Move
         </label>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
@@ -231,6 +240,7 @@ class App extends Component {
             className="slider"
             vertical={vertical}
             slidesToShow={slidesToShow}
+            slidesToMove={slidesToMove}
             autoHeight={autoHeight}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}
@@ -255,7 +265,7 @@ class App extends Component {
               className="slider__page"
               onClick={() => routerActions.moveTo(`slide-${i}`)}
             >
-              {i+1}
+              {i}
             </a>
           )}
         </nav>
