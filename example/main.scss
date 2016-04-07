@@ -39,7 +39,7 @@
 
   @for $i from 1 through 9 {
     &--#{$i} {
-      height: 50 * $i + px;
+      height: 100px;
       background: darken(#B2D8FF, 7% * $i);
     }
   }

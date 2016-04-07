@@ -29,7 +29,8 @@ class Slider extends Component {
     swipe: true,
     swipeThreshold: 10,
     flickTimeout: 300,
-    springConfig: presets.noWobble
+    //springConfig: presets.noWobble
+    springConfig: { stiffness: 33, damping: 34}
   }
 
   _node = null
@@ -105,7 +106,7 @@ class Slider extends Component {
       leaving: leaving.concat([current]),
       direction,
       speed: speed + 1,
-      translate: 100
+      translate: 100 // -100, 0, 100
     })
   }
 
