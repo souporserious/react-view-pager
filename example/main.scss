@@ -41,7 +41,7 @@
   text-align: center;
   color: #fff;
 
-  @for $i from 1 through 9 {
+  @for $i from 1 through 10 {
     &--#{$i} {
       //height: 50 * $i + px;
       height: 200px;

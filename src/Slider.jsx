@@ -15,6 +15,7 @@ class Slider extends Component {
     currentIndex: PropTypes.number,
     slidesToShow: PropTypes.number,
     slidesToMove: PropTypes.number,
+    autoHeight: PropTypes.bool,
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
@@ -25,7 +26,8 @@ class Slider extends Component {
     component: 'div',
     vertical: false,
     slidesToShow: 1,
-    slidesToMove: 3,
+    slidesToMove: 1,
+    autoHeight: false,
     swipe: true,
     swipeThreshold: 10,
     flickTimeout: 300,
@@ -65,7 +67,10 @@ class Slider extends Component {
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (currentIndex !== nextIndex && nextIndex !== null) {
-      this.setState({ currentIndex: nextIndex })
+      this.setState({
+        currentIndex: Math.max(0, Math.min(nextIndex, this._slideCount - 1)),
+        direction: null
+      })
     }
   }
 
@@ -76,38 +81,33 @@ class Slider extends Component {
   }
 
   prev() {
-    const { currentIndex } = this.state
-    if (currentIndex <= 0) return
-    this.setState({ currentIndex: currentIndex - 1, direction: null })
+    this.slide(-1)
   }
 
   next() {
-    const { currentIndex } = this.state
-    const newIndex = (currentIndex + this.props.slidesToMove)
-
-    if (currentIndex >= this._slideCount - 1 ) return
-
-
-    //console.log(this._isEndSlide(newIndex + this.props.slidesToShow))
-
-
-    this.setState({ currentIndex: currentIndex + this.props.slidesToMove, direction: null })
+    this.slide(1)
   }
 
-  slide() {
-    //slidesToMove
+  slide(direction) {
+    const { slidesToShow } = this.props
+    const { currentIndex } = this.state
+    const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
+    const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
+
+    this.setState({
+      currentIndex: currentIndex + (slidesToMove * direction),
+      direction: null
+    })
   }
 
   _getNextIndex({ currentIndex, currentKey, children }) {
-    return (
-      currentKey
-      ? getIndexFromKey(currentKey, children)
-      : (currentIndex || 0)
-    )
-  }
-
-  _isEndSlide(index = this.state.currentIndex) {
-    return (index === 0) || (index === this._slideCount - 1)
+    if (this.props.currentIndex !== currentIndex) {
+      return currentIndex
+    } else if (this.props.currentKey !== currentKey) {
+      return getIndexFromKey(currentKey, children)
+    } else {
+      return this.state.currentIndex
+    }
   }
 
   _isSwipe(threshold) {
@@ -162,7 +162,7 @@ class Slider extends Component {
       e.stopPropagation()
       const axis = vertical ? this._deltaY : this._deltaX
       const dimension = vertical ? this.sliderHeight : this._sliderWidth
-      this.setState({ direction: axis / dimension })
+      this.setState({ direction: -(axis / dimension) * this.props.slidesToMove })
     }
   }
 
@@ -171,10 +171,6 @@ class Slider extends Component {
 
     // handle swipe
     if (this._isSwipe(threshold)) {
-      // if an end slide, we still need to set the direction
-      if (this._isEndSlide()) {
-        this.setState({ direction: 0 })
-      }
       (this._deltaX < 0) ? this.prev() : this.next()
     } else {
       this.setState({ direction: 0 })
@@ -221,7 +217,7 @@ class Slider extends Component {
   }
 
   render() {
-    const { children, vertical, springConfig } = this.props
+    const { children, vertical, springConfig, autoHeight } = this.props
     const { currentIndex, direction, instant, height } = this.state
     const destValue = ((direction - currentIndex) * 100) / this._slideCount
     const axis = vertical ? 'Y' : 'X'
@@ -239,7 +235,7 @@ class Slider extends Component {
               className="slider__track"
               style={{
                 width: this._trackWidth + '%',
-                height: wrapperHeight,
+                height: autoHeight && wrapperHeight,
                 [TRANSFORM]: `translate3d(${translate}%, 0, 0)`
               }}
               {...this._getSwipeEvents()}

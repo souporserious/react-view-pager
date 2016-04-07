@@ -159,11 +159,11 @@ class Slide extends Component {
 @connectToStores
 class App extends Component {
   state = {
-    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
+    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
     vertical: false,
-    slidesToShow: 3,
-    slidesToMove: 3
+    slidesToShow: 1,
+    slidesToMove: 2
   }
 
   static getStores() {
