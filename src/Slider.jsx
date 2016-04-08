@@ -78,11 +78,9 @@ class Slider extends Component {
 
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (currentIndex !== nextIndex && nextIndex !== null) {
-      this.setState({
-        currentIndex: Math.max(0, Math.min(nextIndex, this._slideCount - 1))
-      }, () => {
-        nextProps.beforeSlide(currentIndex, nextIndex)
-      })
+      const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
+      nextProps.beforeSlide(currentIndex, clampedIndex)
+      this.setState({ currentIndex: clampedIndex })
     }
   }
 
@@ -102,25 +100,24 @@ class Slider extends Component {
 
   slide(direction) {
     const { currentIndex } = this.state
-    let nextIndex
+    let nextIndex = currentIndex
 
-    // get proper next index
+    // when align type is left we make sure to only move the amount of slides that are available
     if (this.props.align === 'left') {
       const { slidesToShow } = this.props
       const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
       const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
 
-      nextIndex = currentIndex + (slidesToMove * direction)
+      nextIndex += slidesToMove * direction
     } else {
-      nextIndex = currentIndex + direction
+      nextIndex += direction
     }
 
     // keep slides in bounds
     if (nextIndex < 0 || nextIndex > this._slideCount - 1) return
 
-    this.setState({ currentIndex: nextIndex }, () => {
-      this.props.beforeSlide(currentIndex, nextIndex)
-    })
+    this.props.beforeSlide(currentIndex, nextIndex)
+    this.setState({ currentIndex: nextIndex })
   }
 
   _getSliderDimensions() {
@@ -174,7 +171,7 @@ class Slider extends Component {
     // bail if we aren't swiping
     if (!this._isSwiping) return
 
-    const { vertical, swipeThreshold } = this.props
+    const { vertical, swipeThreshold, slidesToMove } = this.props
     const swipe = e.touches && e.touches[0] || e
 
     // determine how much we have moved
@@ -189,7 +186,7 @@ class Slider extends Component {
       const dimension = vertical ? this.sliderHeight : this._sliderWidth
 
       this.setState({
-        swipeOffset: (axis / dimension) * this.props.slidesToMove
+        swipeOffset: (axis / dimension) * slidesToMove
       })
     }
   }
