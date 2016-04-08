@@ -29,7 +29,7 @@ class Slider extends Component {
     slidesToMove: 1,
     autoHeight: false,
     swipe: true,
-    swipeThreshold: 10,
+    swipeThreshold: 0.5,
     flickTimeout: 300,
     springConfig: presets.noWobble
   }
@@ -48,7 +48,8 @@ class Slider extends Component {
 
   state = {
     currentIndex: 0,
-    direction: null,
+    swipeValue: false,
+    direction: 0,
     instant: false,
     height: 0
   }
@@ -69,7 +70,7 @@ class Slider extends Component {
     if (currentIndex !== nextIndex && nextIndex !== null) {
       this.setState({
         currentIndex: Math.max(0, Math.min(nextIndex, this._slideCount - 1)),
-        direction: null
+        direction: 0
       })
     }
   }
@@ -93,11 +94,7 @@ class Slider extends Component {
     const { currentIndex } = this.state
     const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
     const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
-
-    this.setState({
-      currentIndex: currentIndex + (slidesToMove * direction),
-      direction: null
-    })
+    this.setState({ currentIndex: currentIndex + (slidesToMove * direction) })
   }
 
   _getNextIndex({ currentIndex, currentKey, children }) {
@@ -162,21 +159,22 @@ class Slider extends Component {
       e.stopPropagation()
       const axis = vertical ? this._deltaY : this._deltaX
       const dimension = vertical ? this.sliderHeight : this._sliderWidth
-      this.setState({ direction: -(axis / dimension) * this.props.slidesToMove })
+      this.setState({
+        swipeValue: (axis / dimension) * this.props.slidesToMove
+      })
     }
   }
 
   _onSwipeEnd = () =>  {
-    const threshold = this._isFlick ? this.props.swipeThreshold : (this._sliderWidth / 2)
+    const { swipeThreshold } = this.props
+    const threshold = this._isFlick ? swipeThreshold : (this._sliderWidth * swipeThreshold)
 
-    // handle swipe
-    if (this._isSwipe(threshold)) {
-      (this._deltaX < 0) ? this.prev() : this.next()
-    } else {
-      this.setState({ direction: 0 })
-    }
+    this.setState({ swipeValue: false }, () => {
+      if (this._isSwipe(threshold)) {
+        (this._deltaX < 0) ? this.prev() : this.next()
+      }
+    })
 
-    // we are no longer swiping
     this._isSwiping = false
   }
 
@@ -216,10 +214,16 @@ class Slider extends Component {
     this.setState({ height })
   }
 
+  _handleWheel = ({ deltaY }) => {
+    //console.log(deltaY)
+    //this.setState({ direction: deltaY * 0.1 })
+  }
+
   render() {
     const { children, vertical, springConfig, autoHeight } = this.props
-    const { currentIndex, direction, instant, height } = this.state
-    const destValue = ((direction - currentIndex) * 100) / this._slideCount
+    const { currentIndex, swipeValue, direction, instant, height } = this.state
+    const translateValue = swipeValue ? (swipeValue + currentIndex) : currentIndex
+    const destValue = (translateValue * 100) / this._slideCount
     const axis = vertical ? 'Y' : 'X'
 
     return (
@@ -236,8 +240,9 @@ class Slider extends Component {
               style={{
                 width: this._trackWidth + '%',
                 height: autoHeight && wrapperHeight,
-                [TRANSFORM]: `translate3d(${translate}%, 0, 0)`
+                [TRANSFORM]: `translate3d(${-translate}%, 0, 0)`
               }}
+              onWheel={this._handleWheel}
               {...this._getSwipeEvents()}
             >
               {Children.map(children, (child, index) =>
