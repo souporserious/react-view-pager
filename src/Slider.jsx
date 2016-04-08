@@ -79,8 +79,9 @@ class Slider extends Component {
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (currentIndex !== nextIndex && nextIndex !== null) {
       const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
-      nextProps.beforeSlide(currentIndex, clampedIndex)
-      this.setState({ currentIndex: clampedIndex })
+      this.setState({ currentIndex: clampedIndex }, () => {
+        this._beforeSlide(currentIndex, clampedIndex)
+      })
     }
   }
 
@@ -116,7 +117,7 @@ class Slider extends Component {
     // keep slides in bounds
     if (nextIndex < 0 || nextIndex > this._slideCount - 1) return
 
-    this.props.beforeSlide(currentIndex, nextIndex)
+    this._beforeSlide(currentIndex, nextIndex)
     this.setState({ currentIndex: nextIndex })
   }
 
@@ -133,6 +134,18 @@ class Slider extends Component {
     } else {
       return this.state.currentIndex
     }
+  }
+
+  _beforeSlide = (currentIndex, nextIndex) => {
+    this.props.beforeSlide(currentIndex, nextIndex)
+    this._isSliding = true
+    this.forceUpdate()
+  }
+
+  _afterSlide = () => {
+    this.props.afterSlide(this.state.currentIndex)
+    this._isSliding = false
+    this.forceUpdate()
   }
 
   _isSwipe(threshold) {
@@ -249,6 +262,32 @@ class Slider extends Component {
     return (this._frameWidth * (currentIndex + swipeOffset)) - alignOffset
   }
 
+  _onSlideEnd = () => {
+    this._isSliding = false
+  }
+
+  _getSliderClassNames() {
+    const { swipe } = this.props
+    const modifiers = []
+    let sliderClassName = 'slider'
+
+    if (this._isSliding) {
+      modifiers.push('is-sliding')
+    }
+
+    if (swipe) {
+      modifiers.push('is-swipeable')
+    }
+
+    if (this._isSwiping) {
+      modifiers.push('is-swiping')
+    }
+
+    sliderClassName += modifiers.map(modifier => ` ${sliderClassName}--${modifier}`).join('')
+
+    return sliderClassName
+  }
+
   render() {
     const { children, springConfig, autoHeight } = this.props
     const { currentIndex, instant, height } = this.state
@@ -260,10 +299,10 @@ class Slider extends Component {
           translate: instant ? destValue : spring(destValue, springConfig),
           wrapperHeight: instant ? height : spring(height, springConfig)
         }}
-        onRest={() => this.props.afterSlide(currentIndex)}
+        onRest={this._afterSlide}
       >
         {({ translate, wrapperHeight }) =>
-          <div className="slider">
+          <div className={this._getSliderClassNames()}>
             <div
               className="slider__track"
               style={{
