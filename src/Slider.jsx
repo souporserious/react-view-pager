@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
-import getValidIndex from './get-valid-index'
 
 const TRANSFORM = require('get-prefix')('transform')
 
 class Slider extends Component {
   static propTypes = {
-    component: PropTypes.string,
     vertical: PropTypes.bool,
     currentKey: PropTypes.any,
     currentIndex: PropTypes.number,
@@ -19,11 +17,12 @@ class Slider extends Component {
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
-    springConfig: React.PropTypes.objectOf(React.PropTypes.number)
+    springConfig: React.PropTypes.objectOf(React.PropTypes.number),
+    beforeSlide: PropTypes.func,
+    afterSlide: PropTypes.func
   }
 
   static defaultProps = {
-    component: 'div',
     vertical: false,
     slidesToShow: 1,
     slidesToMove: 1,
@@ -31,7 +30,9 @@ class Slider extends Component {
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
-    springConfig: presets.noWobble
+    springConfig: presets.noWobble,
+    beforeSlide: () => null,
+    afterSlide: () => null
   }
 
   _node = null
@@ -49,7 +50,6 @@ class Slider extends Component {
   state = {
     currentIndex: 0,
     swipeValue: false,
-    direction: 0,
     instant: false,
     height: 0
   }
@@ -69,8 +69,9 @@ class Slider extends Component {
     // don't update state if index hasn't changed and we're not in the middle of a slide
     if (currentIndex !== nextIndex && nextIndex !== null) {
       this.setState({
-        currentIndex: Math.max(0, Math.min(nextIndex, this._slideCount - 1)),
-        direction: 0
+        currentIndex: Math.max(0, Math.min(nextIndex, this._slideCount - 1))
+      }, () => {
+        nextProps.beforeSlide(currentIndex, nextIndex)
       })
     }
   }
@@ -94,7 +95,10 @@ class Slider extends Component {
     const { currentIndex } = this.state
     const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
     const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
-    this.setState({ currentIndex: currentIndex + (slidesToMove * direction) })
+    const nextIndex = currentIndex + (slidesToMove * direction)
+    this.setState({ currentIndex: nextIndex }, () => {
+      this.props.beforeSlide(currentIndex, nextIndex)
+    })
   }
 
   _getNextIndex({ currentIndex, currentKey, children }) {
@@ -157,8 +161,10 @@ class Slider extends Component {
     if (this._isSwipe(swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
+
       const axis = vertical ? this._deltaY : this._deltaX
       const dimension = vertical ? this.sliderHeight : this._sliderWidth
+
       this.setState({
         swipeValue: (axis / dimension) * this.props.slidesToMove
       })
@@ -214,14 +220,9 @@ class Slider extends Component {
     this.setState({ height })
   }
 
-  _handleWheel = ({ deltaY }) => {
-    //console.log(deltaY)
-    //this.setState({ direction: deltaY * 0.1 })
-  }
-
   render() {
     const { children, vertical, springConfig, autoHeight } = this.props
-    const { currentIndex, swipeValue, direction, instant, height } = this.state
+    const { currentIndex, swipeValue, instant, height } = this.state
     const translateValue = swipeValue ? (swipeValue + currentIndex) : currentIndex
     const destValue = (translateValue * 100) / this._slideCount
     const axis = vertical ? 'Y' : 'X'
@@ -232,6 +233,7 @@ class Slider extends Component {
           translate: instant ? destValue : spring(destValue, springConfig),
           wrapperHeight: instant ? height : spring(height, springConfig)
         }}
+        onRest={() => this.props.afterSlide(this.state.currentIndex)}
       >
         {({ translate, wrapperHeight }) =>
           <div className="slider">
@@ -242,7 +244,6 @@ class Slider extends Component {
                 height: autoHeight && wrapperHeight,
                 [TRANSFORM]: `translate3d(${-translate}%, 0, 0)`
               }}
-              onWheel={this._handleWheel}
               {...this._getSwipeEvents()}
             >
               {Children.map(children, (child, index) =>
