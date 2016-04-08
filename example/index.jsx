@@ -162,8 +162,9 @@ class App extends Component {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
     vertical: false,
-    slidesToShow: 1,
-    slidesToMove: 2
+    slidesToShow: 2,
+    slidesToMove: 1,
+    align: 'center'
   }
 
   static getStores() {
@@ -196,7 +197,7 @@ class App extends Component {
   }
 
   render() {
-    const { slides, autoHeight, vertical, slidesToShow, slidesToMove } = this.state
+    const { slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
 
     return(
       <div>
@@ -230,6 +231,14 @@ class App extends Component {
           />
           Slides To Move
         </label>
+        <select
+          onChange={e => this.setState({align: e.target.value})}
+          value={align}
+        >
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
         <nav className="slider__controls">
           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
           <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
@@ -242,6 +251,7 @@ class App extends Component {
             slidesToShow={slidesToShow}
             slidesToMove={slidesToMove}
             autoHeight={autoHeight}
+            align={align}
             currentKey={this.props.currentRoute}
             onChange={this._handleChange}
           >
