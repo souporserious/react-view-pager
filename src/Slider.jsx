@@ -71,11 +71,11 @@ class Slider extends Component {
   componentDidMount() {
     this._node = ReactDOM.findDOMNode(this)
     this._getSliderDimensions()
-    this._onChange(this.state.currentIndex)
+    this._onChange(this.state.currentIndex, this.props.slidesToShow)
   }
 
   componentWillReceiveProps(nextProps) {
-    const { currentIndex, currentKey } = this.props
+    const { currentIndex, currentKey, slidesToShow } = this.props
 
     this._slideCount = Children.count(nextProps.children)
     this._frameWidth = (100 / this._slideCount)
@@ -88,9 +88,11 @@ class Slider extends Component {
       const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
 
       this.setState({ currentIndex: clampedIndex }, () => {
-        this._onChange(clampedIndex)
+        this._onChange(clampedIndex, nextProps.slidesToShow)
         this._beforeSlide(this.state.currentIndex, clampedIndex)
       })
+    } else if (slidesToShow !== nextProps.slidesToShow) {
+      this._onChange(this.state.currentIndex, nextProps.slidesToShow)
     }
   }
 
@@ -138,7 +140,7 @@ class Slider extends Component {
 
     newState.currentIndex = nextIndex
 
-    this._onChange(nextIndex)
+    this._onChange(nextIndex, this.props.slidesToShow)
     this._beforeSlide(currentIndex, nextIndex)
     this.setState(newState)
   }
@@ -170,11 +172,9 @@ class Slider extends Component {
     return Math.min(slidesRemaining, slidesToMove) * direction
   }
 
-  _onChange(index) {
-    const { onChange, slidesToShow } = this.props
+  _onChange(index, slidesToShow) {
     const currentIndexes = getSlideRange(index, index + slidesToShow)
-
-    onChange(currentIndexes)
+    this.props.onChange(currentIndexes)
   }
 
   _beforeSlide = (currentIndex, nextIndex) => {
