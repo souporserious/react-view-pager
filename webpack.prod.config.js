@@ -38,7 +38,7 @@ if(TARGET === 'minify') {
       warnings: false
     },
     mangle: {
-      except: ['React', 'Spring', 'Slider']
+      except: ['React', 'Motion', 'spring', 'Slider']
     }
   }));
 }
