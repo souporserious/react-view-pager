@@ -31,17 +31,16 @@ class Slider extends Component {
   }
 
   static defaultProps = {
-    infinite: true,
+    infinite: false,
     vertical: false,
     slidesToShow: 1,
     slidesToMove: 1,
     autoHeight: false,
     align: 'left',
     swipe: true,
-    swipeThreshold: 0.5, // auto? goes by amount of slides showing
+    swipeThreshold: 0.5,
     flickTimeout: 300,
-    //springConfig: presets.noWobble,
-    springConfig: { stiffness: 33, damping: 35 },
+    springConfig: presets.noWobble,
     beforeSlide: () => null,
     afterSlide: () => null
   }
@@ -111,17 +110,15 @@ class Slider extends Component {
     let nextIndex = currentIndex
 
     // when align type is left we make sure to only move the amount of slides that are available
-    // if (this.props.align === 'left') {
-    //   const { slidesToShow } = this.props
-    //   const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
-    //   const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
-    //
-    //   nextIndex += slidesToMove * direction
-    // } else {
-    //   nextIndex += direction
-    // }
+    if (this.props.align === 'left') {
+      const { slidesToShow } = this.props
+      const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
+      const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
 
-    nextIndex += direction
+      nextIndex += slidesToMove * direction
+    } else {
+      nextIndex += direction
+    }
 
     // determine if we need to wrap the index or bail out and keep it in bounds
     if (this.props.infinite) {
@@ -135,7 +132,7 @@ class Slider extends Component {
         newState.wrapping = false
       }
 
-    } else if (nextIndex <= 0 || nextIndex >= this._slideCount - 1) {
+    } else if (nextIndex <= 0 || nextIndex > this._slideCount - 1) {
       return
     }
 
@@ -224,22 +221,10 @@ class Slider extends Component {
 
       const axis = vertical ? this._deltaY : this._deltaX
       const dimension = vertical ? this.sliderHeight : this._sliderWidth
-      const swipeOffset = (axis / dimension) * slidesToMove
-      const state = { swipeOffset }
 
-      // if (this.state.currentIndex === 0 && swipeOffset <= -0.5) {
-      //   state.swipeOffset = 0.5
-      //   state.currentIndex = this._slideCount - 1
-      //   state.instant = true
-      // }
-      //
-      // if (this.state.currentIndex === this._slideCount - 1 && swipeOffset >= 0.5) {
-      //   state.swipeOffset = -0.5
-      //   state.currentIndex = 0
-      //   state.instant = true
-      // }
-
-      this.setState(state)
+      this.setState({
+        swipeOffset: (axis / dimension) * slidesToMove
+      })
     }
   }
 
