@@ -162,9 +162,9 @@ class App extends Component {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
     vertical: false,
-    slidesToShow: 2,
+    slidesToShow: 1,
     slidesToMove: 1,
-    align: 'center'
+    align: 'left'
   }
 
   static getStores() {

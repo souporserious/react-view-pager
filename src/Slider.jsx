@@ -111,11 +111,7 @@ class Slider extends Component {
 
     // when align type is left we make sure to only move the amount of slides that are available
     if (this.props.align === 'left') {
-      const { slidesToShow } = this.props
-      const slidesRemaining = (direction === -1) ? currentIndex : this._slideCount - (currentIndex + slidesToShow)
-      const slidesToMove = Math.min(slidesRemaining, this.props.slidesToMove)
-
-      nextIndex += slidesToMove * direction
+      nextIndex += this._getSlidesToMove(currentIndex, direction)
     } else {
       nextIndex += direction
     }
@@ -131,8 +127,7 @@ class Slider extends Component {
       } else {
         newState.wrapping = false
       }
-
-    } else if (nextIndex <= 0 || nextIndex > this._slideCount - 1) {
+    } else if (!Children.toArray(this.props.children)[nextIndex]) {
       return
     }
 
@@ -158,6 +153,15 @@ class Slider extends Component {
     } else {
       return this.state.currentIndex
     }
+  }
+
+  _getSlidesToMove(index, direction) {
+    const { slidesToShow, slidesToMove } = this.props
+    const slidesRemaining = (direction === 1)
+      ? this._slideCount - (index + slidesToShow)
+      : index
+
+    return Math.min(slidesRemaining, slidesToMove) * direction
   }
 
   _beforeSlide = (currentIndex, nextIndex) => {
@@ -293,7 +297,7 @@ class Slider extends Component {
       }
     }
 
-    return destValue
+    return destValue * -1
   }
 
   _onSlideEnd = () => {
@@ -348,7 +352,7 @@ class Slider extends Component {
                 style={{
                   width: this._trackWidth + '%',
                   height: autoHeight && wrapperHeight,
-                  [TRANSFORM]: `translate3d(${-translate}%, 0, 0)`
+                  [TRANSFORM]: `translate3d(${translate}%, 0, 0)`
                 }}
                 {...this._getSwipeEvents()}
               >
