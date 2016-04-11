@@ -6,16 +6,18 @@ Slider/Carousel powered by React Motion.
 
 ![react-motion-slider](images/react-motion-slider.gif)
 
-## Help Wanted
-This is highly experimental right now. The idea behind this slider is it moves each slide independently rather than on a track. The main benefit of this is that it allows moving to the next slide immediately rather than traveling through every slide in between as well as having an infinite slider. Working on a stable release as soon as possible. Any ideas or problems, please file an issue. Any help is greatly appreciated and welcome.
+## Usage
+
+`npm install react-motion-slider --save`
+
+`bower install react-motion-slider --save`
 
 ## Example Usage
 ```js
 <div>
   <Slider
     ref="slider"
-    component="ul" // define what tag to use for wrapper
-    currentKey="slide-1" // move to a specific slide by passing it's key
+    currentKey="slide-3" // move to a specific slide by passing its key
     autoHeight={true} // animate slider wrapper
   >
     {this.state.slides.map((slide, i) =>
@@ -23,23 +25,79 @@ This is highly experimental right now. The idea behind this slider is it moves e
     )}
   </Slider>
   <nav className="slider__controls">
-    <a className="slider__control slider__control--prev" onClick={() => this.refs['slider'].prev()}>Prev</a>
-    <a className="slider__control slider__control--next" onClick={() => this.refs['slider'].next()}>Next</a>
+    <a
+      className="slider__control slider__control--prev"
+      onClick={() => this.refs['slider'].prev()}
+    >
+      Prev
+    </a>
+    <a
+      className="slider__control slider__control--next"
+      onClick={() => this.refs['slider'].next()}
+    >
+      Next
+    </a>
   </nav>
 </div>
 ```
 
 ## Props
-#### `component`: PropTypes.string
-#### `vertical`: PropTypes.bool
-#### `currentKey`: PropTypes.any
-#### `currentIndex`: PropTypes.number
-#### `slidesToShow`: PropTypes.number
-#### `slidesToMove`: PropTypes.number
-#### `swipe`: PropTypes.oneOf([true, false, 'mouse', 'touch'])
-#### `swipeThreshold`: PropTypes.number
-#### `flickTimeout`: PropTypes.number
-#### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number
+### `currentKey`: PropTypes.any
+
+Move to a slide by its key.
+
+### `currentIndex`: PropTypes.number
+
+Move to a slide by its index.
+
+### `slidesToShow`: PropTypes.number
+
+The amount of slides shown in view. Defaults to `1`.
+
+### `slidesToMove`: PropTypes.number
+
+The amount of slides to move upon using `prev` and `next` methods. Defaults to `1`.
+
+### `autoHeight`: PropTypes.bool
+
+Animates the wrapper height to fit the current slide. Defaults to `false`.
+
+### `align`: PropTypes.oneOf(['left', 'center', 'right'])
+
+Offsets the slide to align either `left` (default), `center`, or `right`.
+
+### `swipe`: PropTypes.oneOf([true, false, 'touch', 'mouse'])
+
+Enable touch and/or mouse dragging. Defaults to `true`.
+
+### `swipeThreshold`: PropTypes.number
+
+The amount the user must swipe to advance slides. `(sliderWidth * swipeThreshold)`. Defaults  to `0.5`
+
+### `flickTimeout`: PropTypes.number
+
+The amount of time in milliseconds that determines if a swipe was a flick or not.
+
+### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
+
+Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
+
+### `beforeSlide`: PropTypes.func(currentIndex, nextIndex)
+
+Prop callback fired before slide change.
+
+### `afterSlide`: PropTypes.fun(currentIndex)
+
+Prop callback fired after slide change.
+
+## Public methods
+### `prev`
+
+Moves to the previous slide.
+
+### `next`
+
+Advances to the next slide.
 
 ## Running Locally
 
@@ -60,22 +118,3 @@ run dev mode
 `npm run dev`
 
 open your browser and visit: `http://localhost:8080/`
-
-## CHANGELOG
-### 0.3.0
-**Breaking Changes**
-Upgraded to React Motion 0.3.0
-
-### 0.2.0
-**Breaking Changes**
-Refactored almost all code, somewhat similiar API, touch support and some other props were removed for now, will be back in soon
-
-Slider now moves directly to new slides rather than running through everything in between
-
-If using a custom component be sure to pass the `style` prop passed in to apply proper styles for moving slides around. Look in example folder for implementation.
-
-### 0.1.0
-**Breaking Changes**
-`defaultSlide` prop is now `currentKey`, pass the slides key to navigate to it
-
-exposed as the component `Slider` now instead of and an object
