@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 0.4.0
+Refactored all code... again. Props are mostly the same, some new ones added. Future changes will be documented better.
+
 ### 0.3.0
 **Breaking Changes**
 Upgraded to React Motion 0.3.0

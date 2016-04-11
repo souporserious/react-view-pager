@@ -1,6 +1,6 @@
 {
   "name": "react-motion-slider",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Slider/Carousel powered by React Motion.",
   "main": "lib/react-motion-slider.js",
   "scripts": {
