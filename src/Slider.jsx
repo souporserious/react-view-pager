@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
+import getSlideRange from './get-slide-range'
 import modulo from './modulo'
 
 const TRANSFORM = require('get-prefix')('transform')
@@ -41,6 +42,7 @@ class Slider extends Component {
     swipeThreshold: 0.5,
     flickTimeout: 300,
     springConfig: presets.noWobble,
+    onChange: () => null,
     beforeSlide: () => null,
     afterSlide: () => null
   }
@@ -69,22 +71,25 @@ class Slider extends Component {
   componentDidMount() {
     this._node = ReactDOM.findDOMNode(this)
     this._getSliderDimensions()
+    this._onChange(this.state.currentIndex)
   }
 
   componentWillReceiveProps(nextProps) {
-    const { currentIndex } = this.state
-    const nextIndex = this._getNextIndex(nextProps)
+    const { currentIndex, currentKey } = this.props
 
     this._slideCount = Children.count(nextProps.children)
     this._frameWidth = (100 / this._slideCount)
     this._slideWidth = this._frameWidth / nextProps.slidesToShow
     this._trackWidth = (this._slideCount * 100) / nextProps.slidesToShow
 
-    // don't update state if index hasn't changed and we're not in the middle of a slide
-    if (currentIndex !== nextIndex && nextIndex !== null) {
+    if (currentIndex !== nextProps.currentIndex ||
+        currentKey !== nextProps.currentKey) {
+      const nextIndex = this._getNextIndex(nextProps)
       const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
+
       this.setState({ currentIndex: clampedIndex }, () => {
-        this._beforeSlide(currentIndex, clampedIndex)
+        this._onChange(clampedIndex)
+        this._beforeSlide(this.state.currentIndex, clampedIndex)
       })
     }
   }
@@ -133,6 +138,7 @@ class Slider extends Component {
 
     newState.currentIndex = nextIndex
 
+    this._onChange(nextIndex)
     this._beforeSlide(currentIndex, nextIndex)
     this.setState(newState)
   }
@@ -164,14 +170,33 @@ class Slider extends Component {
     return Math.min(slidesRemaining, slidesToMove) * direction
   }
 
+  _onChange(index) {
+    const { onChange, slidesToShow } = this.props
+    const currentIndexes = getSlideRange(index, index + slidesToShow)
+
+    onChange(currentIndexes)
+  }
+
   _beforeSlide = (currentIndex, nextIndex) => {
-    this.props.beforeSlide(currentIndex, nextIndex)
+    const { beforeSlide, slidesToShow } = this.props
+
+    beforeSlide(
+      getSlideRange(currentIndex, currentIndex + slidesToShow),
+      getSlideRange(nextIndex, nextIndex + slidesToShow)
+    )
+
     this._isSliding = true
     this.forceUpdate()
   }
 
   _afterSlide = () => {
-    this.props.afterSlide(this.state.currentIndex)
+    const { afterSlide, slidesToShow } = this.props
+    const { currentIndex } = this.state
+
+    afterSlide(
+      getSlideRange(currentIndex, currentIndex + slidesToShow)
+    )
+
     this._isSliding = false
     this.forceUpdate()
   }

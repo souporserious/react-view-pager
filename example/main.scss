@@ -94,6 +94,11 @@
   cursor: pointer;
 }
 
+.slider__page--active {
+  border-color: #0C82E6;
+  color: #0C82E6;
+}
+
 // layout specific
 * {
   box-sizing: border-box;

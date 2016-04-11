@@ -162,9 +162,10 @@ class App extends Component {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     autoHeight: false,
     vertical: false,
-    slidesToShow: 1,
+    slidesToShow: 3,
     slidesToMove: 1,
-    align: 'left'
+    align: 'left',
+    activeIndexes: []
   }
 
   static getStores() {
@@ -189,7 +190,10 @@ class App extends Component {
     this.refs['slider'].next()
   }
 
-  _handleChange(key, index) {
+  _handleChange = (nextIndexes) => {
+    this.setState({
+      activeIndexes: nextIndexes
+    })
   }
 
   _handleHeightUpdate = () => {
@@ -197,7 +201,7 @@ class App extends Component {
   }
 
   render() {
-    const { slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
+    const { activeIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
 
     return(
       <div>
@@ -272,7 +276,7 @@ class App extends Component {
           {this.state.slides.map((slide, i) =>
             <a
               key={`page-${i}`}
-              className="slider__page"
+              className={`slider__page ${activeIndexes.indexOf(i) > -1 ? 'slider__page--active' : ''}`}
               onClick={() => routerActions.moveTo(`slide-${i}`)}
             >
               {i}
