@@ -99,7 +99,7 @@ class Slider extends Component {
     this._onChange(this.state.currentIndex, this.props.slidesToShow)
   }
 
-  componentWillReceiveProps({ currentKey, currentIndex, slidesToShow, children }) {
+  componentWillReceiveProps({ currentKey, currentIndex, slidesToShow, align, children }) {
     this._slideCount = Children.count(children)
     this._frameWidth = (100 / this._slideCount)
     this._slideWidth = this._frameWidth / slidesToShow
@@ -117,16 +117,24 @@ class Slider extends Component {
         nextIndex = currentIndex
       }
 
-      const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
+      // "contain" the slides if left aligned
+      if (align === 'left' && nextIndex !== this.state.currentIndex) {
+        // const direction = nextIndex > this.state.currentIndex ? 1 : -1
+        // nextIndex += this._getSlidesToMove(nextIndex, direction)
+      // if not containing, make sure index stays within bounds
+      } else {
+        nextIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
+      }
 
-      this._beforeSlide(this.state.currentIndex, clampedIndex)
+      this._beforeSlide(this.state.currentIndex, nextIndex)
 
       this.setState({
-        currentIndex: clampedIndex,
-        currentKey: getKeyfromIndex(clampedIndex, children)
+        currentIndex: nextIndex,
+        currentKey: getKeyfromIndex(nextIndex, children)
       }, () => {
-        this._onChange(clampedIndex, slidesToShow)
+        this._onChange(nextIndex, slidesToShow)
       })
+    // if slidesToShow has changed we need to fire an onChange with the updated indexes
     } else if (this.props.slidesToShow !== slidesToShow) {
       this._onChange(this.state.currentIndex, slidesToShow)
     }
@@ -165,7 +173,7 @@ class Slider extends Component {
       nextIndex += direction
     }
 
-    // determine if we need to wrap the index or bail out and keep it in bounds
+    // determine if we need to wrap the index
     if (this.props.infinite) {
       nextIndex = modulo(nextIndex, this._slideCount)
 
@@ -176,6 +184,7 @@ class Slider extends Component {
       } else {
         newState.wrapping = false
       }
+    // bail out if index does not exist
     } else if (!childrenArray[nextIndex]) {
       return
     }
@@ -338,7 +347,7 @@ class Slider extends Component {
     return swipeEvents
   }
 
-  _handleSlideHeight = (height) => {
+  _setSlideHeight = (height) => {
     this.setState({ height })
   }
 
@@ -444,7 +453,7 @@ class Slider extends Component {
                     createElement(Slide, {
                       style,
                       isCurrent: currentIndex === index,
-                      onSlideHeight: this._handleSlideHeight
+                      onSlideHeight: this._setSlideHeight
                     }, child)
                   )
                 })}
