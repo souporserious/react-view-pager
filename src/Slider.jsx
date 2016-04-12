@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Slide from './Slide'
 import getIndexFromKey from './get-index-from-key'
+import getKeyfromIndex from './get-key-from-index'
 import getSlideRange from './get-slide-range'
 import modulo from './modulo'
 
@@ -32,6 +33,8 @@ class Slider extends Component {
   }
 
   static defaultProps = {
+    currentIndex: 0,
+    currentKey: null,
     infinite: false,
     vertical: false,
     slidesToShow: 1,
@@ -61,7 +64,8 @@ class Slider extends Component {
   _isFlick = false
 
   state = {
-    currentIndex: 0,
+    currentIndex: this.props.currentIndex,
+    currentKey: this.props.currentKey,
     swipeOffset: 0,
     instant: false,
     wrapping: false,
@@ -74,25 +78,36 @@ class Slider extends Component {
     this._onChange(this.state.currentIndex, this.props.slidesToShow)
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { currentIndex, currentKey, slidesToShow } = this.props
-
-    this._slideCount = Children.count(nextProps.children)
+  componentWillReceiveProps({ currentIndex, currentKey, slidesToShow, children }) {
+    this._slideCount = Children.count(children)
     this._frameWidth = (100 / this._slideCount)
-    this._slideWidth = this._frameWidth / nextProps.slidesToShow
-    this._trackWidth = (this._slideCount * 100) / nextProps.slidesToShow
+    this._slideWidth = this._frameWidth / slidesToShow
+    this._trackWidth = (this._slideCount * 100) / slidesToShow
 
-    if (currentIndex !== nextProps.currentIndex ||
-        currentKey !== nextProps.currentKey) {
-      const nextIndex = this._getNextIndex(nextProps)
+    const newIndex = (this.props.currentIndex !== currentIndex && this.state.currentIndex !== currentIndex)
+    const newKey = (this.props.currentKey !== currentKey && this.state.currentKey !== currentKey)
+
+    if (newIndex || newKey) {
+      let nextIndex = null
+
+      if (newIndex) {
+        nextIndex = currentIndex
+      } else if (newKey) {
+        nextIndex = getIndexFromKey(currentKey, children)
+      }
+
       const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
 
-      this.setState({ currentIndex: clampedIndex }, () => {
-        this._onChange(clampedIndex, nextProps.slidesToShow)
-        this._beforeSlide(this.state.currentIndex, clampedIndex)
+      this._beforeSlide(this.state.currentIndex, clampedIndex)
+
+      this.setState({
+        currentIndex: clampedIndex,
+        currentKey: getKeyfromIndex(clampedIndex, children)
+      }, () => {
+        this._onChange(clampedIndex, slidesToShow)
       })
-    } else if (slidesToShow !== nextProps.slidesToShow) {
-      this._onChange(this.state.currentIndex, nextProps.slidesToShow)
+    } else if (this.props.slidesToShow !== slidesToShow) {
+      this._onChange(this.state.currentIndex, slidesToShow)
     }
   }
 
@@ -113,6 +128,7 @@ class Slider extends Component {
 
   slide(direction) {
     const { currentIndex } = this.state
+    const childrenArray = Children.toArray(this.props.children)
     const newState = {}
     let nextIndex = currentIndex
 
@@ -134,33 +150,23 @@ class Slider extends Component {
       } else {
         newState.wrapping = false
       }
-    } else if (!Children.toArray(this.props.children)[nextIndex]) {
+    } else if (!childrenArray[nextIndex]) {
       return
     }
 
     newState.currentIndex = nextIndex
+    newState.currentKey = getKeyfromIndex(nextIndex, this.props.children)
 
-    this._onChange(nextIndex, this.props.slidesToShow)
     this._beforeSlide(currentIndex, nextIndex)
-    this.setState(newState)
+
+    this.setState(newState, () => {
+      this._onChange(nextIndex, this.props.slidesToShow)
+    })
   }
 
   _getSliderDimensions() {
     this._sliderWidth = this._node.offsetWidth
     this._sliderHeight = this._node.offsetHeight
-  }
-
-  _getNextIndex({ currentIndex, currentKey, children }) {
-    const currentChildren = React.Children.toArray(this.props.children)
-    const currentChild = currentChildren[this.state.currentIndex]
-
-    if (this.props.currentIndex !== currentIndex) {
-      return currentIndex
-    } else if (currentChild.key !== currentKey) {
-      return getIndexFromKey(currentKey, children)
-    } else {
-      return this.state.currentIndex
-    }
   }
 
   _getSlidesToMove(index, direction) {
@@ -174,7 +180,7 @@ class Slider extends Component {
 
   _onChange(index, slidesToShow) {
     const currentIndexes = getSlideRange(index, index + slidesToShow)
-    this.props.onChange(currentIndexes)
+    this.props.onChange(currentIndexes, this.state.currentKey)
   }
 
   _beforeSlide = (currentIndex, nextIndex) => {

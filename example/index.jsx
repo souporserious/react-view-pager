@@ -156,30 +156,16 @@ class Slide extends Component {
   }
 }
 
-@connectToStores
 class App extends Component {
   state = {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
+    currentKey: null,
+    currentIndexes: [],
     autoHeight: false,
     vertical: false,
     slidesToShow: 3,
     slidesToMove: 1,
-    align: 'left',
-    activeIndexes: []
-  }
-
-  static getStores() {
-    return [routerStore, heightStore]
-  }
-
-  static getPropsFromStores() {
-    return {
-      ...routerStore.getState(),
-      ...heightStore.getState()
-    }
-  }
-
-  componentDidUpdate() {
+    align: 'left'
   }
 
   prev = () => {
@@ -190,19 +176,15 @@ class App extends Component {
     this.refs['slider'].next()
   }
 
-  _handleChange = (nextIndexes) => {
+  _handleChange = (nextIndexes, nextKey) => {
     this.setState({
-      activeIndexes: nextIndexes
+      currentKey: nextKey,
+      currentIndexes: nextIndexes
     })
   }
 
-  _handleHeightUpdate = () => {
-    this.refs['slider'].setHeight()
-  }
-
   render() {
-    const { activeIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
-
+    const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
     return(
       <div>
         <label>
@@ -256,7 +238,7 @@ class App extends Component {
             slidesToMove={slidesToMove}
             autoHeight={autoHeight}
             align={align}
-            currentKey={this.props.currentRoute}
+            currentKey={currentKey}
             onChange={this._handleChange}
           >
             {
@@ -276,8 +258,8 @@ class App extends Component {
           {this.state.slides.map((slide, i) =>
             <a
               key={`page-${i}`}
-              className={`slider__page ${activeIndexes.indexOf(i) > -1 ? 'slider__page--active' : ''}`}
-              onClick={() => routerActions.moveTo(`slide-${i}`)}
+              className={`slider__page ${currentIndexes.indexOf(i) > -1 ? 'slider__page--active' : ''}`}
+              onClick={() => this.setState({ currentKey: `slide-${i}` })}
             >
               {i}
             </a>
