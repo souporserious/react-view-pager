@@ -138,8 +138,8 @@ class Slider extends Component {
   }
 
   componentDidUpdate() {
-    const { instant, wrapping } = this.state
-    if (instant || wrapping) {
+    const { swipeOffset, instant, wrapping } = this.state
+    if (swipeOffset === 0 && (instant || wrapping)) {
       this._onSlideEnd()
     }
   }
@@ -284,7 +284,8 @@ class Slider extends Component {
       const dimension = vertical ? this.sliderHeight : this._sliderWidth
 
       this.setState({
-        swipeOffset: (axis / dimension) * slidesToMove
+        swipeOffset: (axis / dimension) * slidesToMove,
+        instant: true
       })
     }
   }
@@ -293,7 +294,10 @@ class Slider extends Component {
     const { swipeThreshold } = this.props
     const threshold = this._isFlick ? swipeThreshold : (this._sliderWidth * swipeThreshold)
 
-    this.setState({ swipeOffset: 0 }, () => {
+    this.setState({
+      swipeOffset: 0,
+      instant: false
+    }, () => {
       if (this._isSwipe(threshold)) {
         (this._deltaX < 0) ? this.prev() : this.next()
       }
