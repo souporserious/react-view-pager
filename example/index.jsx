@@ -158,7 +158,7 @@ class Slide extends Component {
 
 class App extends Component {
   state = {
-    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
+    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide],
     currentKey: 'slide-3',
     currentIndexes: [],
     autoHeight: false,
@@ -166,6 +166,12 @@ class App extends Component {
     slidesToShow: 3,
     slidesToMove: 1,
     align: 'left'
+  }
+
+  addSlide = () => {
+    this.setState({
+      slides: [...this.state.slides, Slide]
+    })
   }
 
   prev = () => {
@@ -187,6 +193,9 @@ class App extends Component {
     const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
     return(
       <div>
+        <button onClick={this.addSlide}>
+          Add Slides
+        </button>
         <label>
           <input
             type="checkbox"

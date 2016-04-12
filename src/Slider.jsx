@@ -130,6 +130,11 @@ class Slider extends Component {
     } else if (this.props.slidesToShow !== slidesToShow) {
       this._onChange(this.state.currentIndex, slidesToShow)
     }
+
+    // if we are receiving new slides we need to animate to the new position instantly
+    if (Children.count(this.props.children) !== Children.count(children)) {
+      this.setState({ instant: true })
+    }
   }
 
   componentDidUpdate() {
