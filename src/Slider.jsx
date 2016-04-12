@@ -16,12 +16,12 @@ const ALIGN_TYPES = {
 
 class Slider extends Component {
   static propTypes = {
-    infinite: PropTypes.bool,
-    vertical: PropTypes.bool,
     currentKey: PropTypes.any,
     currentIndex: PropTypes.number,
     slidesToShow: PropTypes.number,
     slidesToMove: PropTypes.number,
+    infinite: PropTypes.bool,
+    vertical: PropTypes.bool,
     autoHeight: PropTypes.bool,
     align: PropTypes.oneOf(['left', 'center', 'right']),
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
@@ -33,12 +33,12 @@ class Slider extends Component {
   }
 
   static defaultProps = {
-    currentIndex: 0,
     currentKey: null,
-    infinite: false,
-    vertical: false,
+    currentIndex: 0,
     slidesToShow: 1,
     slidesToMove: 1,
+    infinite: false,
+    vertical: false,
     autoHeight: false,
     align: 'left',
     swipe: true,
@@ -72,28 +72,49 @@ class Slider extends Component {
     height: 0
   }
 
+  componentWillMount() {
+    const { currentKey, currentIndex, children } = this.props
+    let nextIndex = null
+
+    if (currentKey) {
+      nextIndex = getIndexFromKey(currentKey, children)
+    } else if (currentIndex) {
+      nextIndex = currentIndex
+    }
+
+    if (nextIndex) {
+      const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))
+
+      this.setState({
+        currentIndex: clampedIndex,
+        currentKey: getKeyfromIndex(clampedIndex, children),
+        instant: true
+      })
+    }
+  }
+
   componentDidMount() {
     this._node = ReactDOM.findDOMNode(this)
     this._getSliderDimensions()
     this._onChange(this.state.currentIndex, this.props.slidesToShow)
   }
 
-  componentWillReceiveProps({ currentIndex, currentKey, slidesToShow, children }) {
+  componentWillReceiveProps({ currentKey, currentIndex, slidesToShow, children }) {
     this._slideCount = Children.count(children)
     this._frameWidth = (100 / this._slideCount)
     this._slideWidth = this._frameWidth / slidesToShow
     this._trackWidth = (this._slideCount * 100) / slidesToShow
 
-    const newIndex = (this.props.currentIndex !== currentIndex && this.state.currentIndex !== currentIndex)
     const newKey = (this.props.currentKey !== currentKey && this.state.currentKey !== currentKey)
+    const newIndex = (this.props.currentIndex !== currentIndex && this.state.currentIndex !== currentIndex)
 
-    if (newIndex || newKey) {
+    if (newKey || newIndex) {
       let nextIndex = null
 
-      if (newIndex) {
-        nextIndex = currentIndex
-      } else if (newKey) {
+      if (newKey) {
         nextIndex = getIndexFromKey(currentKey, children)
+      } else if (newIndex) {
+        nextIndex = currentIndex
       }
 
       const clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1))

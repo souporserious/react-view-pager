@@ -159,7 +159,7 @@ class Slide extends Component {
 class App extends Component {
   state = {
     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide, Slide],
-    currentKey: null,
+    currentKey: 'slide-3',
     currentIndexes: [],
     autoHeight: false,
     vertical: false,
