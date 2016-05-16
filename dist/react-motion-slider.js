@@ -111,11 +111,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _getIndexFromKey2 = _interopRequireDefault(_getIndexFromKey);
 
-	var _modulo = __webpack_require__(7);
+	var _getKeyFromIndex = __webpack_require__(7);
+
+	var _getKeyFromIndex2 = _interopRequireDefault(_getKeyFromIndex);
+
+	var _getSlideRange = __webpack_require__(8);
+
+	var _getSlideRange2 = _interopRequireDefault(_getSlideRange);
+
+	var _modulo = __webpack_require__(9);
 
 	var _modulo2 = _interopRequireDefault(_modulo);
 
-	var TRANSFORM = __webpack_require__(8)('transform');
+	var TRANSFORM = __webpack_require__(10)('transform');
 	var ALIGN_TYPES = {
 	  left: 0,
 	  center: 0.5,
@@ -145,7 +153,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._isSwiping = false;
 	    this._isFlick = false;
 	    this.state = {
-	      currentIndex: 0,
+	      currentIndex: this.props.currentIndex,
+	      currentKey: this.props.currentKey,
 	      swipeOffset: 0,
 	      instant: false,
 	      wrapping: false,
@@ -153,13 +162,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    this._beforeSlide = function (currentIndex, nextIndex) {
-	      _this.props.beforeSlide(currentIndex, nextIndex);
+	      var _props = _this.props;
+	      var beforeSlide = _props.beforeSlide;
+	      var slidesToShow = _props.slidesToShow;
+
+	      beforeSlide((0, _getSlideRange2['default'])(currentIndex, currentIndex + slidesToShow), (0, _getSlideRange2['default'])(nextIndex, nextIndex + slidesToShow));
+
 	      _this._isSliding = true;
 	      _this.forceUpdate();
 	    };
 
 	    this._afterSlide = function () {
-	      _this.props.afterSlide(_this.state.currentIndex);
+	      var _props2 = _this.props;
+	      var afterSlide = _props2.afterSlide;
+	      var slidesToShow = _props2.slidesToShow;
+	      var currentIndex = _this.state.currentIndex;
+
+	      afterSlide((0, _getSlideRange2['default'])(currentIndex, currentIndex + slidesToShow));
+
 	      _this._isSliding = false;
 	      _this.forceUpdate();
 	    };
@@ -189,10 +209,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // bail if we aren't swiping
 	      if (!_this._isSwiping) return;
 
-	      var _props = _this.props;
-	      var vertical = _props.vertical;
-	      var swipeThreshold = _props.swipeThreshold;
-	      var slidesToMove = _props.slidesToMove;
+	      var _props3 = _this.props;
+	      var vertical = _props3.vertical;
+	      var swipeThreshold = _props3.swipeThreshold;
+	      var slidesToMove = _props3.slidesToMove;
 
 	      var swipe = e.touches && e.touches[0] || e;
 
@@ -208,7 +228,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var dimension = vertical ? _this.sliderHeight : _this._sliderWidth;
 
 	        _this.setState({
-	          swipeOffset: axis / dimension * slidesToMove
+	          swipeOffset: axis / dimension * slidesToMove,
+	          instant: true
 	        });
 	      }
 	    };
@@ -218,7 +239,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var threshold = _this._isFlick ? swipeThreshold : _this._sliderWidth * swipeThreshold;
 
-	      _this.setState({ swipeOffset: 0 }, function () {
+	      _this.setState({
+	        swipeOffset: 0,
+	        instant: false
+	      }, function () {
 	        if (_this._isSwipe(threshold)) {
 	          _this._deltaX < 0 ? _this.prev() : _this.next();
 	        }
@@ -234,7 +258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    };
 
-	    this._handleSlideHeight = function (height) {
+	    this._setSlideHeight = function (height) {
 	      _this.setState({ height: height });
 	    };
 
@@ -248,43 +272,104 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(Slider, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var _props4 = this.props;
+	      var currentKey = _props4.currentKey;
+	      var currentIndex = _props4.currentIndex;
+	      var children = _props4.children;
+
+	      var nextIndex = null;
+
+	      if (currentKey) {
+	        nextIndex = (0, _getIndexFromKey2['default'])(currentKey, children);
+	      } else if (currentIndex) {
+	        nextIndex = currentIndex;
+	      }
+
+	      if (nextIndex) {
+	        var clampedIndex = Math.max(0, Math.min(nextIndex, this._slideCount - 1));
+
+	        this.setState({
+	          currentIndex: clampedIndex,
+	          currentKey: (0, _getKeyFromIndex2['default'])(clampedIndex, children),
+	          instant: true
+	        });
+	      }
+	    }
+	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      this._node = _reactDom2['default'].findDOMNode(this);
 	      this._getSliderDimensions();
+	      this._onChange(this.state.currentIndex, this.props.slidesToShow);
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
+	    value: function componentWillReceiveProps(_ref2) {
 	      var _this2 = this;
 
-	      var currentIndex = this.state.currentIndex;
+	      var currentKey = _ref2.currentKey;
+	      var currentIndex = _ref2.currentIndex;
+	      var slidesToShow = _ref2.slidesToShow;
+	      var align = _ref2.align;
+	      var children = _ref2.children;
 
-	      var nextIndex = this._getNextIndex(nextProps);
-
-	      this._slideCount = _react.Children.count(nextProps.children);
+	      this._slideCount = _react.Children.count(children);
 	      this._frameWidth = 100 / this._slideCount;
-	      this._slideWidth = this._frameWidth / nextProps.slidesToShow;
-	      this._trackWidth = this._slideCount * 100 / nextProps.slidesToShow;
+	      this._slideWidth = this._frameWidth / slidesToShow;
+	      this._trackWidth = this._slideCount * 100 / slidesToShow;
 
-	      // don't update state if index hasn't changed and we're not in the middle of a slide
-	      if (currentIndex !== nextIndex && nextIndex !== null) {
+	      var newKey = this.props.currentKey !== currentKey && this.state.currentKey !== currentKey;
+	      var newIndex = this.props.currentIndex !== currentIndex && this.state.currentIndex !== currentIndex;
+
+	      if (newKey || newIndex) {
 	        (function () {
-	          var clampedIndex = Math.max(0, Math.min(nextIndex, _this2._slideCount - 1));
-	          _this2.setState({ currentIndex: clampedIndex }, function () {
-	            _this2._beforeSlide(currentIndex, clampedIndex);
+	          var nextIndex = null;
+
+	          if (newKey) {
+	            nextIndex = (0, _getIndexFromKey2['default'])(currentKey, children);
+	          } else if (newIndex) {
+	            nextIndex = currentIndex;
+	          }
+
+	          // "contain" the slides if left aligned
+	          if (align === 'left' && nextIndex !== _this2.state.currentIndex) {
+	            // const direction = nextIndex > this.state.currentIndex ? 1 : -1
+	            // nextIndex += this._getSlidesToMove(nextIndex, direction)
+	            // if not containing, make sure index stays within bounds
+	          } else {
+	              nextIndex = Math.max(0, Math.min(nextIndex, _this2._slideCount - 1));
+	            }
+
+	          _this2._beforeSlide(_this2.state.currentIndex, nextIndex);
+
+	          _this2.setState({
+	            currentIndex: nextIndex,
+	            currentKey: (0, _getKeyFromIndex2['default'])(nextIndex, children)
+	          }, function () {
+	            _this2._onChange(nextIndex, slidesToShow);
 	          });
+	          // if slidesToShow has changed we need to fire an onChange with the updated indexes
 	        })();
+	      } else if (this.props.slidesToShow !== slidesToShow) {
+	          this._onChange(this.state.currentIndex, slidesToShow);
+	        }
+
+	      // if we are receiving new slides we need to animate to the new position instantly
+	      if (_react.Children.count(this.props.children) !== _react.Children.count(children)) {
+	        this.setState({ instant: true });
 	      }
 	    }
 	  }, {
 	    key: 'componentDidUpdate',
 	    value: function componentDidUpdate() {
 	      var _state = this.state;
+	      var swipeOffset = _state.swipeOffset;
 	      var instant = _state.instant;
 	      var wrapping = _state.wrapping;
 
-	      if (instant || wrapping) {
+	      if (swipeOffset === 0 && (instant || wrapping)) {
 	        this._onSlideEnd();
 	      }
 	    }
@@ -301,8 +386,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'slide',
 	    value: function slide(direction) {
+	      var _this3 = this;
+
 	      var currentIndex = this.state.currentIndex;
 
+	      var childrenArray = _react.Children.toArray(this.props.children);
 	      var newState = {};
 	      var nextIndex = currentIndex;
 
@@ -313,7 +401,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        nextIndex += direction;
 	      }
 
-	      // determine if we need to wrap the index or bail out and keep it in bounds
+	      // determine if we need to wrap the index
 	      if (this.props.infinite) {
 	        nextIndex = (0, _modulo2['default'])(nextIndex, this._slideCount);
 
@@ -323,14 +411,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        } else {
 	          newState.wrapping = false;
 	        }
-	      } else if (!_react.Children.toArray(this.props.children)[nextIndex]) {
-	        return;
-	      }
+	        // bail out if index does not exist
+	      } else if (!childrenArray[nextIndex]) {
+	          return;
+	        }
 
 	      newState.currentIndex = nextIndex;
+	      newState.currentKey = (0, _getKeyFromIndex2['default'])(nextIndex, this.props.children);
 
 	      this._beforeSlide(currentIndex, nextIndex);
-	      this.setState(newState);
+
+	      this.setState(newState, function () {
+	        _this3._onChange(nextIndex, _this3.props.slidesToShow);
+	      });
 	    }
 	  }, {
 	    key: '_getSliderDimensions',
@@ -339,33 +432,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this._sliderHeight = this._node.offsetHeight;
 	    }
 	  }, {
-	    key: '_getNextIndex',
-	    value: function _getNextIndex(_ref2) {
-	      var currentIndex = _ref2.currentIndex;
-	      var currentKey = _ref2.currentKey;
-	      var children = _ref2.children;
-
-	      var currentChildren = _react2['default'].Children.toArray(this.props.children);
-	      var currentChild = currentChildren[this.state.currentIndex];
-
-	      if (this.props.currentIndex !== currentIndex) {
-	        return currentIndex;
-	      } else if (currentChild.key !== currentKey) {
-	        return (0, _getIndexFromKey2['default'])(currentKey, children);
-	      } else {
-	        return this.state.currentIndex;
-	      }
-	    }
-	  }, {
 	    key: '_getSlidesToMove',
 	    value: function _getSlidesToMove(index, direction) {
-	      var _props2 = this.props;
-	      var slidesToShow = _props2.slidesToShow;
-	      var slidesToMove = _props2.slidesToMove;
+	      var _props5 = this.props;
+	      var slidesToShow = _props5.slidesToShow;
+	      var slidesToMove = _props5.slidesToMove;
 
 	      var slidesRemaining = direction === 1 ? this._slideCount - (index + slidesToShow) : index;
 
 	      return Math.min(slidesRemaining, slidesToMove) * direction;
+	    }
+	  }, {
+	    key: '_onChange',
+	    value: function _onChange(index, slidesToShow) {
+	      var currentIndexes = (0, _getSlideRange2['default'])(index, index + slidesToShow);
+	      this.props.onChange(currentIndexes, this.state.currentKey);
 	    }
 	  }, {
 	    key: '_isSwipe',
@@ -460,13 +541,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this3 = this;
+	      var _this4 = this;
 
-	      var _props3 = this.props;
-	      var children = _props3.children;
-	      var springConfig = _props3.springConfig;
-	      var autoHeight = _props3.autoHeight;
-	      var infinite = _props3.infinite;
+	      var _props6 = this.props;
+	      var children = _props6.children;
+	      var springConfig = _props6.springConfig;
+	      var autoHeight = _props6.autoHeight;
+	      var infinite = _props6.infinite;
 	      var _state3 = this.state;
 	      var currentIndex = _state3.currentIndex;
 	      var lastIndex = _state3.lastIndex;
@@ -488,33 +569,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var translate = _ref4.translate;
 	          var wrapperHeight = _ref4.wrapperHeight;
 
-	          _this3._currentTween = translate;
+	          _this4._currentTween = translate;
 	          return _react2['default'].createElement(
 	            'div',
-	            { className: _this3._getSliderClassNames() },
+	            { className: _this4._getSliderClassNames() },
 	            _react2['default'].createElement(
 	              'div',
 	              _extends({
 	                className: 'slider__track',
 	                style: _defineProperty({
-	                  width: _this3._trackWidth + '%',
+	                  width: _this4._trackWidth + '%',
 	                  height: autoHeight && wrapperHeight
 	                }, TRANSFORM, 'translate3d(' + translate + '%, 0, 0)')
-	              }, _this3._getSwipeEvents()),
+	              }, _this4._getSwipeEvents()),
 	              _react.Children.map(children, function (child, index) {
 	                var style = {
-	                  width: _this3._slideWidth + '%'
+	                  width: _this4._slideWidth + '%'
 	                };
 
 	                if (infinite) {
-	                  if (currentIndex === 0 && index === _this3._slideCount - 1) {
+	                  if (currentIndex === 0 && index === _this4._slideCount - 1) {
 	                    style = _extends({}, style, {
 	                      position: 'relative',
 	                      left: '-100%'
 	                    });
 	                  }
 
-	                  if (currentIndex === _this3._slideCount - 1 && index === 0) {
+	                  if (currentIndex === _this4._slideCount - 1 && index === 0) {
 	                    style = _extends({}, style, {
 	                      position: 'relative',
 	                      right: '-100%'
@@ -525,7 +606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return (0, _react.createElement)(_Slide2['default'], {
 	                  style: style,
 	                  isCurrent: currentIndex === index,
-	                  onSlideHeight: _this3._handleSlideHeight
+	                  onSlideHeight: _this4._setSlideHeight
 	                }, child);
 	              })
 	            )
@@ -536,12 +617,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }], [{
 	    key: 'propTypes',
 	    value: {
-	      infinite: _react.PropTypes.bool,
-	      vertical: _react.PropTypes.bool,
 	      currentKey: _react.PropTypes.any,
 	      currentIndex: _react.PropTypes.number,
 	      slidesToShow: _react.PropTypes.number,
 	      slidesToMove: _react.PropTypes.number,
+	      infinite: _react.PropTypes.bool,
+	      vertical: _react.PropTypes.bool,
 	      autoHeight: _react.PropTypes.bool,
 	      align: _react.PropTypes.oneOf(['left', 'center', 'right']),
 	      swipe: _react.PropTypes.oneOf([true, false, 'mouse', 'touch']),
@@ -555,16 +636,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'defaultProps',
 	    value: {
-	      infinite: false,
-	      vertical: false,
+	      currentKey: null,
+	      currentIndex: 0,
 	      slidesToShow: 1,
 	      slidesToMove: 1,
+	      infinite: false,
+	      vertical: false,
 	      autoHeight: false,
 	      align: 'left',
 	      swipe: true,
 	      swipeThreshold: 0.5,
 	      flickTimeout: 300,
 	      springConfig: _reactMotion.presets.noWobble,
+	      onChange: function onChange() {
+	        return null;
+	      },
 	      beforeSlide: function beforeSlide() {
 	        return null;
 	      },
@@ -713,6 +799,61 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	exports['default'] = getKeyfromIndex;
+
+	var _react = __webpack_require__(2);
+
+	function getKeyfromIndex(index, children) {
+	  var key = null;
+
+	  _react.Children.forEach(children, function (child, _index) {
+	    if (index === _index) {
+	      key = child.key;
+	      return;
+	    }
+	  });
+
+	  return key;
+	}
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports["default"] = slideRange;
+
+	function slideRange(a, b) {
+	  var range = [];
+
+	  if (a === b) {
+	    return [a];
+	  }
+
+	  for (var i = a; i < b; i++) {
+	    range.push(i);
+	  }
+
+	  return range;
+	}
+
+	module.exports = exports["default"];
+
+/***/ },
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -729,7 +870,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
