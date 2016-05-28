@@ -4,7 +4,7 @@
 
 Slider/Carousel powered by React Motion.
 
-![react-motion-slider](images/react-motion-slider.gif)
+![react-motion-slider](example/images/react-motion-slider.gif)
 
 ## Usage
 
