@@ -5,11 +5,13 @@
 .AppleDouble
 .LSOverride
 
-# Bower & Node Modules
-.npmignore
-node_modules
-npm-debug.log
+# Bower
 app/bower_components
+
+# Node & NPM
+.npmignore
+npm-debug.log
+node_modules
 lib
 
 # General Files
