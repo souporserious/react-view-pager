@@ -4,13 +4,12 @@
   "description": "Slider/Carousel powered by React Motion.",
   "main": "lib/react-motion-slider.js",
   "scripts": {
+    "build:lib": "babel src --out-dir lib",
     "build": "npm run build:lib && NODE_ENV=production webpack --config webpack.prod.config.js",
-    "build:lib": "babel src --out-dir lib --stage 0",
     "dev": "webpack-dev-server --devtool eval --hot --progress --colors",
-    "prebuild": "rm -rf dist && mkdir dist",
-    "prepublish": "npm run build",
     "postbuild": "NODE_ENV=production TARGET=minify webpack --config webpack.prod.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prebuild": "rm -rf dist && mkdir dist",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -31,7 +30,7 @@
   "dependencies": {
     "get-prefix": "^1.0.0",
     "is-integer": "^1.0.6",
-    "react-motion": "^0.4.2"
+    "react-motion": "^0.4.3"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0",
@@ -40,17 +39,18 @@
   "devDependencies": {
     "alt": "^0.17.3",
     "autoprefixer-loader": "^2.0.0",
-    "babel": "^5.8.23",
-    "babel-core": "^5.6.15",
-    "babel-loader": "^5.2.2",
+    "babel-core": "^6.5.2",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
     "css-loader": "^0.15.1",
     "http-server": "^0.8.0",
-    "install": "^0.3.0",
     "node-libs-browser": "^0.5.2",
     "node-sass": "^3.2.0",
-    "npm": "^3.5.0",
-    "react": "^0.13.3 || ^0.14.0-beta1",
-    "react-collapse": "^2.2.0",
+    "react": "^15.1.0",
+    "react-collapse": "^2.2.3",
+    "react-dom": "^15.1.0",
     "react-height": "^2.1.0",
     "react-measure": "^0.3.5",
     "sass-loader": "^1.0.2",

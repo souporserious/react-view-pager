@@ -4,7 +4,7 @@ var TARGET = process.env.TARGET || null;
 
 var config = {
   entry: {
-    index: './src/react-motion-slider.js',
+    index: './src/react-motion-slider.js'
   },
   output: {
     path: path.join(__dirname, 'dist'),
@@ -16,7 +16,7 @@ var config = {
   },
   module: {
     loaders: [
-      {test: /\.(js|jsx)/, loader: 'babel?stage=0'}
+      { test: /\.(js|jsx)/, loader: 'babel-loader', query: { presets: ['es2015', 'react', 'stage-0'] } },
     ]
   },
   plugins: [],
@@ -30,7 +30,7 @@ var config = {
   },
 };
 
-if(TARGET === 'minify') {
+if (TARGET === 'minify') {
   config.output.filename = 'react-motion-slider.min.js';
   config.output.sourceMapFilename = 'react-motion-slider.min.js';
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
@@ -38,7 +38,7 @@ if(TARGET === 'minify') {
       warnings: false
     },
     mangle: {
-      except: ['React', 'Motion', 'spring', 'Slider']
+      except: ['React', 'ReactMotion', 'Slider']
     }
   }));
 }
