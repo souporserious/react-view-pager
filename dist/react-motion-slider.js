@@ -56,18 +56,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	exports.default = undefined;
 
 	var _Slider = __webpack_require__(1);
 
 	var _Slider2 = _interopRequireDefault(_Slider);
 
-	exports['default'] = _Slider2['default'];
-	module.exports = exports['default'];
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _Slider2.default;
 
 /***/ },
 /* 1 */
@@ -75,23 +75,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(2);
 
@@ -123,6 +113,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _modulo2 = _interopRequireDefault(_modulo);
 
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 	var TRANSFORM = __webpack_require__(10)('transform');
 	var ALIGN_TYPES = {
 	  left: 0,
@@ -130,61 +130,49 @@ return /******/ (function(modules) { // webpackBootstrap
 	  right: 1
 	};
 
-	var Slider = (function (_Component) {
+	var Slider = function (_Component) {
 	  _inherits(Slider, _Component);
 
 	  function Slider() {
-	    var _this = this;
+	    var _Object$getPrototypeO;
+
+	    var _temp, _this, _ret;
 
 	    _classCallCheck(this, Slider);
 
-	    _get(Object.getPrototypeOf(Slider.prototype), 'constructor', this).apply(this, arguments);
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
 
-	    this._node = null;
-	    this._sliderWidth = 0;
-	    this._slideCount = _react.Children.count(this.props.children);
-	    this._frameWidth = 100 / this._slideCount;
-	    this._slideWidth = this._frameWidth / this.props.slidesToShow;
-	    this._trackWidth = this._slideCount / this.props.slidesToShow * 100;
-	    this._deltaX = false;
-	    this._deltaY = false;
-	    this._startX = false;
-	    this._startY = false;
-	    this._isSwiping = false;
-	    this._isFlick = false;
-	    this.state = {
-	      currentIndex: this.props.currentIndex,
-	      currentKey: this.props.currentKey,
+	    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Slider)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this._node = null, _this._sliderWidth = 0, _this._slideCount = _react.Children.count(_this.props.children), _this._frameWidth = 100 / _this._slideCount, _this._slideWidth = _this._frameWidth / _this.props.slidesToShow, _this._trackWidth = _this._slideCount / _this.props.slidesToShow * 100, _this._deltaX = false, _this._deltaY = false, _this._startX = false, _this._startY = false, _this._isSwiping = false, _this._isFlick = false, _this.state = {
+	      currentIndex: _this.props.currentIndex,
+	      currentKey: _this.props.currentKey,
 	      swipeOffset: 0,
 	      instant: false,
 	      wrapping: false,
 	      height: 0
-	    };
+	    }, _this._beforeSlide = function (currentIndex, nextIndex) {
+	      var _this$props = _this.props;
+	      var beforeSlide = _this$props.beforeSlide;
+	      var slidesToShow = _this$props.slidesToShow;
 
-	    this._beforeSlide = function (currentIndex, nextIndex) {
-	      var _props = _this.props;
-	      var beforeSlide = _props.beforeSlide;
-	      var slidesToShow = _props.slidesToShow;
 
-	      beforeSlide((0, _getSlideRange2['default'])(currentIndex, currentIndex + slidesToShow), (0, _getSlideRange2['default'])(nextIndex, nextIndex + slidesToShow));
+	      beforeSlide((0, _getSlideRange2.default)(currentIndex, currentIndex + slidesToShow), (0, _getSlideRange2.default)(nextIndex, nextIndex + slidesToShow));
 
 	      _this._isSliding = true;
 	      _this.forceUpdate();
-	    };
-
-	    this._afterSlide = function () {
-	      var _props2 = _this.props;
-	      var afterSlide = _props2.afterSlide;
-	      var slidesToShow = _props2.slidesToShow;
+	    }, _this._afterSlide = function () {
+	      var _this$props2 = _this.props;
+	      var afterSlide = _this$props2.afterSlide;
+	      var slidesToShow = _this$props2.slidesToShow;
 	      var currentIndex = _this.state.currentIndex;
 
-	      afterSlide((0, _getSlideRange2['default'])(currentIndex, currentIndex + slidesToShow));
+
+	      afterSlide((0, _getSlideRange2.default)(currentIndex, currentIndex + slidesToShow));
 
 	      _this._isSliding = false;
 	      _this.forceUpdate();
-	    };
-
-	    this._onSwipeStart = function (e) {
+	    }, _this._onSwipeStart = function (e) {
 	      var swipe = e.touches && e.touches[0] || e;
 
 	      // we're now swiping
@@ -203,16 +191,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      setTimeout(function () {
 	        _this._isFlick = false;
 	      }, _this.props.flickTimeout);
-	    };
-
-	    this._onSwipeMove = function (e) {
+	    }, _this._onSwipeMove = function (e) {
 	      // bail if we aren't swiping
 	      if (!_this._isSwiping) return;
 
-	      var _props3 = _this.props;
-	      var vertical = _props3.vertical;
-	      var swipeThreshold = _props3.swipeThreshold;
-	      var slidesToMove = _props3.slidesToMove;
+	      var _this$props3 = _this.props;
+	      var vertical = _this$props3.vertical;
+	      var swipeThreshold = _this$props3.swipeThreshold;
+	      var slidesToMove = _this$props3.slidesToMove;
 
 	      var swipe = e.touches && e.touches[0] || e;
 
@@ -232,9 +218,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          instant: true
 	        });
 	      }
-	    };
-
-	    this._onSwipeEnd = function () {
+	    }, _this._onSwipeEnd = function () {
 	      var swipeThreshold = _this.props.swipeThreshold;
 
 	      var threshold = _this._isFlick ? swipeThreshold : _this._sliderWidth * swipeThreshold;
@@ -249,40 +233,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 
 	      _this._isSwiping = false;
-	    };
-
-	    this._onSwipePast = function () {
+	    }, _this._onSwipePast = function () {
 	      // perform a swipe end if we swiped past the component
 	      if (_this._isSwiping) {
 	        _this._onSwipeEnd();
 	      }
-	    };
-
-	    this._setSlideHeight = function (height) {
+	    }, _this._setSlideHeight = function (height) {
 	      _this.setState({ height: height });
-	    };
-
-	    this._onSlideEnd = function () {
+	    }, _this._onSlideEnd = function () {
 	      _this.setState({
 	        instant: false,
 	        wrapping: false
 	      });
 	      _this._isSliding = false;
-	    };
+	    }, _temp), _possibleConstructorReturn(_this, _ret);
 	  }
 
 	  _createClass(Slider, [{
 	    key: 'componentWillMount',
 	    value: function componentWillMount() {
-	      var _props4 = this.props;
-	      var currentKey = _props4.currentKey;
-	      var currentIndex = _props4.currentIndex;
-	      var children = _props4.children;
+	      var _props = this.props;
+	      var currentKey = _props.currentKey;
+	      var currentIndex = _props.currentIndex;
+	      var children = _props.children;
 
 	      var nextIndex = null;
 
 	      if (currentKey) {
-	        nextIndex = (0, _getIndexFromKey2['default'])(currentKey, children);
+	        nextIndex = (0, _getIndexFromKey2.default)(currentKey, children);
 	      } else if (currentIndex) {
 	        nextIndex = currentIndex;
 	      }
@@ -292,7 +270,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this.setState({
 	          currentIndex: clampedIndex,
-	          currentKey: (0, _getKeyFromIndex2['default'])(clampedIndex, children),
+	          currentKey: (0, _getKeyFromIndex2.default)(clampedIndex, children),
 	          instant: true
 	        });
 	      }
@@ -300,20 +278,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this._node = _reactDom2['default'].findDOMNode(this);
+	      this._node = _reactDom2.default.findDOMNode(this);
 	      this._getSliderDimensions();
 	      this._onChange(this.state.currentIndex, this.props.slidesToShow);
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(_ref2) {
+	    value: function componentWillReceiveProps(_ref) {
 	      var _this2 = this;
 
-	      var currentKey = _ref2.currentKey;
-	      var currentIndex = _ref2.currentIndex;
-	      var slidesToShow = _ref2.slidesToShow;
-	      var align = _ref2.align;
-	      var children = _ref2.children;
+	      var currentKey = _ref.currentKey;
+	      var currentIndex = _ref.currentIndex;
+	      var slidesToShow = _ref.slidesToShow;
+	      var align = _ref.align;
+	      var children = _ref.children;
 
 	      this._slideCount = _react.Children.count(children);
 	      this._frameWidth = 100 / this._slideCount;
@@ -328,7 +306,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var nextIndex = null;
 
 	          if (newKey) {
-	            nextIndex = (0, _getIndexFromKey2['default'])(currentKey, children);
+	            nextIndex = (0, _getIndexFromKey2.default)(currentKey, children);
 	          } else if (newIndex) {
 	            nextIndex = currentIndex;
 	          }
@@ -346,7 +324,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	          _this2.setState({
 	            currentIndex: nextIndex,
-	            currentKey: (0, _getKeyFromIndex2['default'])(nextIndex, children)
+	            currentKey: (0, _getKeyFromIndex2.default)(nextIndex, children)
 	          }, function () {
 	            _this2._onChange(nextIndex, slidesToShow);
 	          });
@@ -403,7 +381,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      // determine if we need to wrap the index
 	      if (this.props.infinite) {
-	        nextIndex = (0, _modulo2['default'])(nextIndex, this._slideCount);
+	        nextIndex = (0, _modulo2.default)(nextIndex, this._slideCount);
 
 	        if (currentIndex === this._slideCount - 1 && nextIndex === 0 || currentIndex === 0 && nextIndex === this._slideCount - 1) {
 	          newState.wrapping = true;
@@ -417,7 +395,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	      newState.currentIndex = nextIndex;
-	      newState.currentKey = (0, _getKeyFromIndex2['default'])(nextIndex, this.props.children);
+	      newState.currentKey = (0, _getKeyFromIndex2.default)(nextIndex, this.props.children);
 
 	      this._beforeSlide(currentIndex, nextIndex);
 
@@ -434,9 +412,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '_getSlidesToMove',
 	    value: function _getSlidesToMove(index, direction) {
-	      var _props5 = this.props;
-	      var slidesToShow = _props5.slidesToShow;
-	      var slidesToMove = _props5.slidesToMove;
+	      var _props2 = this.props;
+	      var slidesToShow = _props2.slidesToShow;
+	      var slidesToMove = _props2.slidesToMove;
 
 	      var slidesRemaining = direction === 1 ? this._slideCount - (index + slidesToShow) : index;
 
@@ -445,7 +423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '_onChange',
 	    value: function _onChange(index, slidesToShow) {
-	      var currentIndexes = (0, _getSlideRange2['default'])(index, index + slidesToShow);
+	      var currentIndexes = (0, _getSlideRange2.default)(index, index + slidesToShow);
 	      this.props.onChange(currentIndexes, this.state.currentKey);
 	    }
 	  }, {
@@ -455,9 +433,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var y = this._deltaY;
 
 	      if (this.props.vertical) {
-	        var _ref3 = [x, y];
-	        y = _ref3[0];
-	        x = _ref3[1];
+	        var _ref2 = [x, y];
+	        y = _ref2[0];
+	        x = _ref2[1];
 	      }
 
 	      return Math.abs(x) > Math.max(threshold, Math.abs(y));
@@ -543,11 +521,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function render() {
 	      var _this4 = this;
 
-	      var _props6 = this.props;
-	      var children = _props6.children;
-	      var springConfig = _props6.springConfig;
-	      var autoHeight = _props6.autoHeight;
-	      var infinite = _props6.infinite;
+	      var _props3 = this.props;
+	      var children = _props3.children;
+	      var springConfig = _props3.springConfig;
+	      var autoHeight = _props3.autoHeight;
+	      var infinite = _props3.infinite;
 	      var _state3 = this.state;
 	      var currentIndex = _state3.currentIndex;
 	      var lastIndex = _state3.lastIndex;
@@ -556,7 +534,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var destValue = this._getDestValue();
 
-	      return _react2['default'].createElement(
+	      return _react2.default.createElement(
 	        _reactMotion.Motion,
 	        {
 	          style: {
@@ -565,15 +543,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	          },
 	          onRest: this._afterSlide
 	        },
-	        function (_ref4) {
-	          var translate = _ref4.translate;
-	          var wrapperHeight = _ref4.wrapperHeight;
+	        function (_ref3) {
+	          var translate = _ref3.translate;
+	          var wrapperHeight = _ref3.wrapperHeight;
 
 	          _this4._currentTween = translate;
-	          return _react2['default'].createElement(
+	          return _react2.default.createElement(
 	            'div',
 	            { className: _this4._getSliderClassNames() },
-	            _react2['default'].createElement(
+	            _react2.default.createElement(
 	              'div',
 	              _extends({
 	                className: 'slider__track',
@@ -603,7 +581,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                  }
 	                }
 
-	                return (0, _react.createElement)(_Slide2['default'], {
+	                return (0, _react.createElement)(_Slide2.default, {
 	                  style: style,
 	                  isCurrent: currentIndex === index,
 	                  onSlideHeight: _this4._setSlideHeight
@@ -614,58 +592,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      );
 	    }
-	  }], [{
-	    key: 'propTypes',
-	    value: {
-	      currentKey: _react.PropTypes.any,
-	      currentIndex: _react.PropTypes.number,
-	      slidesToShow: _react.PropTypes.number,
-	      slidesToMove: _react.PropTypes.number,
-	      infinite: _react.PropTypes.bool,
-	      vertical: _react.PropTypes.bool,
-	      autoHeight: _react.PropTypes.bool,
-	      align: _react.PropTypes.oneOf(['left', 'center', 'right']),
-	      swipe: _react.PropTypes.oneOf([true, false, 'mouse', 'touch']),
-	      swipeThreshold: _react.PropTypes.number,
-	      flickTimeout: _react.PropTypes.number,
-	      springConfig: _react2['default'].PropTypes.objectOf(_react2['default'].PropTypes.number),
-	      beforeSlide: _react.PropTypes.func,
-	      afterSlide: _react.PropTypes.func
-	    },
-	    enumerable: true
-	  }, {
-	    key: 'defaultProps',
-	    value: {
-	      currentKey: null,
-	      currentIndex: 0,
-	      slidesToShow: 1,
-	      slidesToMove: 1,
-	      infinite: false,
-	      vertical: false,
-	      autoHeight: false,
-	      align: 'left',
-	      swipe: true,
-	      swipeThreshold: 0.5,
-	      flickTimeout: 300,
-	      springConfig: _reactMotion.presets.noWobble,
-	      onChange: function onChange() {
-	        return null;
-	      },
-	      beforeSlide: function beforeSlide() {
-	        return null;
-	      },
-	      afterSlide: function afterSlide() {
-	        return null;
-	      }
-	    },
-	    enumerable: true
 	  }]);
 
 	  return Slider;
-	})(_react.Component);
+	}(_react.Component);
 
-	exports['default'] = Slider;
-	module.exports = exports['default'];
+	Slider.propTypes = {
+	  currentKey: _react.PropTypes.any,
+	  currentIndex: _react.PropTypes.number,
+	  slidesToShow: _react.PropTypes.number,
+	  slidesToMove: _react.PropTypes.number,
+	  infinite: _react.PropTypes.bool,
+	  vertical: _react.PropTypes.bool,
+	  autoHeight: _react.PropTypes.bool,
+	  align: _react.PropTypes.oneOf(['left', 'center', 'right']),
+	  swipe: _react.PropTypes.oneOf([true, false, 'mouse', 'touch']),
+	  swipeThreshold: _react.PropTypes.number,
+	  flickTimeout: _react.PropTypes.number,
+	  springConfig: _react2.default.PropTypes.objectOf(_react2.default.PropTypes.number),
+	  beforeSlide: _react.PropTypes.func,
+	  afterSlide: _react.PropTypes.func
+	};
+	Slider.defaultProps = {
+	  currentKey: null,
+	  currentIndex: 0,
+	  slidesToShow: 1,
+	  slidesToMove: 1,
+	  infinite: false,
+	  vertical: false,
+	  autoHeight: false,
+	  align: 'left',
+	  swipe: true,
+	  swipeThreshold: 0.5,
+	  flickTimeout: 300,
+	  springConfig: _reactMotion.presets.noWobble,
+	  onChange: function onChange() {
+	    return null;
+	  },
+	  beforeSlide: function beforeSlide() {
+	    return null;
+	  },
+	  afterSlide: function afterSlide() {
+	    return null;
+	  }
+	};
+	exports.default = Slider;
 
 /***/ },
 /* 2 */
@@ -691,19 +662,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(2);
 
@@ -713,19 +676,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var Slide = (function (_Component) {
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Slide = function (_Component) {
 	  _inherits(Slide, _Component);
 
 	  function Slide() {
 	    _classCallCheck(this, Slide);
 
-	    _get(Object.getPrototypeOf(Slide.prototype), 'constructor', this).apply(this, arguments);
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Slide).apply(this, arguments));
 	  }
 
 	  _createClass(Slide, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this._node = _reactDom2['default'].findDOMNode(this);
+	      this._node = _reactDom2.default.findDOMNode(this);
 	      this._getDimensions();
 
 	      if (this.props.isCurrent) {
@@ -764,10 +735,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }]);
 
 	  return Slide;
-	})(_react.Component);
+	}(_react.Component);
 
-	exports['default'] = Slide;
-	module.exports = exports['default'];
+	exports.default = Slide;
 
 /***/ },
 /* 6 */
@@ -775,10 +745,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports['default'] = getIndexFromKey;
+	exports.default = getIndexFromKey;
 
 	var _react = __webpack_require__(2);
 
@@ -795,18 +765,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return index;
 	}
 
-	module.exports = exports['default'];
-
 /***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports['default'] = getKeyfromIndex;
+	exports.default = getKeyfromIndex;
 
 	var _react = __webpack_require__(2);
 
@@ -823,8 +791,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return key;
 	}
 
-	module.exports = exports['default'];
-
 /***/ },
 /* 8 */
 /***/ function(module, exports) {
@@ -834,8 +800,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports["default"] = slideRange;
-
+	exports.default = slideRange;
 	function slideRange(a, b) {
 	  var range = [];
 
@@ -850,8 +815,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return range;
 	}
 
-	module.exports = exports["default"];
-
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
@@ -861,13 +824,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports["default"] = modulo;
-
+	exports.default = modulo;
 	function modulo(val, max) {
 	  return val < 0 ? (val % max + max) % max : val % max;
 	}
-
-	module.exports = exports["default"];
 
 /***/ },
 /* 10 */
