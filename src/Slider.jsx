@@ -21,6 +21,7 @@ class Slider extends Component {
     slidesToShow: PropTypes.number,
     slidesToMove: PropTypes.number,
     infinite: PropTypes.bool,
+    instant: PropTypes.bool,
     vertical: PropTypes.bool,
     autoHeight: PropTypes.bool,
     align: PropTypes.oneOf(['left', 'center', 'right']),
@@ -38,6 +39,7 @@ class Slider extends Component {
     slidesToShow: 1,
     slidesToMove: 1,
     infinite: false,
+    instant: false,
     vertical: false,
     autoHeight: false,
     align: 'left',
@@ -402,7 +404,8 @@ class Slider extends Component {
 
   render() {
     const { children, springConfig, autoHeight, infinite } = this.props
-    const { currentIndex, lastIndex, instant, height } = this.state
+    const { currentIndex, lastIndex, height } = this.state
+    const instant = this.props.instant || this.state.instant
     const destValue = this._getDestValue()
 
     return (

@@ -165,7 +165,8 @@ class App extends Component {
     vertical: false,
     slidesToShow: 3,
     slidesToMove: 1,
-    align: 'left'
+    align: 'left',
+    instant: false
   }
 
   addSlide = () => {
@@ -190,7 +191,7 @@ class App extends Component {
   }
 
   render() {
-    const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align } = this.state
+    const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align, instant } = this.state
     return(
       <div>
         <button onClick={this.addSlide}>
@@ -209,6 +210,13 @@ class App extends Component {
             onChange={() => this.setState({vertical: !vertical})}
           />
           Vertical
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            onChange={() => this.setState({instant: !instant})}
+          />
+          Instant
         </label>
         <label>
           <input
@@ -247,6 +255,7 @@ class App extends Component {
             slidesToMove={slidesToMove}
             autoHeight={autoHeight}
             align={align}
+            instant={instant}
             currentKey={currentKey}
             onChange={this._handleChange}
           >
