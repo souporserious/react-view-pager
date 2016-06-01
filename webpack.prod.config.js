@@ -4,7 +4,7 @@ var TARGET = process.env.TARGET || null;
 
 var config = {
   entry: {
-    index: './src/react-motion-slider.js'
+    index: './src/react-motion-slider.js',
   },
   output: {
     path: path.join(__dirname, 'dist'),
@@ -16,7 +16,15 @@ var config = {
   },
   module: {
     loaders: [
-      { test: /\.(js|jsx)/, loader: 'babel-loader', query: { presets: ['es2015', 'react', 'stage-0'] } },
+      {
+        test: /\.(js|jsx)/,
+        exclude: /(node_modules|bower_components)/,
+        loader: 'babel',
+        query: {
+          presets: ['es2015', 'react', 'stage-0'],
+          plugins: ['add-module-exports']
+        }
+      },
     ]
   },
   plugins: [],
@@ -38,7 +46,7 @@ if (TARGET === 'minify') {
       warnings: false
     },
     mangle: {
-      except: ['React', 'ReactMotion', 'Slider']
+      except: ['React', 'ReactDOM', 'ReactMotion', 'Slider']
     }
   }));
 }
