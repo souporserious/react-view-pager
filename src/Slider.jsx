@@ -52,26 +52,30 @@ class Slider extends Component {
     afterSlide: () => null
   }
 
-  _node = null
-  _sliderWidth = 0
-  _slideCount = Children.count(this.props.children)
-  _frameWidth = 100 / this._slideCount
-  _slideWidth = this._frameWidth / this.props.slidesToShow
-  _trackWidth = this._slideCount / this.props.slidesToShow * 100
-  _deltaX = false
-  _deltaY = false
-  _startX = false
-  _startY = false
-  _isSwiping = false
-  _isFlick = false
+  constructor(props) {
+    super(props)
+    
+    this._node = null
+    this._sliderWidth = 0
+    this._slideCount = Children.count(props.children)
+    this._frameWidth = 100 / this._slideCount
+    this._slideWidth = this._frameWidth / props.slidesToShow
+    this._trackWidth = this._slideCount / props.slidesToShow * 100
+    this._deltaX = false
+    this._deltaY = false
+    this._startX = false
+    this._startY = false
+    this._isSwiping = false
+    this._isFlick = false
 
-  state = {
-    currentIndex: this.props.currentIndex,
-    currentKey: this.props.currentKey,
-    swipeOffset: 0,
-    instant: false,
-    wrapping: false,
-    height: 0
+    this.state = {
+      currentIndex: props.currentIndex,
+      currentKey: props.currentKey,
+      swipeOffset: 0,
+      instant: false,
+      wrapping: false,
+      height: 0
+    }
   }
 
   componentWillMount() {
