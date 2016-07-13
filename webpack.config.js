@@ -12,7 +12,7 @@ module.exports = {
   module: {
     loaders: [
       { test: /\.(js|jsx)/, exclude: /node_modules/, loader: 'babel-loader', query: { presets: ['es2015', 'react', 'stage-0'] } },
-      { test: /\.scss$/, loader: 'style!css!sass?sourceMap' }
+      { test: /\.scss$/, loader: 'style!css!autoprefixer!sass?sourceMap' }
     ]
   },
   resolve: {
