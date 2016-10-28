@@ -1,12 +1,14 @@
 {
   "name": "react-motion-slider",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "homepage": "https://github.com/souporserious/react-motion-slider",
   "authors": [
     "Travis Arnold <ftntravis@gmail.com>"
   ],
   "description": "Slider/Carousel powered by React Motion",
-  "main": ["./dist/react-motion-slider.js"],
+  "main": [
+    "./dist/react-motion-slider.js"
+  ],
   "keywords": [
     "react",
     "component",

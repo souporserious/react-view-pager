@@ -1,61 +1,13 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import Alt from 'alt'
-import connectToStores from 'alt/utils/connectToStores'
 import Collapse from 'react-collapse'
 import Slider from '../src/react-motion-slider'
 
 import './main.scss';
 
-const alt = new Alt();
-
-class RouterActions {
-  moveTo(route) {
-    this.dispatch(route)
-  }
-}
-
-const routerActions = alt.createActions(RouterActions);
-
-class RouterStore {
-  constructor() {
-    const { moveTo } = routerActions
-    this.bindListeners({moveTo})
-  }
-  currentRoute = 'slide-0'
-
-  moveTo = (route) => {
-    this.currentRoute = route
-  }
-}
-
-const routerStore = alt.createStore(RouterStore);
-
-class HeightActions {
-  updateHeight(bool) {
-    this.dispatch(bool)
-  }
-}
-
-const heightActions = alt.createActions(HeightActions);
-
-class HeightStore {
-  constructor() {
-    const { updateHeight } = heightActions
-    this.bindListeners({updateHeight})
-  }
-  shouldUpdateHeight = false
-
-  updateHeight = (bool) => {
-    this.shouldUpdateHeight = bool
-  }
-}
-
-const heightStore = alt.createStore(HeightStore);
-
 class One extends Component {
   render() {
-    return(
+    return (
       <div>
         <h1>Component 1</h1>
         <div>
@@ -76,8 +28,7 @@ class Two extends Component {
   render() {
     const { isCurrentSlide } = this.props
     const { toggle } = this.state
-
-    return(
+    return (
       <div>
         <button
           onClick={() => this.setState({toggle: !toggle})}
@@ -96,15 +47,15 @@ class Two extends Component {
 
 class Three extends Component {
   prev() {
-    this.refs['slider'].prev();
+    this.refs['slider'].prev()
   }
 
   next() {
-    this.refs['slider'].next();
+    this.refs['slider'].next()
   }
 
   render() {
-    return(
+    return (
       <div>
         <h1>Component 3</h1>
         <div className="slider-wrapper">
@@ -192,7 +143,7 @@ class App extends Component {
 
   render() {
     const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align, instant } = this.state
-    return(
+    return (
       <div>
         <button onClick={this.addSlide}>
           Add Slides
@@ -284,8 +235,8 @@ class App extends Component {
           )}
         </nav>
       </div>
-    );
+    )
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('app'))
+ReactDOM.render(<App/>, document.getElementById('app'))

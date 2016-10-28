@@ -1,6 +1,34 @@
 var path = require('path');
 var webpack = require('webpack');
+var banner = require('./webpack.banner');
 var TARGET = process.env.TARGET || null;
+
+var externals = {
+  'react': {
+    root: 'React',
+    commonjs2: 'react',
+    commonjs: 'react',
+    amd: 'react'
+  },
+  'react-dom': {
+    root: 'ReactDOM',
+    commonjs2: 'react-dom',
+    commonjs: 'react-dom',
+    amd: 'react-dom'
+  },
+  'react-motion': {
+    root: 'ReactMotion',
+    commonjs2: 'react-motion',
+    commonjs: 'react-motion',
+    amd: 'react-motion'
+  },
+  'get-prefix': {
+    root: 'getPrefix',
+    commonjs2: 'get-prefix',
+    commonjs: 'get-prefix',
+    amd: 'get-prefix'
+  }
+};
 
 var config = {
   entry: {
@@ -16,26 +44,16 @@ var config = {
   },
   module: {
     loaders: [
-      {
-        test: /\.(js|jsx)/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015', 'react', 'stage-0'],
-          plugins: ['add-module-exports']
-        }
-      },
+      { test: /\.(js|jsx)/, loader: 'babel-loader' }
     ]
   },
-  plugins: [],
+  plugins: [
+    new webpack.BannerPlugin(banner)
+  ],
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
-  externals: {
-    'react': 'React',
-    'react-dom': 'ReactDOM',
-    'react-motion': 'ReactMotion'
-  },
+  externals: externals
 };
 
 if (TARGET === 'minify') {

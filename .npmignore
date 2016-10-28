@@ -5,11 +5,10 @@
 .AppleDouble
 .LSOverride
 
-# NPM
+# Bower & Node Modules
 node_modules
 npm-debug.log
-/dist/
-/lib/
+app/bower_components
 
 # General Files
 .sass-cache

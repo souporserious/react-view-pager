@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 0.4.2
+Use constructor in `Slider` to fix undefined props in IE10
+
 ### 0.4.1
 Fix npm build
 
