@@ -107,133 +107,184 @@ class Slide extends Component {
   }
 }
 
+// class App extends Component {
+//   state = {
+//     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide],
+//     currentKey: 'slide-3',
+//     currentIndexes: [],
+//     autoHeight: false,
+//     vertical: false,
+//     slidesToShow: 3,
+//     slidesToMove: 1,
+//     align: 'left',
+//     instant: false
+//   }
+//
+//   addSlide = () => {
+//     this.setState({
+//       slides: [...this.state.slides, Slide]
+//     })
+//   }
+//
+//   prev = () => {
+//     this.refs['slider'].prev()
+//   }
+//
+//   next = () => {
+//     this.refs['slider'].next()
+//   }
+//
+//   _handleChange = (nextIndexes, nextKey) => {
+//     this.setState({
+//       currentKey: nextKey,
+//       currentIndexes: nextIndexes
+//     })
+//   }
+//
+//   render() {
+//     const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align, instant } = this.state
+//     return (
+//       <div>
+//         <button onClick={this.addSlide}>
+//           Add Slides
+//         </button>
+//         <label>
+//           <input
+//             type="checkbox"
+//             onChange={() => this.setState({autoHeight: !autoHeight})}
+//           />
+//           Auto Height
+//         </label>
+//         <label>
+//           <input
+//             type="checkbox"
+//             onChange={() => this.setState({vertical: !vertical})}
+//           />
+//           Vertical
+//         </label>
+//         <label>
+//           <input
+//             type="checkbox"
+//             onChange={() => this.setState({instant: !instant})}
+//           />
+//           Instant
+//         </label>
+//         <label>
+//           <input
+//             type="number"
+//             onChange={e => this.setState({slidesToShow: +e.target.value})}
+//             value={slidesToShow}
+//           />
+//           Slides To Show
+//         </label>
+//         <label>
+//           <input
+//             type="number"
+//             onChange={e => this.setState({slidesToMove: +e.target.value})}
+//             value={slidesToMove}
+//           />
+//           Slides To Move
+//         </label>
+//         <select
+//           onChange={e => this.setState({align: e.target.value})}
+//           value={align}
+//         >
+//           <option value="left">Left</option>
+//           <option value="center">Center</option>
+//           <option value="right">Right</option>
+//         </select>
+//         <nav className="slider__controls">
+//           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
+//           <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
+//         </nav>
+//         <div className="slider-wrapper">
+//           <Slider
+//             ref="slider"
+//             className="slider"
+//             vertical={vertical}
+//             slidesToShow={slidesToShow}
+//             slidesToMove={slidesToMove}
+//             autoHeight={autoHeight}
+//             align={align}
+//             instant={instant}
+//             currentKey={currentKey}
+//             onChange={this._handleChange}
+//           >
+//             {
+//               this.state.slides.map((InnerView, i) =>
+//                 <View key={`slide-${i}`} index={i}>
+//                   <InnerView
+//                     index={i}
+//                     isCurrentSlide={this.props.currentRoute === `slide-${i}`}
+//                     onHeightUpdate={this._handleHeightUpdate}
+//                   />
+//                 </View>
+//               )
+//             }
+//           </Slider>
+//         </div>
+//         <nav className="slider__pager">
+//           {this.state.slides.map((slide, i) =>
+//             <a
+//               key={`page-${i}`}
+//               className={`slider__page ${currentIndexes.indexOf(i) > -1 ? 'slider__page--active' : ''}`}
+//               onClick={() => this.setState({ currentKey: `slide-${i}` })}
+//             >
+//               {i}
+//             </a>
+//           )}
+//         </nav>
+//       </div>
+//     )
+//   }
+// }
+
 class App extends Component {
-  state = {
-    slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide],
-    currentKey: 'slide-3',
-    currentIndexes: [],
-    autoHeight: false,
-    vertical: false,
-    slidesToShow: 3,
-    slidesToMove: 1,
-    align: 'left',
-    instant: false
-  }
-
-  addSlide = () => {
-    this.setState({
-      slides: [...this.state.slides, Slide]
-    })
-  }
-
-  prev = () => {
-    this.refs['slider'].prev()
-  }
-
-  next = () => {
-    this.refs['slider'].next()
-  }
-
-  _handleChange = (nextIndexes, nextKey) => {
-    this.setState({
-      currentKey: nextKey,
-      currentIndexes: nextIndexes
-    })
+  constructor(props) {
+    super(props)
+    this.state = {
+      images: [[500, 350], [800, 600], [800, 400], [700, 500], [200, 650], [600, 600]],
+      activeIndex: 2
+    }
   }
 
   render() {
-    const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align, instant } = this.state
+    const { images, activeIndex } = this.state
+
     return (
       <div>
-        <button onClick={this.addSlide}>
-          Add Slides
-        </button>
-        <label>
+        <div>
+          <button onClick={() => this.slider.prev()}>
+            Prev
+          </button>
           <input
-            type="checkbox"
-            onChange={() => this.setState({autoHeight: !autoHeight})}
+            type="range"
+            min={0}
+            max={3}
+            value={activeIndex}
+            onChange={e => this.setState({ activeIndex: +e.target.value })}
           />
-          Auto Height
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            onChange={() => this.setState({vertical: !vertical})}
-          />
-          Vertical
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            onChange={() => this.setState({instant: !instant})}
-          />
-          Instant
-        </label>
-        <label>
-          <input
-            type="number"
-            onChange={e => this.setState({slidesToShow: +e.target.value})}
-            value={slidesToShow}
-          />
-          Slides To Show
-        </label>
-        <label>
-          <input
-            type="number"
-            onChange={e => this.setState({slidesToMove: +e.target.value})}
-            value={slidesToMove}
-          />
-          Slides To Move
-        </label>
-        <select
-          onChange={e => this.setState({align: e.target.value})}
-          value={align}
-        >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-        </select>
-        <nav className="slider__controls">
-          <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
-          <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
-        </nav>
-        <div className="slider-wrapper">
-          <Slider
-            ref="slider"
-            className="slider"
-            vertical={vertical}
-            slidesToShow={slidesToShow}
-            slidesToMove={slidesToMove}
-            autoHeight={autoHeight}
-            align={align}
-            instant={instant}
-            currentKey={currentKey}
-            onChange={this._handleChange}
-          >
-            {
-              this.state.slides.map((InnerView, i) =>
-                <View key={`slide-${i}`} index={i}>
-                  <InnerView
-                    index={i}
-                    isCurrentSlide={this.props.currentRoute === `slide-${i}`}
-                    onHeightUpdate={this._handleHeightUpdate}
-                  />
-                </View>
-              )
-            }
-          </Slider>
+          <button onClick={() => this.slider.next()}>
+            Next
+          </button>
         </div>
-        <nav className="slider__pager">
-          {this.state.slides.map((slide, i) =>
-            <a
-              key={`page-${i}`}
-              className={`slider__page ${currentIndexes.indexOf(i) > -1 ? 'slider__page--active' : ''}`}
-              onClick={() => this.setState({ currentKey: `slide-${i}` })}
-            >
-              {i}
-            </a>
-          )}
-        </nav>
+        <Slider
+          ref={c => this.slider = c}
+          currentIndex={activeIndex}
+          onChange={index => this.setState({ activeIndex: index })}
+        >
+          <div className="cell cell-1" style={{ width: 300 }}>1</div>
+          <div className="cell cell-2" style={{ width: 175 }}>2</div>
+          <div className="cell cell-3" style={{ width: 315 }}>3</div>
+          <div className="cell cell-4" style={{ width: 125 }}>4</div>
+        </Slider>
+
+        <Slider>
+          <div className="cell cell-1">1</div>
+          <div className="cell cell-2">2</div>
+          <div className="cell cell-3">3</div>
+          <div className="cell cell-4">4</div>
+        </Slider>
       </div>
     )
   }
