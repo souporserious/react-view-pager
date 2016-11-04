@@ -244,13 +244,12 @@ class App extends Component {
     super(props)
     this.state = {
       images: [[500, 350], [800, 600], [800, 400], [700, 500], [200, 650], [600, 600]],
-      activeIndex: 0
+      activeIndex: 2
     }
   }
 
   render() {
     const { images, activeIndex } = this.state
-
     return (
       <div>
         <div>
@@ -268,15 +267,16 @@ class App extends Component {
             Next
           </button>
         </div>
+        current view: {activeIndex + 1}
         <Slider
           ref={c => this.slider = c}
           currentView={activeIndex}
           onChange={index => this.setState({ activeIndex: index })}
         >
-          <div className="cell cell-1" style={{ height: 300 }}>1</div>
-          <div className="cell cell-2" style={{ height: 175 }}>2</div>
-          <div className="cell cell-3" style={{ height: 315 }}>3</div>
-          <div className="cell cell-4" style={{ height: 125 }}>4</div>
+          <div className="cell cell-1" style={{ width: 300 }}>1</div>
+          <div className="cell cell-2" style={{ width: 175 }}>2</div>
+          <div className="cell cell-3" style={{ width: 315 }}>3</div>
+          <div className="cell cell-4" style={{ width: 125 }}>4</div>
         </Slider>
 
         {/*<Slider>
