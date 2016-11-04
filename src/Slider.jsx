@@ -25,7 +25,7 @@ const ALIGN_OFFSETS = {
 }
 
 class ElementSize {
-  constructor({ node, width, height, axis }) {
+  constructor({ node, axis, width, height }) {
     this.node = node
     this.axis = axis
     this.setSize(width, height)
@@ -36,8 +36,12 @@ class ElementSize {
     this.height = height || this.node.offsetHeight
   }
 
-  getSize() {
-    return this[this.axis === 'x' ? 'width' : 'height']
+  getSize(dimension) {
+    if (dimension === 'width' || dimension === 'height') {
+      return this[dimension]
+    } else {
+      return this[this.axis === 'x' ? 'width' : 'height']
+    }
   }
 }
 
@@ -76,11 +80,12 @@ class Views {
     this.track = track
   }
 
-  addView(node) {
+  addView(node, options = {}) {
     const view = new View({
       node,
       axis: this.axis,
-      track: this.track
+      track: this.track,
+      ...options
     })
 
     this.collection.push(view)
@@ -123,9 +128,10 @@ class Views {
   }
 
   getTotalSize() {
+    const dimension = (this.axis === 'x') ? 'width' : 'height'
     let size = 0
     this.collection.forEach(view => {
-      size += view.width
+      size += view[dimension]
     })
     return size
   }
@@ -183,15 +189,12 @@ class ViewPage extends Component {
   }
 
   render() {
-    const { width, position, view, children } = this.props
+    const { view, children } = this.props
     const child = Children.only(children)
     const style = {
       ...child.props.style,
+      top: (view.top && view.top.offset.percent) + '%' || 0 + '%',
       left: (view.left && view.left.offset.percent) + '%' || 0 + '%'
-    }
-
-    if (width) {
-      style.width = width + '%'
     }
 
     // pass isCurrent here so we can do stuff with it. Also pass as child function
@@ -207,36 +210,35 @@ function getTouchEvent(e) {
 
 class ViewPager extends Component {
   static propTypes = {
-    currentKey: PropTypes.any,
-    currentIndex: PropTypes.number,
-    // viewsToShow: PropTypes.number, // can be false as well
+    currentView: PropTypes.any,
+    viewsToShow: PropTypes.any,
     viewsToMove: PropTypes.number,
     infinite: PropTypes.bool,
     instant: PropTypes.bool,
     axis: PropTypes.oneOf(['x', 'y']),
-    autoHeight: PropTypes.bool,
     // align: PropTypes.oneOf(['left', 'center', 'right', PropTypes.number]),
     align: PropTypes.any,
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number,
     flickTimeout: PropTypes.number,
+    autoSize: PropTypes.bool,
     beforeAnimation: PropTypes.func,
     afterAnimation: PropTypes.func
   }
 
   static defaultProps = {
-    // currentKey: null,
-    currentIndex: 0,
-    viewsToShow: false,
+    currentView: 0, // pass a key or index, should try for index first then try for a key
+    viewsToShow: false, // can be number or false
     viewsToMove: 1,
     infinite: false,
-    // instant: false,
+    instant: false,
     axis: 'x',
-    // autoHeight: false,
-    align: 'center',
+    align: 'left',
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
+    autoSize: true, // width || height || false || true
+    // lazyLoad: false, // lazyily load components as they enter
     onChange: () => null,
     beforeAnimation: () => null,
     afterAnimation: () => null
@@ -255,17 +257,17 @@ class ViewPager extends Component {
 
     this.state = {
       currentTrackPosition: 0,
-      currentIndex: props.currentIndex
+      currentView: props.currentView
     }
   }
 
-  // some type of method that hydrates the variables so it can be used
-  // with a resize detector or whatever
-  hydrate() {
-    const { axis } = this.props
+  componentDidMount() {
+    const { autoSize, axis } = this.props
 
     this._frame = new Frame({
       node: this._frameNode,
+      width: autoSize && this._getCurrentViewSize('width'),
+      height: autoSize && this._getCurrentViewSize('height'),
       axis
     })
 
@@ -282,25 +284,35 @@ class ViewPager extends Component {
     this._views.setPositions()
 
     // set track width to the size of views
-    this._track.setSize(this._views.getTotalSize(), 0)
+    this._track.setSize(this._views.getTotalSize(), this._views.getTotalSize())
 
+    // finally, set the initial track position
     this._setTrackPosition(this._getStartCoords())
   }
 
-  componentDidMount() {
-    this.hydrate()
-  }
-
-  componentWillReceiveProps({ currentIndex }) {
-    if (typeof currentIndex !== undefined && this.props.currentIndex !== currentIndex) {
-      this.setState({ currentIndex })
+  componentWillReceiveProps({ currentView }) {
+    // update state with new index if necessary
+    if (typeof currentView !== undefined && this.props.currentView !== currentView) {
+      this.setState({ currentView })
     }
   }
 
   componentDidUpdate(lastProps, lastState) {
     // reposition slider if index has changed
-    if (this.state.currentIndex !== lastState.currentIndex) {
+    if (this.state.currentView !== lastState.currentView) {
       this._setTrackPosition(this._getStartCoords())
+    }
+
+    // update frame size to match new view size
+    if (this.props.autoSize) {
+      const width = this._getCurrentViewSize('width')
+      const height = this._getCurrentViewSize('height')
+
+      // update frame size
+      this._frame.setSize(width, height)
+
+      // update view positions
+      this._views.setPositions()
     }
   }
 
@@ -312,26 +324,32 @@ class ViewPager extends Component {
     this.slide(1)
   }
 
-  slide = (direction, index = this.state.currentIndex) => {
+  slide = (direction, index = this.state.currentView) => {
     const { children, viewsToMove } = this.props
     const viewCount = Children.count(children)
-    const currentIndex = modulo(index + (direction * viewsToMove), viewCount)
-    this.setState({ currentIndex }, () => {
-      this.props.onChange(currentIndex)
+    const currentView = modulo(index + (direction * viewsToMove), viewCount)
+    this.setState({ currentView }, () => {
+      this.props.onChange(currentView)
     })
   }
 
   _handleViewMount = (node, index) => {
-    this._views.addView(node)
+    const { viewsToShow } = this.props
+    this._views.addView(node, {
+      width: viewsToShow && (100 / viewsToShow),
+      // height: viewsToShow && (100 / viewsToShow)
+    })
+    console.log(100 / viewsToShow)
     this.forceUpdate()
   }
 
-  _getStartCoords(index = this.state.currentIndex) {
+  _getStartCoords(index = this.state.currentView) {
     return this._views.getStartCoords(index)
   }
 
-  _getCurrentViewSize() {
-    return this._views.collection[this.state.currentIndex].getSize()
+  _getCurrentViewSize(dimension) {
+    const currentView = this._views.collection[this.state.currentView]
+    return currentView && currentView.getSize(dimension) || 0
   }
 
   _getAlignOffset() {
@@ -369,8 +387,11 @@ class ViewPager extends Component {
 
   // Swipe Logic
   _isSwipe(threshold) {
+    const { axis } = this.props
     let { x, y } = this._swipeDiff
-    return Math.abs(x) > Math.max(threshold, Math.abs(y))
+    return axis === 'x'
+      ? Math.abs(x) > Math.max(threshold, Math.abs(y))
+      : Math.abs(x) < Math.max(threshold, Math.abs(y))
   }
 
   _onSwipeStart = (e) => {
@@ -453,20 +474,35 @@ class ViewPager extends Component {
     return swipeEvents
   }
 
+  _getTransformValue(trackPosition) {
+    const { axis } = this.props
+    const position = { x: 0, y: 0 }
+    position[axis] = trackPosition || 0
+    return `translate3d(${position.x}%, ${position.y}%, 0)`
+  }
+
   render() {
-    const { viewsToShow, children } = this.props
+    const { autoSize, children } = this.props
     const trackPosition = this._getPercentValue(this.state.currentTrackPosition)
+    const frameStyles = {}
+
+    if (autoSize) {
+      frameStyles.width = this._getCurrentViewSize('width') || 'auto'
+      frameStyles.height = this._getCurrentViewSize('height') || 'auto'
+    }
+
     return (
       <div
         ref={c => this._frameNode = findDOMNode(c)}
         className="frame"
+        style={frameStyles}
         {...this._getSwipeEvents()}
       >
         <div
           ref={c => this._trackNode = findDOMNode(c)}
           className="track"
           style={{
-            transform: `translate3d(${trackPosition}%, 0, 0)`
+            transform: this._getTransformValue(trackPosition)
           }}
         >
           {Children.map(children, (child, index) =>
