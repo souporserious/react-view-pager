@@ -236,7 +236,7 @@ class ViewPager extends Component {
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number, // to advance slides, the user must swipe a length of (1/touchThreshold) * the width of the slider
     flickTimeout: PropTypes.number,
-    // contain: PropTypes.bool,
+    contain: PropTypes.bool,
     // lazyLoad: PropTypes.bool,
     // rtl: PropTypes.bool,
     // springConfig: React.PropTypes.objectOf(React.PropTypes.number),
@@ -248,12 +248,12 @@ class ViewPager extends Component {
     currentView: 0,
     viewsToShow: 0,
     viewsToMove: 1,
-    infinite: true,
+    infinite: false,
     instant: false,
     axis: 'x',
     align: 'left',
     autoSize: false,
-    contain: false, // don't allow slider to show empty cells
+    contain: true, // don't allow slider to show empty cells
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
@@ -279,7 +279,7 @@ class ViewPager extends Component {
     this._isFlick = false
 
     this.state = {
-      currentTrackPosition: 0,
+      trackPosition: 0,
       currentView: props.currentView
     }
   }
@@ -352,7 +352,7 @@ class ViewPager extends Component {
     const { children, viewsToMove, infinite } = this.props
     const newIndex = index + (direction * viewsToMove)
     const currentView = infinite
-      ? modulo(newIndex, this._viewCount - 1)
+      ? modulo(newIndex, this._viewCount)
       : clamp(newIndex, 0, this._viewCount - 1)
 
     this.setState({ currentView }, () => {
@@ -382,7 +382,7 @@ class ViewPager extends Component {
     return (frameSize - (currentViewSize / (viewsToShow || 1))) * alignMultiplier
   }
 
-  _setTrackPosition(position) {
+  _setTrackPosition(position, bypassContain) {
     const { infinite, contain } = this.props
     const frameSize = this._frame.getSize()
     const trackSize = this._track.getSize()
@@ -395,9 +395,9 @@ class ViewPager extends Component {
     // alignment
     position += this._getAlignOffset()
 
-    // clamp value if we want to contain the position
-    if (contain) {
-      position = clamp(position, -(trackSize - frameSize), 0)
+    // contain
+    if (!bypassContain && contain) {
+      position = clamp(position, frameSize - trackSize, 0)
     }
 
     // set new track position
@@ -408,7 +408,7 @@ class ViewPager extends Component {
 
     // update state
     this.setState({
-      currentTrackPosition: position
+      trackPosition: position
     })
   }
 
@@ -441,11 +441,9 @@ class ViewPager extends Component {
     }, this.props.flickTimeout)
   }
 
-  _getOutsideTrackBounds(trackPosition) {
-    return {
-      first: trackPosition > 0,
-      last: Math.abs(trackPosition) > (this._track.getSize() - this._frame.getSize())
-    }
+  _inBounds(trackPosition) {
+    const frameEnd = (this._track.getSize() - this._frame.getSize())
+    return trackPosition > 0 || Math.abs(trackPosition) > frameEnd
   }
 
   _onSwipeMove = (e) =>  {
@@ -469,28 +467,21 @@ class ViewPager extends Component {
       let swipDiff = this._swipeDiff[axis]
       let newTrackPosition = (this._startTrack - swipDiff) * viewsToMove
 
-      // console.log(this._getOutsideTrackBounds(newTrackPosition))
-      // don't allow swiping if we are containing slides
-      // this logic will make sure the track position stays within the bounds of the frame
-      // all while allowing to swipe past
-      // if it goes past the bounds we will activate the edgeFriction
-      // if (Math.abs(newTrackPosition) > this._track.getSize() - this._frame.getSize()) {
-      //
-      // } else if () {
-      //
-      // }
-
-
-      // make sure we stay within the defined threshold
-      // newTrackPosition = clamp(val, min, max)
-      this._setTrackPosition(newTrackPosition)
+      this._setTrackPosition(newTrackPosition, this._inBounds(newTrackPosition))
     }
   }
 
   _onSwipeEnd = () =>  {
     const { swipeThreshold, axis } = this.props
+    const { trackPosition } = this.state
     const currentViewSize = this._getCurrentViewSize()
     const threshold = this._isFlick ? swipeThreshold : (currentViewSize * swipeThreshold)
+
+    // if "contain" is activated and we have swiped past the frame we need to
+    // reset the value back to the clamped position
+    if (this._inBounds(trackPosition)) {
+      this._setTrackPosition(trackPosition, false)
+    }
 
     // if (this._isSwipe(threshold)) {
     //   (this._swipeDiff[axis] < 0) ? this.prev() : this.next()
@@ -540,7 +531,7 @@ class ViewPager extends Component {
 
   render() {
     const { autoSize, viewsToShow, axis, children } = this.props
-    const trackPosition = this._getPositionValue(this.state.currentTrackPosition)
+    const trackPosition = this._getPositionValue(this.state.trackPosition)
     const frameStyles = {}
 
     if (autoSize) {
