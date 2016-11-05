@@ -1,7 +1,6 @@
 import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
 import ReactDOM, { findDOMNode } from 'react-dom'
-
-const modulo = (num, max) => ((num % max) + max) % max
+import modulo from './modulo'
 
 // react-view-pager
 // const Slider = ({ slides }) => (
@@ -19,9 +18,9 @@ const modulo = (num, max) => ((num % max) + max) % max
 // )
 
 const ALIGN_OFFSETS = {
-  left: 0,
-  center: 0.5,
-  right: 1
+  start: 0,
+  middle: 0.5,
+  end: 1
 }
 
 class ElementSize {
@@ -228,18 +227,19 @@ class ViewPager extends Component {
     currentView: PropTypes.any,
     viewsToShow: PropTypes.number,
     viewsToMove: PropTypes.number,
+    align: PropTypes.oneOf(['start', 'middle', 'end', PropTypes.number]),
+    contain: PropTypes.bool,
+    axis: PropTypes.oneOf(['x', 'y']),
+    autoSize: PropTypes.bool,
     infinite: PropTypes.bool,
     instant: PropTypes.bool,
-    axis: PropTypes.oneOf(['x', 'y']),
-    align: PropTypes.oneOf(['left', 'center', 'right', PropTypes.number]),
-    autoSize: PropTypes.bool,
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number, // to advance slides, the user must swipe a length of (1/touchThreshold) * the width of the slider
     flickTimeout: PropTypes.number,
-    contain: PropTypes.bool,
+    // edgeFriction: PropTypes.number,
     // lazyLoad: PropTypes.bool,
-    // rtl: PropTypes.bool,
     // springConfig: React.PropTypes.objectOf(React.PropTypes.number),
+    // onReady: PropTypes.func,
     beforeAnimation: PropTypes.func,
     afterAnimation: PropTypes.func
   }
@@ -248,19 +248,19 @@ class ViewPager extends Component {
     currentView: 0,
     viewsToShow: 0,
     viewsToMove: 1,
-    infinite: false,
-    instant: false,
+    align: 'middle',
+    contain: false,
     axis: 'x',
-    align: 'left',
     autoSize: false,
-    contain: true, // don't allow slider to show empty cells
+    infinite: true,
+    instant: false,
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
-    edgeFriction: 0, // the amount the slider can swipe past on the ends if infinite is false
+    // edgeFriction: 0, // the amount the slider can swipe past the ends if infinite is false
     // lazyLoad: false, // lazyily load components as they enter
-    // rtl: false, // right to left
     // springConfig: presets.gentle,
+    // onReady: () => null,
     onChange: () => null,
     beforeAnimation: () => null,
     afterAnimation: () => null
@@ -322,21 +322,21 @@ class ViewPager extends Component {
   }
 
   componentDidUpdate(lastProps, lastState) {
-    // reposition slider if index has changed
     if (this.state.currentView !== lastState.currentView) {
+      // update frame size to match new view size
+      if (this.props.autoSize) {
+        const width = this._getCurrentViewSize('width')
+        const height = this._getCurrentViewSize('height')
+
+        // update frame size
+        this._frame.setSize(width, height)
+
+        // update view positions
+        this._views.setPositions()
+      }
+
+      // reposition slider if index has changed
       this._setTrackPosition(this._getStartCoords())
-    }
-
-    // update frame size to match new view size
-    if (this.props.autoSize) {
-      const width = this._getCurrentViewSize('width')
-      const height = this._getCurrentViewSize('height')
-
-      // update frame size
-      this._frame.setSize(width, height)
-
-      // update view positions
-      this._views.setPositions()
     }
   }
 
@@ -441,7 +441,7 @@ class ViewPager extends Component {
     }, this.props.flickTimeout)
   }
 
-  _inBounds(trackPosition) {
+  _outOfBounds(trackPosition) {
     const frameEnd = (this._track.getSize() - this._frame.getSize())
     return trackPosition > 0 || Math.abs(trackPosition) > frameEnd
   }
@@ -464,22 +464,28 @@ class ViewPager extends Component {
       e.stopPropagation()
 
       // let swipDiff = this._swipeDiff[axis] * edgeFriction
-      let swipDiff = this._swipeDiff[axis]
-      let newTrackPosition = (this._startTrack - swipDiff) * viewsToMove
+      let swipeDiff = this._swipeDiff[axis]
+      let newTrackPosition = (this._startTrack - swipeDiff) * viewsToMove
+      let outOfBounds = this._outOfBounds(newTrackPosition)
 
-      this._setTrackPosition(newTrackPosition, this._inBounds(newTrackPosition))
+      if (outOfBounds) {
+        // add resistance here
+        // this.props.edgeFriction
+      }
+
+      this._setTrackPosition(newTrackPosition, outOfBounds)
     }
   }
 
   _onSwipeEnd = () =>  {
-    const { swipeThreshold, axis } = this.props
+    const { swipeThreshold, axis, infinite } = this.props
     const { trackPosition } = this.state
     const currentViewSize = this._getCurrentViewSize()
     const threshold = this._isFlick ? swipeThreshold : (currentViewSize * swipeThreshold)
 
     // if "contain" is activated and we have swiped past the frame we need to
     // reset the value back to the clamped position
-    if (this._inBounds(trackPosition)) {
+    if (!infinite && this._outOfBounds(trackPosition)) {
       this._setTrackPosition(trackPosition, false)
     }
 
