@@ -1,5 +1,6 @@
-import React, { Component, PropTypes, Children, cloneElement, createElement } from 'react'
+import React, { Component, PropTypes, Children } from 'react'
 import ReactDOM, { findDOMNode } from 'react-dom'
+import { Motion, spring, presets } from 'react-motion'
 import ElementBase from './ElementBase'
 import Views from './Views'
 import ViewComponent from './ViewComponent'
@@ -48,10 +49,9 @@ class ViewPager extends Component {
     swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
     swipeThreshold: PropTypes.number, // to advance slides, the user must swipe a length of (1/touchThreshold) * the width of the slider
     flickTimeout: PropTypes.number,
-    // edgeFriction: PropTypes.number,
     // rightToLeft: PropTypes.bool,
     // lazyLoad: PropTypes.bool,
-    // springConfig: React.PropTypes.objectOf(React.PropTypes.number),
+    springConfig: React.PropTypes.objectOf(React.PropTypes.number),
     // onReady: PropTypes.func,
     beforeAnimation: PropTypes.func,
     afterAnimation: PropTypes.func
@@ -65,15 +65,14 @@ class ViewPager extends Component {
     contain: false,
     axis: 'x',
     autoSize: false,
-    infinite: true,
+    infinite: false,
     instant: false,
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
-    // edgeFriction: 0, // the amount the slider can swipe past the ends if infinite is false
     // rightToLeft: false,
     // lazyLoad: false, // lazyily load components as they enter
-    // springConfig: presets.gentle,
+    springConfig: presets.noWobble,
     // onReady: () => null,
     onChange: () => null,
     beforeAnimation: () => null,
@@ -233,9 +232,8 @@ class ViewPager extends Component {
   }
 
   _isSwipe(threshold) {
-    const { axis } = this.props
-    let { x, y } = this._swipeDiff
-    return axis === 'x'
+    const { x, y } = this._swipeDiff
+    return this.props.axis === 'x'
       ? Math.abs(x) > Math.max(threshold, Math.abs(y))
       : Math.abs(x) < Math.max(threshold, Math.abs(y))
   }
@@ -277,18 +275,10 @@ class ViewPager extends Component {
     if (this._isSwipe(swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
-
-      // let swipDiff = this._swipeDiff[axis] * edgeFriction
-      let swipeDiff = this._swipeDiff[axis]
-      let newTrackPosition = (this._startTrack - swipeDiff) * viewsToMove
-      let isOutOfBounds = this._isOutOfBounds(newTrackPosition)
-
-      if (isOutOfBounds) {
-        // add resistance here
-        // this.props.edgeFriction
-      }
-
-      this._setTrackPosition(newTrackPosition, isOutOfBounds)
+      const swipeDiff = this._swipeDiff[axis]
+      const trackPosition = (this._startTrack - swipeDiff) * viewsToMove
+      const isOutOfBounds = this._isOutOfBounds(trackPosition)
+      this._setTrackPosition(trackPosition, isOutOfBounds)
     }
   }
 
@@ -300,13 +290,11 @@ class ViewPager extends Component {
 
     // if "contain" is activated and we have swiped past the frame we need to
     // reset the value back to the clamped position
-    if (!infinite && this._isOutOfBounds(trackPosition)) {
+    if (this._isSwipe(threshold)) {
+      (this._swipeDiff[axis] < 0) ? this.prev() : this.next()
+    } else if (!infinite && this._isOutOfBounds(trackPosition)) {
       this._setTrackPosition(trackPosition, false)
     }
-
-    // if (this._isSwipe(threshold)) {
-    //   (this._swipeDiff[axis] < 0) ? this.prev() : this.next()
-    // }
 
     this._isSwiping = false
   }
@@ -351,8 +339,8 @@ class ViewPager extends Component {
   }
 
   render() {
-    const { autoSize, viewsToShow, axis, children } = this.props
-    const trackPosition = this._getPositionValue(this.state.trackPosition)
+    const { autoSize, viewsToShow, axis, springConfig, children } = this.props
+    const destValue = this._getPositionValue(this.state.trackPosition) || 0
     const frameStyles = {}
 
     if (autoSize) {
@@ -367,23 +355,27 @@ class ViewPager extends Component {
         style={frameStyles}
         {...this._getSwipeEvents()}
       >
-        <div
-          ref={c => this._trackNode = findDOMNode(c)}
-          className="track"
-          style={{
-            [TRANSFORM]: this._getTransformValue(trackPosition)
-          }}
-        >
-          {Children.map(children, (child, index) =>
-            <ViewComponent
-              view={this._views.collection[index] || {}}
-              viewsToShow={viewsToShow}
-              axis={axis}
-              onMount={this._handleViewMount}
-              children={child}
-            />
-          )}
-        </div>
+        <Motion style={{ trackPosition: this._isSwiping ? destValue : spring(destValue, springConfig) }}>
+          { ({ trackPosition }) =>
+            <div
+              ref={c => this._trackNode = findDOMNode(c)}
+              className="track"
+              style={{
+                [TRANSFORM]: this._getTransformValue(trackPosition)
+              }}
+            >
+              {Children.map(children, (child, index) =>
+                <ViewComponent
+                  view={this._views.collection[index] || {}}
+                  viewsToShow={viewsToShow}
+                  axis={axis}
+                  onMount={this._handleViewMount}
+                  children={child}
+                />
+              )}
+            </div>
+          }
+        </Motion>
       </div>
     )
   }

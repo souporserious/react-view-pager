@@ -271,6 +271,8 @@ class App extends Component {
         <Slider
           ref={c => this.slider = c}
           currentView={activeIndex}
+          // infinite
+          // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
           <div className="cell cell-1" style={{ width: 300 }}>1</div>

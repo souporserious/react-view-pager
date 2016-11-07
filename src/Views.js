@@ -85,11 +85,11 @@ class Views {
   }
 
   getStartCoords(index) {
-    let size = 0
+    let target = 0
     this.collection.slice(0, index).forEach(view => {
-      size -= (view.getSize() / (this.viewsToShow || 1))
+      target -= (view.getSize() / (this.viewsToShow || 1))
     })
-    return size
+    return target
   }
 
   getPercentValue(position) {
