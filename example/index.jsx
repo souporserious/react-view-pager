@@ -244,7 +244,7 @@ class App extends Component {
     super(props)
     this.state = {
       images: [[500, 350], [800, 600], [800, 400], [700, 500], [200, 650], [600, 600]],
-      activeIndex: 2
+      activeIndex: 0
     }
   }
 
@@ -271,6 +271,9 @@ class App extends Component {
         <Slider
           ref={c => this.slider = c}
           currentView={activeIndex}
+          align={0.5}
+          infinite
+          // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
           <div className="cell cell-1" style={{ width: 300 }}>1</div>
@@ -279,12 +282,12 @@ class App extends Component {
           <div className="cell cell-4" style={{ width: 125 }}>4</div>
         </Slider>
 
-        <Slider axis="y">
+        {/*<Slider axis="y">
           <div className="cell cell-1">1</div>
           <div className="cell cell-2">2</div>
           <div className="cell cell-3">3</div>
           <div className="cell cell-4">4</div>
-        </Slider>
+        </Slider>*/}
       </div>
     )
   }

@@ -1,10 +1,14 @@
 import ElementBase from './ElementBase'
 
 class View extends ElementBase {
-  constructor(options) {
-    super(options)
+  constructor({ index, align, ...restOptions }) {
+    super(restOptions)
+    this.position = (this.axis === 'x') ? 'left' : 'top'
+    this.index = index
+    this.align = align || 0.5
     this.top = this.left = {
       original: 0,
+      target: 0,
       offset: {
         pixel: 0,
         percent: 0
@@ -12,12 +16,19 @@ class View extends ElementBase {
     }
   }
 
+  setTarget(position) {
+    // this.target = (this.getSize() * this.align) + position
+    const { align, viewsToShow } = this.options
+    const frameSize = this._frame.getSize()
+    return (frameSize - (this.getSize() / (viewsToShow || 1))) * align
+  }
+
   setCoords(position) {
-    this[this.axis === 'y' ? 'top' : 'left'] = position
+    this[this.position] = position
   }
 
   getCoords() {
-    return this[this.axis === 'y' ? 'top' : 'left']
+    return this[this.position]
   }
 }
 

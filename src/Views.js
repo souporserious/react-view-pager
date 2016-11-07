@@ -2,6 +2,7 @@ import View from './View'
 
 class Views {
   constructor(axis, viewsToShow, infinite) {
+    this.size = 0
     this.axis = axis
     this.viewsToShow = viewsToShow
     this.infinite = infinite
@@ -16,22 +17,27 @@ class Views {
     this.track = track
   }
 
-  addView(node, options = {}) {
+  addView(options) {
+    const lastView = this.collection[options.index - 1]
     const view = new View({
-      node,
       axis: this.axis,
       track: this.track,
       ...options
     })
 
+    // add view to collection
     this.collection.push(view)
+
+    // calculate the size of the slider as views are added
+    this.size += view.getSize()
 
     // hydrate positions every time a new view is added
     this.setPositions()
   }
 
   removeView(node) {
-    // this.collection.remove(node)
+    // subtract this view from full size
+    this.size -= view.getSize()
   }
 
   setPositions() {
@@ -85,11 +91,11 @@ class Views {
   }
 
   getStartCoords(index) {
-    let size = 0
+    let target = 0
     this.collection.slice(0, index).forEach(view => {
-      size -= (view.getSize() / (this.viewsToShow || 1))
+      target -= (view.getSize() / (this.viewsToShow || 1))
     })
-    return size
+    return target
   }
 
   getPercentValue(position) {

@@ -3,7 +3,7 @@ import ReactDOM, { findDOMNode } from 'react-dom'
 
 class ViewComponent extends Component {
   componentDidMount() {
-    this.props.onMount(findDOMNode(this))
+    this.props.onMount(findDOMNode(this), this.props.index)
   }
 
   render() {
