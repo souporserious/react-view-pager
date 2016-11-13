@@ -1,4 +1,4 @@
-import ElementBase from './ElementBase'
+import ElementBase from './PagerElement'
 
 class View extends ElementBase {
   constructor({ index, align, ...restOptions }) {

@@ -39,6 +39,7 @@
   "homepage": "https://github.com/souporserious/react-motion-slider",
   "dependencies": {
     "get-prefix": "^1.0.0",
+    "minivents": "^2.0.2",
     "react-motion": "^0.4.5"
   },
   "peerDependencies": {

@@ -1,10 +1,11 @@
-import React, { Component, PropTypes, Children } from 'react'
+import React, { Component, PropTypes, Children, createElement } from 'react'
 import ReactDOM, { findDOMNode } from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
-import ElementBase from './ElementBase'
+import ElementBase from './PagerElement'
 import Views from './Views'
 import ViewComponent from './ViewComponent'
 import getIndex from './get-index'
+import Pager from './Pager'
 
 // react-view-pager
 // const Slider = ({ slides }) => (
@@ -46,6 +47,46 @@ function clamp(val, min, max) {
 
 function getTouchEvent(e) {
   return e.touches && e.touches[0] || e
+}
+
+class Frame extends Component {
+  static defaultProps = {
+    tag: 'div'
+  }
+
+  static contextTypes = {
+    viewPager: PropTypes.instanceOf(Pager)
+  }
+
+  componentDidMount() {
+    const { viewPager } = this.context
+    viewPager.addFrame(findDOMNode(this))
+    viewPager.positionTrack()
+  }
+
+  render() {
+    const { tag, ...restProps } = this.props
+    return createElement(tag, restProps)
+  }
+}
+
+class Track extends Component {
+  static defaultProps = {
+    tag: 'div'
+  }
+
+  static contextTypes = {
+    viewPager: PropTypes.instanceOf(Pager)
+  }
+
+  componentDidMount() {
+    this.context.viewPager.addTrack(findDOMNode(this))
+  }
+
+  render() {
+    const { tag, ...restProps } = this.props
+    return createElement(tag, restProps)
+  }
 }
 
 class ViewPager extends Component {
@@ -92,9 +133,14 @@ class ViewPager extends Component {
     afterAnimation: () => null
   }
 
+  static childContextTypes = {
+    viewPager: PropTypes.instanceOf(Pager)
+  }
+
   constructor(props) {
     super(props)
 
+    this._viewPager = new Pager()
     this._views = new Views(props.axis, props.viewsToShow, props.infinite)
     this._viewCount = Children.count(props.children)
 
@@ -110,34 +156,40 @@ class ViewPager extends Component {
     }
   }
 
+  getChildContext() {
+    return {
+      viewPager: this._viewPager
+    }
+  }
+
   componentDidMount() {
     const { autoSize, axis } = this.props
 
-    this._frame = new ElementBase({
-      node: this._frameNode,
-      width: autoSize && this._getCurrentViewSize('width'),
-      height: autoSize && this._getCurrentViewSize('height'),
-      axis
-    })
-
-    this._track = new ElementBase({
-      node: this._trackNode,
-      axis
-    })
-
-    // set frame and track for views to access
-    this._views.setFrame(this._frame)
-    this._views.setTrack(this._track)
-
-    // set positions so we can get a total width
-    this._views.setPositions()
-
-    // set track width to the size of views
-    const totalViewSize = this._views.getTotalSize()
-    this._track.setSize(totalViewSize, totalViewSize)
-
-    // finally, set the initial track position
-    this._setTrackPosition(this._getStartCoords())
+    // this._frame = new ElementBase({
+    //   node: this._frameNode,
+    //   width: autoSize && this._getCurrentViewSize('width'),
+    //   height: autoSize && this._getCurrentViewSize('height'),
+    //   axis
+    // })
+    //
+    // this._track = new ElementBase({
+    //   node: this._trackNode,
+    //   axis
+    // })
+    //
+    // // set frame and track for views to access
+    // this._views.setFrame(this._frame)
+    // this._views.setTrack(this._track)
+    //
+    // // set positions so we can get a total width
+    // this._views.setPositions()
+    //
+    // // set track width to the size of views
+    // const totalViewSize = this._views.getTotalSize()
+    // this._track.setSize(totalViewSize, totalViewSize)
+    //
+    // // finally, set the initial track position
+    // this._setTrackPosition(this._getStartCoords())
   }
 
   componentWillReceiveProps({ currentView, children }) {
@@ -177,15 +229,18 @@ class ViewPager extends Component {
   }
 
   slide = (direction, index = this.state.currentView) => {
-    const { children, viewsToMove, infinite } = this.props
-    const newIndex = index + (direction * viewsToMove)
-    const currentView = infinite
-      ? modulo(newIndex, this._viewCount)
-      : clamp(newIndex, 0, this._viewCount - 1)
+    this._viewPager.setCurrentView(direction, index)
 
-    this.setState({ currentView }, () => {
-      this.props.onChange(currentView)
+    this.setState({ currentView: index + direction }, () => {
+      console.log(this._viewPager.getTransformValue())
+      // this.props.onChange(currentView)
     })
+    // const { children, viewsToMove, infinite } = this.props
+    // const newIndex = index + (direction * viewsToMove)
+    // const currentView = infinite
+    //   ? modulo(newIndex, this._viewCount)
+    //   : clamp(newIndex, 0, this._viewCount - 1)
+    //
   }
 
   _handleViewMount = (node, index) => {
@@ -210,33 +265,33 @@ class ViewPager extends Component {
   }
 
   _setTrackPosition(position, bypassContain) {
-    const { infinite, contain } = this.props
-    const frameSize = this._frame.getSize()
-    const trackSize = this._track.getSize()
-
-    // wrapping
-    if (infinite) {
-      position = modulo(position, trackSize) - trackSize
-    }
-
-    // alignment
-    // position += this._getAlignOffset()
-
-    // contain
-    if (!bypassContain && contain) {
-      position = clamp(position, frameSize - trackSize, 0)
-    }
-
-    // set new track position
-    this._track.setPosition(position)
-
-    // update view positions
-    this._views.setPositions()
-
-    // update state
-    this.setState({
-      trackPosition: position
-    })
+    // const { infinite, contain } = this.props
+    // const frameSize = this._frame.getSize()
+    // const trackSize = this._track.getSize()
+    //
+    // // wrapping
+    // if (infinite) {
+    //   position = modulo(position, trackSize) - trackSize
+    // }
+    //
+    // // alignment
+    // // position += this._getAlignOffset()
+    //
+    // // contain
+    // if (!bypassContain && contain) {
+    //   position = clamp(position, frameSize - trackSize, 0)
+    // }
+    //
+    // // set new track position
+    // this._track.setPosition(position)
+    //
+    // // update view positions
+    // this._views.setPositions()
+    //
+    // // update state
+    // this.setState({
+    //   trackPosition: position
+    // })
   }
 
   _isOutOfBounds(trackPosition) {
@@ -336,6 +391,7 @@ class ViewPager extends Component {
       swipeEvents.onTouchEnd = this._onSwipeEnd
     }
 
+    return {}
     return swipeEvents
   }
 
@@ -362,7 +418,7 @@ class ViewPager extends Component {
     }
 
     return (
-      <div
+      <Frame
         ref={c => this._frameNode = findDOMNode(c)}
         className="frame"
         style={frameStyles}
@@ -370,7 +426,7 @@ class ViewPager extends Component {
       >
         <Motion style={{ trackPosition: this._isSwiping ? destValue : spring(destValue, springConfig) }}>
           { ({ trackPosition }) =>
-            <div
+            <Track
               ref={c => this._trackNode = findDOMNode(c)}
               className="track"
               style={{
@@ -383,14 +439,14 @@ class ViewPager extends Component {
                   view={this._views.collection[index] || {}}
                   viewsToShow={viewsToShow}
                   axis={axis}
-                  onMount={this._handleViewMount}
+                  // onMount={this._handleViewMount}
                   children={child}
                 />
               )}
-            </div>
+            </Track>
           }
         </Motion>
-      </div>
+      </Frame>
     )
   }
 }

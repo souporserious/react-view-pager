@@ -1,7 +1,7 @@
-class ElementBase {
-  constructor({ node, axis, width, height }) {
+class PagerElement {
+  constructor({ node, pager, width, height }) {
     this.node = node
-    this.axis = axis
+    this.pager = pager
     this.x = this.y = 0
     this.setSize(width, height)
   }
@@ -12,20 +12,21 @@ class ElementBase {
   }
 
   setPosition(position) {
-    this[this.axis] = position
+    this[this.pager.options.axis] = position
   }
 
   getSize(dimension) {
     if (dimension === 'width' || dimension === 'height') {
       return this[dimension]
     } else {
-      return this[this.axis === 'x' ? 'width' : 'height']
+      const axis = this.pager.options.axis
+      return this[axis === 'x' ? 'width' : 'height']
     }
   }
 
   getPosition() {
-    return this[this.axis]
+    return this[this.pager.options.axis]
   }
 }
 
-export default ElementBase
+export default PagerElement
