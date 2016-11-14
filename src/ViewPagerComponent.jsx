@@ -394,6 +394,7 @@ class ViewPager extends Component {
       // now the pager is ready, animate to whatever value instantly
       this.setState({ instant: true }, () => {
         this.props.onReady()
+        this.setState({ instant: false })
       })
     })
   }
@@ -421,10 +422,6 @@ class ViewPager extends Component {
   }
 
   componentDidUpdate(lastProps, lastState) {
-    if (this.state.instant) {
-      this.setState({ instant: false })
-    }
-
     if (this.state.currentView !== lastState.currentView) {
       // update frame size to match new view size
       this._setFrameAutoSize()
@@ -527,6 +524,10 @@ class ViewPager extends Component {
       this.forceUpdate()
     }
 
+    this.setState({
+      instant: false
+    })
+
     this._viewPager.isSwiping = false
   }
 
@@ -580,12 +581,14 @@ class ViewPager extends Component {
   _handleOnRest = () => {
     const { infinite, children } = this.props
 
-    if (infinite) {
+    if (infinite && !this.state.instant) {
       // reset back to a normal index
       this._viewPager.resetViews()
 
       // set instant flag so we can prime track for next move
-      this.setState({ instant: true })
+      this.setState({ instant: true }, () => {
+        this.setState({ instant: false })
+      })
     }
   }
 
@@ -599,6 +602,7 @@ class ViewPager extends Component {
   }
 
   render() {
+    const trackSize = this._viewPager.getTrackSize()
     return (
       <Motion style={this._getFrameStyle()}>
         { frameStyles =>
@@ -615,11 +619,11 @@ class ViewPager extends Component {
               onRest={this._handleOnRest}
             >
               { ({ trackPosition }) => {
-                this._currentTween = trackPosition
+                this._currentTween = modulo(trackPosition, -trackSize) || trackPosition
 
-                // if (!this.state.instant) {
-                //   this._startTrack = this._currentTween
-                // }
+                if (!this.state.instant) {
+                  this._startTrack = this._currentTween
+                }
 
                 return (
                   <Track

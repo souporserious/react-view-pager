@@ -273,7 +273,7 @@ class App extends Component {
           ref={c => this.slider = c}
           currentView={activeIndex}
           // autoSize
-          // viewsToShow={2}
+          viewsToShow={1}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
