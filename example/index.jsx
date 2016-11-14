@@ -244,12 +244,13 @@ class App extends Component {
     super(props)
     this.state = {
       images: [[500, 350], [800, 600], [800, 400], [700, 500], [200, 650], [600, 600]],
-      activeIndex: 0
+      activeIndex: 0,
+      // size: '50%'
     }
   }
 
   render() {
-    const { images, activeIndex } = this.state
+    const { images, activeIndex, size } = this.state
     return (
       <div>
         <div>
@@ -271,15 +272,19 @@ class App extends Component {
         <Slider
           ref={c => this.slider = c}
           currentView={activeIndex}
-          align={0.5}
-          infinite
+          // autoSize
+          // viewsToShow={2}
+          // viewsToMove={2}
+          // axis="y"
+          // align={0.5}
+          // infinite
           // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
-          <div className="cell cell-1" style={{ width: 300 }}>1</div>
-          <div className="cell cell-2" style={{ width: 175 }}>2</div>
-          <div className="cell cell-3" style={{ width: 315 }}>3</div>
-          <div className="cell cell-4" style={{ width: 125 }}>4</div>
+          <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
+          <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
+          <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
+          <div className="cell cell-4" style={{ width: size ? size : 125, height: 400 }}>4</div>
         </Slider>
 
         {/*<Slider axis="y">
