@@ -24,6 +24,7 @@ class Pager {
     this.currentIndex = 0
     this.currentView = null
     this.trackPosition = 0
+    this.isSwiping = false
 
     this.options = {
       axis: 'x',
@@ -83,16 +84,20 @@ class Pager {
     this.setCurrentView(1)
   }
 
-  setPositionValue(value) {
-    let trackPosition = this.currentView ? this.currentView.target : 0
+  setPositionValue(trackPosition = this.currentView ? this.currentView.target : 0) {
+    const { infinite, contain } = this.options
+    const trackSize = this.getTrackSize()
 
-    if (this.options.infinite) {
+    if (infinite) {
       // we offset by a track multiplier so infinite animation works as expected
-      const trackSize = this.getTrackSize()
       trackPosition -= (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
     }
 
-    this.trackPosition = value || trackPosition
+    if (!this.isSwiping && contain && this.frame) {
+      trackPosition = clamp(trackPosition, this.frame.getSize() - trackSize, 0)
+    }
+
+    this.trackPosition = trackPosition
   }
 
   setCurrentView(direction, index = this.currentIndex) {
@@ -119,11 +124,6 @@ class Pager {
 
     if (infinite) {
       trackPosition = modulo(trackPosition, -trackSize) || 0
-    }
-
-    if (contain && this.frame) {
-      const frameSize = this.frame.getSize()
-      trackPosition = clamp(trackPosition, 0, Math.abs(trackSize - frameSize))
     }
 
     position[this.options.axis] = trackPosition
@@ -363,11 +363,11 @@ class ViewPager extends Component {
     super(props)
 
     this._viewPager = new Pager(props)
+    this._currentTween = 0
 
     // swiping
     this._startSwipe = {}
     this._swipeDiff = {}
-    this._isSwiping = false
     this._isFlick = false
 
     this.state = {
@@ -463,10 +463,10 @@ class ViewPager extends Component {
     const { pageX, pageY } = getTouchEvent(e)
 
     // we're now swiping
-    this._isSwiping = true
+    this._viewPager.isSwiping = true
 
     // store the initial starting coordinates
-    this._startTrack = this._viewPager.trackPosition //- this._viewPager.getAlignOffset(this._viewPager.currentView)
+    this._startTrack = this._currentTween
     this._startSwipe = {
       x: pageX,
       y: pageY
@@ -482,9 +482,9 @@ class ViewPager extends Component {
 
   _onSwipeMove = (e) =>  {
     // bail if we aren't swiping
-    if (!this._isSwiping) return
+    if (!this._viewPager.isSwiping) return
 
-    const { swipeThreshold, axis, viewsToMove } = this.props
+    const { swipeThreshold, axis } = this.props
     const { pageX, pageY } = getTouchEvent(e)
 
     // determine how much we have moved
@@ -515,6 +515,9 @@ class ViewPager extends Component {
       ? swipeThreshold
       : (currentView.getSize() * viewsToMove) * swipeThreshold
 
+      // account for how many times track has wrapped here so when we use
+      // infinite it moves properly
+
     if (this._isSwipe(threshold)) {
       (this._swipeDiff[axis] < 0)
         ? this.prev()
@@ -524,12 +527,12 @@ class ViewPager extends Component {
       this.forceUpdate()
     }
 
-    this._isSwiping = false
+    this._viewPager.isSwiping = false
   }
 
   _onSwipePast = () =>  {
     // perform a swipe end if we swiped past the component
-    if (this._isSwiping) {
+    if (this._viewPager.isSwiping) {
       this._onSwipeEnd()
     }
   }
@@ -557,7 +560,7 @@ class ViewPager extends Component {
   _getMotionStyle(val = 0) {
     const { springConfig } = this.props
     const { instant } = this.state
-    return (this._isSwiping || instant) ? val : spring(val, springConfig)
+    return (this._viewPager.isSwiping || instant) ? val : spring(val, springConfig)
   }
 
   _getFrameStyle() {
@@ -611,14 +614,22 @@ class ViewPager extends Component {
               style={this._getTrackStyle()}
               onRest={this._handleOnRest}
             >
-              { ({ trackPosition }) =>
-                <Track
-                  position={trackPosition}
-                  className="track"
-                >
-                  {this._renderViews()}
-                </Track>
-              }
+              { ({ trackPosition }) => {
+                this._currentTween = trackPosition
+
+                // if (!this.state.instant) {
+                //   this._startTrack = this._currentTween
+                // }
+
+                return (
+                  <Track
+                    position={trackPosition}
+                    className="track"
+                  >
+                    {this._renderViews()}
+                  </Track>
+                )
+              }}
             </Motion>
           </Frame>
         }
