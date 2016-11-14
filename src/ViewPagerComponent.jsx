@@ -4,28 +4,6 @@ import { Motion, spring, presets } from 'react-motion'
 import PagerElement from './PagerElement'
 import getIndex from './get-index'
 
-// react-view-pager
-// const Slider = ({ slides }) => (
-//   <Frame>
-//     { ({ position, isSliding, isSwiping }) =>
-//       <Motion style={{ value: isSwiping ? position : spring(position) }}>
-//         { value =>
-//           <Track position={value}> // overrides internal position
-//             {slides} // that position would set proper wrapper values
-//           </Track>
-//         }
-//       </Motion>
-//     }
-//   </Frame>
-// )
-
-/*
-
-allow modulo function to overflow just enough to allow the pager to switch the views
-instantly
-
-*/
-
 const TRANSFORM = require('get-prefix')('transform')
 
 function modulo(val, max) {
@@ -39,8 +17,6 @@ function clamp(val, min, max) {
 function getTouchEvent(e) {
   return e.touches && e.touches[0] || e
 }
-
-
 
 class Pager {
   constructor(options = {}) {
@@ -86,7 +62,7 @@ class Pager {
       target += this.getAlignOffset(view)
     }
 
-    view.target = -target
+    view.target = target
 
     // set this as the first view if there isn't one
     if (!this.currentView) {
@@ -107,6 +83,18 @@ class Pager {
     this.setCurrentView(1)
   }
 
+  setPositionValue(value) {
+    let trackPosition = this.currentView ? this.currentView.target : 0
+
+    if (this.options.infinite) {
+      // we offset by a track multiplier so infinite animation works as expected
+      const trackSize = this.getTrackSize()
+      trackPosition -= (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
+    }
+
+    this.trackPosition = value || trackPosition
+  }
+
   setCurrentView(direction, index = this.currentIndex) {
     const { viewsToMove, infinite, onChange } = this.options
     const newIndex = index + (direction * viewsToMove)
@@ -116,22 +104,12 @@ class Pager {
 
     this.currentIndex = currentIndex
     this.currentView = this.getView(currentIndex)
-    this.trackPosition = this.getPositionValue()
+    this.setPositionValue()
   }
 
   resetViews() {
     // reset back to a normal index
     this.setCurrentView(0, modulo(this.currentIndex, this.views.length))
-  }
-
-  getPositionValue() {
-    const trackSize = this.getTrackSize()
-    let trackPosition = this.currentView ? this.currentView.target : 0
-
-    // we offset by a track multiplier so infinite animation works as expected
-    trackPosition += (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
-
-    return trackPosition
   }
 
   getTransformValue(trackPosition = this.trackPosition) {
@@ -140,7 +118,7 @@ class Pager {
     const position = { x: 0, y: 0 }
 
     if (infinite) {
-      trackPosition = modulo(trackPosition, trackSize) || 0
+      trackPosition = modulo(trackPosition, -trackSize) || 0
     }
 
     if (contain && this.frame) {
@@ -148,7 +126,7 @@ class Pager {
       trackPosition = clamp(trackPosition, 0, Math.abs(trackSize - frameSize))
     }
 
-    position[this.options.axis] = -trackPosition
+    position[this.options.axis] = trackPosition
 
     return `translate3d(${position.x}px, ${position.y}px, 0)`
   }
@@ -218,7 +196,7 @@ class Pager {
     const frameSize = this.frame.getSize()
     const trackSize = this.getTrackSize()
 
-    trackPosition = -modulo(trackPosition, trackSize)
+    trackPosition = modulo(trackPosition, -trackSize)
 
     this.views.reduce((lastPosition, view, index) => {
       const viewSize = view.getSize()
@@ -340,16 +318,17 @@ class ViewPager extends Component {
     align: PropTypes.number,
     contain: PropTypes.bool,
     axis: PropTypes.oneOf(['x', 'y']),
-    // autoSize: PropTypes.bool,
+    autoSize: PropTypes.bool,
     infinite: PropTypes.bool,
     instant: PropTypes.bool,
-    // swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
-    // swipeThreshold: PropTypes.number, // to advance slides, the user must swipe a length of (1/touchThreshold) * the width of the slider
-    // flickTimeout: PropTypes.number,
+    swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
+    swipeThreshold: PropTypes.number, // to advance slides, the user must swipe a length of (1/touchThreshold) * the width of the slider
+    flickTimeout: PropTypes.number,
     // rightToLeft: PropTypes.bool,
-    // lazyLoad: PropTypes.bool,
+    // lazyLoad: PropTypes.bool, // lazyily load components as they enter
     springConfig: React.PropTypes.objectOf(React.PropTypes.number),
-    // onReady: PropTypes.func,
+    onReady: PropTypes.func,
+    // onChange: PropTypes.func,
     // beforeAnimation: PropTypes.func,
     // afterAnimation: PropTypes.func
   }
@@ -367,10 +346,10 @@ class ViewPager extends Component {
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
-    // rightToLeft: false,
-    // lazyLoad: false, // lazyily load components as they enter
+    rightToLeft: false,
+    lazyLoad: false,
     springConfig: presets.noWobble,
-    // onReady: () => null,
+    onReady: () => null,
     onChange: () => null,
     beforeAnimation: () => null,
     afterAnimation: () => null
@@ -410,6 +389,12 @@ class ViewPager extends Component {
     // for views, we use this flag to determine when we can mount the views
     this.setState({ isMounted: true }, () => {
       this._setFrameAutoSize()
+      this._viewPager.setPositionValue()
+
+      // now the pager is ready, animate to whatever value instantly
+      this.setState({ instant: true }, () => {
+        this.props.onReady()
+      })
     })
   }
 
@@ -427,6 +412,7 @@ class ViewPager extends Component {
       })
     }
 
+    // update instant state from props
     if (this.props.instant !== instant) {
       this.setState({
         instant
@@ -466,11 +452,6 @@ class ViewPager extends Component {
     })
   }
 
-  _isOutOfBounds(trackPosition) {
-    const frameEnd = (this._track.getSize() - this._frame.getSize())
-    return trackPosition > 0 || Math.abs(trackPosition) > frameEnd
-  }
-
   _isSwipe(threshold) {
     const { x, y } = this._swipeDiff
     return this.props.axis === 'x'
@@ -485,7 +466,7 @@ class ViewPager extends Component {
     this._isSwiping = true
 
     // store the initial starting coordinates
-    this._startTrack = this._track.getPosition() - this._getAlignOffset()
+    this._startTrack = this._viewPager.trackPosition //- this._viewPager.getAlignOffset(this._viewPager.currentView)
     this._startSwipe = {
       x: pageX,
       y: pageY
@@ -515,25 +496,32 @@ class ViewPager extends Component {
     if (this._isSwipe(swipeThreshold)) {
       e.preventDefault()
       e.stopPropagation()
+
       const swipeDiff = this._swipeDiff[axis]
-      const trackPosition = (this._startTrack - swipeDiff) * viewsToMove
-      const isOutOfBounds = this._isOutOfBounds(trackPosition)
-      this._setTrackPosition(trackPosition, isOutOfBounds)
+      const trackPosition = this._startTrack - swipeDiff
+
+      this._viewPager.setPositionValue(trackPosition)
+
+      this.setState({
+        instant: true
+      })
     }
   }
 
   _onSwipeEnd = () =>  {
-    const { swipeThreshold, axis, infinite } = this.props
-    const { trackPosition } = this.state
-    const currentViewSize = this._getCurrentViewSize()
-    const threshold = this._isFlick ? swipeThreshold : (currentViewSize * swipeThreshold)
+    const { swipeThreshold, viewsToMove, axis, infinite } = this.props
+    const { frame, currentView, trackPosition } = this._viewPager
+    const threshold = this._isFlick
+      ? swipeThreshold
+      : (currentView.getSize() * viewsToMove) * swipeThreshold
 
-    // if "contain" is activated and we have swiped past the frame we need to
-    // reset the value back to the clamped position
     if (this._isSwipe(threshold)) {
-      (this._swipeDiff[axis] < 0) ? this.prev() : this.next()
-    } else if (!infinite && this._isOutOfBounds(trackPosition)) {
-      this._setTrackPosition(trackPosition, false)
+      (this._swipeDiff[axis] < 0)
+        ? this.prev()
+        : this.next()
+    } else {
+      this._viewPager.setPositionValue()
+      this.forceUpdate()
     }
 
     this._isSwiping = false
@@ -563,7 +551,6 @@ class ViewPager extends Component {
       swipeEvents.onTouchEnd = this._onSwipeEnd
     }
 
-    return {}
     return swipeEvents
   }
 
@@ -582,9 +569,8 @@ class ViewPager extends Component {
   }
 
   _getTrackStyle() {
-    const position = this._viewPager.getPositionValue()
     return {
-      trackPosition: this._getMotionStyle(position)
+      trackPosition: this._getMotionStyle(this._viewPager.trackPosition)
     }
   }
 
@@ -619,6 +605,7 @@ class ViewPager extends Component {
               width: frameStyles.width ? frameStyles.width : null,
               height: frameStyles.height ? frameStyles.height : null
             }}
+            {...this._getSwipeEvents()}
           >
             <Motion
               style={this._getTrackStyle()}

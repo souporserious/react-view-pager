@@ -277,7 +277,7 @@ class App extends Component {
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
-          // infinite
+          infinite
           // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
