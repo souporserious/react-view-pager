@@ -272,13 +272,13 @@ class App extends Component {
         <Slider
           ref={c => this.slider = c}
           currentView={activeIndex}
-          autoSize
-          viewsToShow={3}
+          // autoSize
+          // viewsToShow={3}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
           // infinite
-          contain
+          // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
           <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>

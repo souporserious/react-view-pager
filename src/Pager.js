@@ -8,14 +8,6 @@ function clamp(val, min, max) {
   return Math.min(Math.max(min, val), max)
 }
 
-function between(val, a, b) {
-  return val >= Math.min(a, b) && val <= Math.max(a, b)
-}
-
-function range(start, end) {
-  return Array.from({ length: end }, (v, k) => k + start)
-}
-
 class Pager {
   constructor(options = {}) {
     this.views = []
@@ -30,6 +22,7 @@ class Pager {
       contain: false,
       infinite: false,
       viewsToMove: 1,
+      autoSize: false,
       ...options
     }
   }
@@ -95,23 +88,27 @@ class Pager {
   }
 
   setPositionValue(trackPosition = this.currentView ? this.currentView.target : 0) {
-    const { infinite, contain } = this.options
+    const { viewsToShow, autoSize, infinite, contain } = this.options
     const trackSize = this.getTrackSize()
 
-    if (infinite && !this.isSwiping) {
-      // we offset by a track multiplier so infinite animation works as expected
-      trackPosition -= (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
-    }
+    if (!this.isSwiping) {
+      if (infinite) {
+        // we offset by a track multiplier so infinite animation can take advantage of
+        // physics by animating to a large value
+        trackPosition -= (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
+      }
 
-    if (contain && !this.isSwiping) {
-      trackPosition = clamp(trackPosition, this.frame.getSize() - trackSize, 0)
+      if (contain) {
+        const trackEndOffset = ((viewsToShow === 'auto' && autoSize) || viewsToShow <= 1) ? 0 : this.frame.getSize()
+        trackPosition = clamp(trackPosition, trackEndOffset - trackSize, 0)
+      }
     }
 
     this.trackPosition = trackPosition
   }
 
   getFrameSize(auto = this.options.auto) {
-    const { viewsToShow, infinite, axis } = this.options
+    const { viewsToShow, infinite, contain, axis } = this.options
     let maxHeight = 0
     let maxWidth = 0
 
@@ -119,13 +116,26 @@ class Pager {
       if (viewsToShow !== 'auto') {
         const currentViews = []
 
-        // gather all current indices
-        for (let i = this.currentIndex; i <= this.currentIndex + (viewsToShow - 1); i++) {
-          currentViews.push(
-            infinite
-              ? modulo(i, this.views.length)
-              : clamp(i, 0, this.views.length - 1)
-          )
+        // gather all current indices depending on options
+        if (contain) {
+          // if containing, we need to clamp the start and end indexes so we only return what's in view
+          const minIndex = clamp(this.currentIndex, 0, this.views.length - viewsToShow)
+          const maxIndex = clamp(this.currentIndex + (viewsToShow - 1), 0, this.views.length - 1)
+
+          for (let i = minIndex; i <= maxIndex; i++) {
+            currentViews.push(i)
+          }
+        } else {
+          const minIndex = this.currentIndex
+          const maxIndex = this.currentIndex + (viewsToShow - 1)
+
+          for (let i = minIndex; i <= maxIndex; i++) {
+            currentViews.push(
+              infinite
+                ? modulo(i, this.views.length)
+                : clamp(i, 0, this.views.length - 1)
+            )
+          }
         }
 
         // loop through current views and gather the biggest dimensions

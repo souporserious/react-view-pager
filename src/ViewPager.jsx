@@ -73,7 +73,10 @@ class ViewPager extends Component {
 
     this.state = {
       currentView: getIndex(props.currentView, props.children),
-      frameSize: {},
+      frameSize: {
+        width: 0,
+        height: 0
+      },
       instant: false,
       isMounted: false
     }
@@ -256,23 +259,23 @@ class ViewPager extends Component {
     return swipeEvents
   }
 
-  _getMotionStyle(val = 0) {
-    const { springConfig } = this.props
-    const { instant } = this.state
-    return (this._viewPager.isSwiping || instant) ? val : spring(val, springConfig)
-  }
-
   _getFrameStyle() {
+    const { springConfig } = this.props
     const { frameSize } = this.state
     return {
-      width: this._getMotionStyle(frameSize.width),
-      height: this._getMotionStyle(frameSize.height)
+      width: spring(frameSize.width, springConfig),
+      height: spring(frameSize.height, springConfig)
     }
   }
 
   _getTrackStyle() {
+    const { trackPosition } = this._viewPager
+    const { springConfig } = this.props
+    const { instant } = this.state
     return {
-      trackPosition: this._getMotionStyle(this._viewPager.trackPosition)
+      trackPosition: (instant)
+        ? trackPosition
+        : spring(trackPosition, springConfig)
     }
   }
 
