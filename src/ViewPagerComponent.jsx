@@ -88,12 +88,12 @@ class Pager {
     const { infinite, contain } = this.options
     const trackSize = this.getTrackSize()
 
-    if (infinite) {
+    if (infinite && !this.isSwiping) {
       // we offset by a track multiplier so infinite animation works as expected
       trackPosition -= (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
     }
 
-    if (!this.isSwiping && contain && this.frame) {
+    if (contain && !this.isSwiping) {
       trackPosition = clamp(trackPosition, this.frame.getSize() - trackSize, 0)
     }
 
@@ -119,16 +119,20 @@ class Pager {
 
   getTransformValue(trackPosition = this.trackPosition) {
     const { infinite, contain } = this.options
-    const trackSize = this.getTrackSize()
     const position = { x: 0, y: 0 }
 
     if (infinite) {
-      trackPosition = modulo(trackPosition, -trackSize) || 0
+      trackPosition = this.getWrappedTrackValue(trackPosition)
     }
 
     position[this.options.axis] = trackPosition
 
     return `translate3d(${position.x}px, ${position.y}px, 0)`
+  }
+
+  getWrappedTrackValue(position) {
+    const trackSize = this.getTrackSize()
+    return modulo(position, -trackSize) || 0
   }
 
   // where the view should start
@@ -512,23 +516,20 @@ class ViewPager extends Component {
       ? swipeThreshold
       : (currentView.getSize() * viewsToMove) * swipeThreshold
 
-      // account for how many times track has wrapped here so when we use
-      // infinite it moves properly
-
-    if (this._isSwipe(threshold)) {
-      (this._swipeDiff[axis] < 0)
-        ? this.prev()
-        : this.next()
-    } else {
-      this._viewPager.setPositionValue()
-      this.forceUpdate()
-    }
+    this._viewPager.isSwiping = false
 
     this.setState({
-      instant: false
+      instant: true
+    }, () => {
+      if (this._isSwipe(threshold)) {
+        (this._swipeDiff[axis] < 0)
+          ? this.prev()
+          : this.next()
+      } else {
+        this._viewPager.setPositionValue()
+      }
+      this.setState({ instant: false })
     })
-
-    this._viewPager.isSwiping = false
   }
 
   _onSwipePast = () =>  {
@@ -602,7 +603,6 @@ class ViewPager extends Component {
   }
 
   render() {
-    const trackSize = this._viewPager.getTrackSize()
     return (
       <Motion style={this._getFrameStyle()}>
         { frameStyles =>
@@ -619,7 +619,7 @@ class ViewPager extends Component {
               onRest={this._handleOnRest}
             >
               { ({ trackPosition }) => {
-                this._currentTween = modulo(trackPosition, -trackSize) || trackPosition
+                this._currentTween = trackPosition
 
                 if (!this.state.instant) {
                   this._startTrack = this._currentTween
