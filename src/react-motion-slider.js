@@ -1,1 +1,1 @@
-export default from './ViewPagerComponent'
+export default from './ViewPager'
