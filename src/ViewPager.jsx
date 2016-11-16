@@ -7,16 +7,7 @@ import Track from './Track'
 import View from './View'
 import getIndex from './get-index'
 
-function getTouchEvent(e) {
-  return e.touches && e.touches[0] || e
-}
-
-// look into making sure autoSize doesn't animate on page load
-// this is happening because instant only gets called on the track right now
-
 // move to percentage values over pixel, maybe allow this as an option
-
-// clicking the view pager shouldn't move
 
 class ViewPager extends Component {
   static propTypes = {
@@ -71,7 +62,6 @@ class ViewPager extends Component {
     super(props)
 
     this._viewPager = new Pager(props)
-    this._currentTween = 0
 
     // swiping
     this._startSwipe = {}
@@ -108,6 +98,7 @@ class ViewPager extends Component {
         instant: true
       })
     })
+
     this._viewPager.on('swipeEnd', () => {
       this.setState({
         instant: false
@@ -190,22 +181,14 @@ class ViewPager extends Component {
           style={this._getTrackStyle()}
           onRest={this._handleOnRest}
         >
-          { ({ trackPosition }) => {
-            this._currentTween = trackPosition
-
-            if (!this.state.instant) {
-              this._startTrack = this._currentTween
-            }
-
-            return (
-              <Track
-                position={trackPosition}
-                className="track"
-              >
-                {this._renderViews()}
-              </Track>
-            )
-          }}
+          { ({ trackPosition }) =>
+            <Track
+              position={trackPosition}
+              className="track"
+            >
+              {this._renderViews()}
+            </Track>
+          }
         </Motion>
       </Frame>
     )

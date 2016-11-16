@@ -5,6 +5,12 @@ function getTouchEvent(e) {
 class Swipe {
   constructor(pager) {
     this.pager = pager
+    this._trackStart = false
+    this._swipeStart =
+    this._swipeDiff = {
+      x: 0,
+      y: 0
+    }
   }
 
   _isSwipe(threshold) {
@@ -21,10 +27,15 @@ class Swipe {
     this.pager.isSwiping = true
 
     // store the initial starting coordinates
-    this._startTrack = this.pager.currentTween
-    this._startSwipe = {
+    this._swipeStart = {
       x: pageX,
       y: pageY
+    }
+
+    // reset swipeDiff
+    this._swipeDiff = {
+      x: 0,
+      y: 0
     }
 
     // determine if a flick or not
@@ -33,6 +44,8 @@ class Swipe {
     setTimeout(() => {
       this._isFlick = false
     }, this.pager.options.flickTimeout)
+
+    this.pager.emit('swipeStart')
   }
 
   _onSwipeMove = (e) =>  {
@@ -42,10 +55,15 @@ class Swipe {
     const { swipeThreshold, axis } = this.pager.options
     const { pageX, pageY } = getTouchEvent(e)
 
+    // grab the current position of the track before
+    if (!this._trackStart) {
+      this._trackStart = this.pager.currentTween
+    }
+
     // determine how much we have moved
     this._swipeDiff = {
-      x: this._startSwipe.x - pageX,
-      y: this._startSwipe.y - pageY
+      x: this._swipeStart.x - pageX,
+      y: this._swipeStart.y - pageY
     }
 
     if (this._isSwipe(swipeThreshold)) {
@@ -53,11 +71,11 @@ class Swipe {
       e.stopPropagation()
 
       const swipeDiff = this._swipeDiff[axis]
-      const trackPosition = this._startTrack - swipeDiff
+      const trackPosition = this._trackStart - swipeDiff
 
       this.pager.setPositionValue(trackPosition)
 
-      this.pager.emit('swipeMove', trackPosition)
+      this.pager.emit('swipeMove')
     }
   }
 
@@ -68,17 +86,29 @@ class Swipe {
       ? swipeThreshold
       : (currentView.getSize() * viewsToMove) * swipeThreshold
 
+    // we've stopped swiping
     this.pager.isSwiping = false
 
-    if (this._isSwipe(threshold)) {
-      (this._swipeDiff[axis] < 0)
-        ? this.pager.prev()
-        : this.pager.next()
-    } else {
-      this.pager.setPositionValue()
+    // reset start track so we can grab it again on the next swipe
+    this._trackStart = false
+
+    // don't move anything if there hasn't been an attempted swipe
+    if (this._swipeDiff.x || this._swipeDiff.y) {
+      // determine if we've passed the defined threshold
+      if (this._isSwipe(threshold)) {
+        if (this._swipeDiff[axis] < 0) {
+          this.pager.prev()
+        } else {
+          this.pager.next()
+        }
+      }
+      // if we didn't, reset back to original view
+      else {
+        this.pager.setPositionValue()
+      }
     }
 
-    this.pager.emit('swipeEnd', trackPosition)
+    this.pager.emit('swipeEnd')
   }
 
   _onSwipePast = () =>  {
