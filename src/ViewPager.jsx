@@ -11,6 +11,13 @@ function getTouchEvent(e) {
   return e.touches && e.touches[0] || e
 }
 
+// look into making sure autoSize doesn't animate on page load
+// this is happening because instant only gets called on the track right now
+
+// move to percentage values over pixel, maybe allow this as an option
+
+// clicking the view pager shouldn't move
+
 class ViewPager extends Component {
   static propTypes = {
     currentView: PropTypes.any,
@@ -73,12 +80,9 @@ class ViewPager extends Component {
 
     this.state = {
       currentView: getIndex(props.currentView, props.children),
-      frameSize: {
-        width: 0,
-        height: 0
-      },
       instant: false,
-      isMounted: false
+      isMounted: false,
+      isReady: false
     }
   }
 
@@ -92,13 +96,21 @@ class ViewPager extends Component {
     // we need to mount the frame and track before we can gather the proper info
     // for views, we use this flag to determine when we can mount the views
     this.setState({ isMounted: true }, () => {
-      this._setFrameAutoSize()
       this._viewPager.setPositionValue()
 
       // now the pager is ready, animate to whatever value instantly
-      this.setState({ instant: true }, () => {
-        this.props.onReady()
-        this.setState({ instant: false })
+      this.props.onReady()
+      this.setState({ isReady: true })
+    })
+
+    this._viewPager.on('swipeMove', () => {
+      this.setState({
+        instant: true
+      })
+    })
+    this._viewPager.on('swipeEnd', () => {
+      this.setState({
+        instant: false
       })
     })
   }
@@ -125,13 +137,6 @@ class ViewPager extends Component {
     }
   }
 
-  componentDidUpdate(lastProps, lastState) {
-    if (this.state.currentView !== lastState.currentView) {
-      // update frame size to match new view size
-      this._setFrameAutoSize()
-    }
-  }
-
   prev() {
     this._viewPager.prev()
     this.setState({
@@ -146,137 +151,13 @@ class ViewPager extends Component {
     })
   }
 
-  _setFrameAutoSize() {
-    if (!this.props.autoSize) return
-    this.setState({
-      frameSize: this._viewPager.getFrameSize(true)
-    })
-  }
-
-  _isSwipe(threshold) {
-    const { x, y } = this._swipeDiff
-    return this.props.axis === 'x'
-      ? Math.abs(x) > Math.max(threshold, Math.abs(y))
-      : Math.abs(x) < Math.max(threshold, Math.abs(y))
-  }
-
-  _onSwipeStart = (e) => {
-    const { pageX, pageY } = getTouchEvent(e)
-
-    // we're now swiping
-    this._viewPager.isSwiping = true
-
-    // store the initial starting coordinates
-    this._startTrack = this._currentTween
-    this._startSwipe = {
-      x: pageX,
-      y: pageY
-    }
-
-    // determine if a flick or not
-    this._isFlick = true
-
-    setTimeout(() => {
-      this._isFlick = false
-    }, this.props.flickTimeout)
-  }
-
-  _onSwipeMove = (e) =>  {
-    // bail if we aren't swiping
-    if (!this._viewPager.isSwiping) return
-
-    const { swipeThreshold, axis } = this.props
-    const { pageX, pageY } = getTouchEvent(e)
-
-    // determine how much we have moved
-    this._swipeDiff = {
-      x: this._startSwipe.x - pageX,
-      y: this._startSwipe.y - pageY
-    }
-
-    if (this._isSwipe(swipeThreshold)) {
-      e.preventDefault()
-      e.stopPropagation()
-
-      const swipeDiff = this._swipeDiff[axis]
-      const trackPosition = this._startTrack - swipeDiff
-
-      this._viewPager.setPositionValue(trackPosition)
-
-      this.setState({
-        instant: true
-      })
-    }
-  }
-
-  _onSwipeEnd = () =>  {
-    const { swipeThreshold, viewsToMove, axis, infinite } = this.props
-    const { frame, currentView, trackPosition } = this._viewPager
-    const threshold = this._isFlick
-      ? swipeThreshold
-      : (currentView.getSize() * viewsToMove) * swipeThreshold
-
-    this._viewPager.isSwiping = false
-
-    this.setState({
-      instant: true
-    }, () => {
-      if (this._isSwipe(threshold)) {
-        (this._swipeDiff[axis] < 0)
-          ? this.prev()
-          : this.next()
-      } else {
-        this._viewPager.setPositionValue()
-      }
-      this.setState({ instant: false })
-    })
-  }
-
-  _onSwipePast = () =>  {
-    // perform a swipe end if we swiped past the component
-    if (this._viewPager.isSwiping) {
-      this._onSwipeEnd()
-    }
-  }
-
-  _getSwipeEvents() {
-    const { swipe } = this.props
-    let swipeEvents = {}
-
-    if (swipe === true || swipe === 'mouse') {
-      swipeEvents.onMouseDown = this._onSwipeStart
-      swipeEvents.onMouseMove = this._onSwipeMove
-      swipeEvents.onMouseUp = this._onSwipeEnd
-      swipeEvents.onMouseLeave = this._onSwipePast
-    }
-
-    if (swipe === true || swipe === 'touch') {
-      swipeEvents.onTouchStart = this._onSwipeStart
-      swipeEvents.onTouchMove = this._onSwipeMove
-      swipeEvents.onTouchEnd = this._onSwipeEnd
-    }
-
-    return swipeEvents
-  }
-
-  _getFrameStyle() {
-    const { springConfig } = this.props
-    const { frameSize } = this.state
-    return {
-      width: spring(frameSize.width, springConfig),
-      height: spring(frameSize.height, springConfig)
-    }
-  }
-
   _getTrackStyle() {
-    const { trackPosition } = this._viewPager
-    const { springConfig } = this.props
-    const { instant } = this.state
-    return {
-      trackPosition: (instant)
-        ? trackPosition
-        : spring(trackPosition, springConfig)
+    let { trackPosition } = this._viewPager
+
+    if (!this.state.instant) {
+      trackPosition = spring(trackPosition, this.props.springConfig)
     }
+    return { trackPosition }
   }
 
   _handleOnRest = () => {
@@ -304,40 +185,29 @@ class ViewPager extends Component {
 
   render() {
     return (
-      <Motion style={this._getFrameStyle()}>
-        { frameStyles =>
-          <Frame
-            className="frame"
-            style={{
-              width: frameStyles.width ? frameStyles.width : null,
-              height: frameStyles.height ? frameStyles.height : null
-            }}
-            {...this._getSwipeEvents()}
-          >
-            <Motion
-              style={this._getTrackStyle()}
-              onRest={this._handleOnRest}
-            >
-              { ({ trackPosition }) => {
-                this._currentTween = trackPosition
+      <Frame className="frame">
+        <Motion
+          style={this._getTrackStyle()}
+          onRest={this._handleOnRest}
+        >
+          { ({ trackPosition }) => {
+            this._currentTween = trackPosition
 
-                if (!this.state.instant) {
-                  this._startTrack = this._currentTween
-                }
+            if (!this.state.instant) {
+              this._startTrack = this._currentTween
+            }
 
-                return (
-                  <Track
-                    position={trackPosition}
-                    className="track"
-                  >
-                    {this._renderViews()}
-                  </Track>
-                )
-              }}
-            </Motion>
-          </Frame>
-        }
-      </Motion>
+            return (
+              <Track
+                position={trackPosition}
+                className="track"
+              >
+                {this._renderViews()}
+              </Track>
+            )
+          }}
+        </Motion>
+      </Frame>
     )
   }
 }

@@ -272,14 +272,43 @@ class App extends Component {
         <Slider
           ref={c => this.slider = c}
           currentView={activeIndex}
-          // autoSize
+          autoSize
           // viewsToShow={3}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
           // infinite
-          // contain
+          contain
           onChange={index => this.setState({ activeIndex: index })}
+        >
+          <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
+          <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
+          <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
+          <div className="cell cell-4" style={{ width: size ? size : 125, height: 125 }}>4</div>
+        </Slider>
+
+        <h1 className="center">Y Axis</h1>
+        <Slider axis="y">
+          <div className="cell cell-1">1</div>
+          <div className="cell cell-2">2</div>
+          <div className="cell cell-3">3</div>
+          <div className="cell cell-4">4</div>
+        </Slider>
+
+        <h1 className="center">Infinite</h1>
+        <Slider
+          infinite
+          viewsToShow={2}
+        >
+          <div className="cell cell-1">1</div>
+          <div className="cell cell-2">2</div>
+          <div className="cell cell-3">3</div>
+          <div className="cell cell-4">4</div>
+        </Slider>
+
+        <h1 className="center">Align</h1>
+        <Slider
+          align={0.5}
         >
           <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
           <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
@@ -287,12 +316,13 @@ class App extends Component {
           <div className="cell cell-4" style={{ width: size ? size : 125, height: 400 }}>4</div>
         </Slider>
 
-        {/*<Slider axis="y">
-          <div className="cell cell-1">1</div>
-          <div className="cell cell-2">2</div>
-          <div className="cell cell-3">3</div>
-          <div className="cell cell-4">4</div>
-        </Slider>*/}
+        <h1 className="center">Images</h1>
+        <Slider align={0.5}>
+          <img src="https://unsplash.it/200/200?image=0" className="cell"/>
+          <img src="https://unsplash.it/200/200?image=1" className="cell"/>
+          <img src="https://unsplash.it/200/200?image=2" className="cell"/>
+          <img src="https://unsplash.it/200/200?image=3" className="cell"/>
+        </Slider>
       </div>
     )
   }

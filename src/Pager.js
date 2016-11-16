@@ -1,3 +1,4 @@
+import Events from 'minivents'
 import PagerElement from './PagerElement'
 
 function modulo(val, max) {
@@ -8,8 +9,10 @@ function clamp(val, min, max) {
   return Math.min(Math.max(min, val), max)
 }
 
-class Pager {
+class Pager extends Events {
   constructor(options = {}) {
+    super()
+
     this.views = []
     this.currentIndex = 0
     this.currentView = null
@@ -36,7 +39,6 @@ class Pager {
   }
 
   addView(node) {
-    const { align } = this.options
     const index = this.views.length
     const view = new PagerElement({
       node,
@@ -44,21 +46,21 @@ class Pager {
     })
 
     // add view to collection
-    // TODO: allow option to prepend, insert, or append
     this.views.push(view)
 
     // set target position
     let target = this.getStartCoords(index)
 
-    if (align) {
+    if (this.options.align) {
       target += this.getAlignOffset(view)
     }
 
     view.target = target
 
-    // set this as the first view if there isn't one
+    // set this as the first view if there isn't one yet
     if (!this.currentView) {
       this.currentView = view
+      this.emit('firstViewAdded')
     }
 
     // with each view added we need to re-calculate positions
@@ -75,7 +77,7 @@ class Pager {
     this.setCurrentView(1)
   }
 
-  setCurrentView(direction, index = this.currentIndex) {
+  setCurrentView(direction, index = this.currentIndex, suppressEvent) {
     const { viewsToMove, infinite, onChange } = this.options
     const newIndex = index + (direction * viewsToMove)
     const currentIndex = infinite
@@ -85,16 +87,21 @@ class Pager {
     this.currentIndex = currentIndex
     this.currentView = this.getView(currentIndex)
     this.setPositionValue()
+
+    if (!suppressEvent) {
+      this.emit('onViewChange')
+    }
   }
 
   setPositionValue(trackPosition = this.currentView ? this.currentView.target : 0) {
-    const { viewsToShow, autoSize, infinite, contain } = this.options
-    const trackSize = this.getTrackSize()
-
     if (!this.isSwiping) {
+      const { viewsToShow, autoSize, infinite, contain } = this.options
+      const trackSize = this.getTrackSize()
+
       if (infinite) {
         // we offset by a track multiplier so infinite animation can take advantage of
-        // physics by animating to a large value
+        // physics by animating to a large value, the final value provided in getTransformValue
+        // will return the proper wrapped value
         trackPosition -= (Math.floor(this.currentIndex / this.views.length) || 0) * trackSize
       }
 
@@ -112,58 +119,60 @@ class Pager {
     let maxHeight = 0
     let maxWidth = 0
 
-    if (auto) {
-      if (viewsToShow !== 'auto') {
-        const currentViews = []
+    if (this.views.length) {
+      if (auto) {
+        if (viewsToShow !== 'auto') {
+          const currentViews = []
 
-        // gather all current indices depending on options
-        if (contain) {
-          // if containing, we need to clamp the start and end indexes so we only return what's in view
-          const minIndex = clamp(this.currentIndex, 0, this.views.length - viewsToShow)
-          const maxIndex = clamp(this.currentIndex + (viewsToShow - 1), 0, this.views.length - 1)
+          // gather all current indices depending on options
+          if (contain) {
+            // if containing, we need to clamp the start and end indexes so we only return what's in view
+            const minIndex = clamp(this.currentIndex, 0, this.views.length - viewsToShow)
+            const maxIndex = clamp(this.currentIndex + (viewsToShow - 1), 0, this.views.length - 1)
 
-          for (let i = minIndex; i <= maxIndex; i++) {
-            currentViews.push(i)
-          }
-        } else {
-          const minIndex = this.currentIndex
-          const maxIndex = this.currentIndex + (viewsToShow - 1)
-
-          for (let i = minIndex; i <= maxIndex; i++) {
-            currentViews.push(
-              infinite
-                ? modulo(i, this.views.length)
-                : clamp(i, 0, this.views.length - 1)
-            )
-          }
-        }
-
-        // loop through current views and gather the biggest dimensions
-        this.views.forEach((view, index) => {
-          if (currentViews.indexOf(index) <= -1) return
-
-          const width = view.getSize('width')
-          const height = view.getSize('height')
-
-          if (axis === 'x') {
-            maxWidth += width
-            if (height > maxHeight) {
-              maxHeight = height
+            for (let i = minIndex; i <= maxIndex; i++) {
+              currentViews.push(i)
             }
           } else {
-            maxHeight += height
-            if (width > maxWidth) {
-              maxWidth = width
+            const minIndex = this.currentIndex
+            const maxIndex = this.currentIndex + (viewsToShow - 1)
+
+            for (let i = minIndex; i <= maxIndex; i++) {
+              currentViews.push(
+                infinite
+                  ? modulo(i, this.views.length)
+                  : clamp(i, 0, this.views.length - 1)
+              )
             }
           }
-        })
+
+          // loop through current views and gather the biggest dimensions
+          this.views.forEach((view, index) => {
+            if (currentViews.indexOf(index) <= -1) return
+
+            const width = view.getSize('width')
+            const height = view.getSize('height')
+
+            if (axis === 'x') {
+              maxWidth += width
+              if (height > maxHeight) {
+                maxHeight = height
+              }
+            } else {
+              maxHeight += height
+              if (width > maxWidth) {
+                maxWidth = width
+              }
+            }
+          })
+        } else {
+          maxWidth = this.currentView.getSize('width')
+          maxHeight = this.currentView.getSize('height')
+        }
       } else {
-        maxWidth = this.currentView.getSize('width')
-        maxHeight = this.currentView.getSize('height')
+        maxWidth = this.frame.getSize('width')
+        maxHeight = this.frame.getSize('height')
       }
-    } else {
-      maxWidth = this.frame.getSize('width')
-      maxHeight = this.frame.getSize('height')
     }
 
     return {
@@ -195,10 +204,15 @@ class Pager {
     const { infinite, contain } = this.options
     const position = { x: 0, y: 0 }
 
+    this.currentTween = trackPosition
+
     if (infinite) {
       const trackSize = this.getTrackSize()
       trackPosition = modulo(trackPosition, -trackSize) || 0
     }
+
+    // emit a "scroll" event so we can do things based on the progress of the track
+    this.emit('scroll', trackPosition)
 
     position[this.options.axis] = trackPosition
 
@@ -216,7 +230,7 @@ class Pager {
 
   resetViews() {
     // reset back to a normal index
-    this.setCurrentView(0, modulo(this.currentIndex, this.views.length))
+    this.setCurrentView(0, modulo(this.currentIndex, this.views.length), true)
   }
 
   positionViews(trackPosition = 0) {
