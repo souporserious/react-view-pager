@@ -7,29 +7,28 @@ class View extends Component {
     viewPager: PropTypes.instanceOf(Pager)
   }
 
-  state = {
-    viewInstance: null
+  componentDidMount() {
+    this._viewInstance = this.context.viewPager.addView(findDOMNode(this))
+    this.forceUpdate()
   }
 
-  componentDidMount() {
-    this.setState({
-      viewInstance: this.context.viewPager.addView(findDOMNode(this))
-    })
+  componentWillUnmount() {
+    this.context.viewPager.removeView(this._viewInstance)
   }
 
   render() {
-    const { viewsToShow, axis } = this.context.viewPager.options
+    const { viewPager } = this.context
+    const { viewsToShow, axis } = viewPager.options
     const { children, ...restProps } = this.props
-    const { viewInstance } = this.state
     const child = Children.only(children)
     const style = { ...child.props.style }
 
     if (viewsToShow !== 'auto') {
-      style[axis === 'x' ? 'width' : 'height'] = this.context.viewPager.frame.getSize() / viewsToShow
+      style[axis === 'x' ? 'width' : 'height'] = viewPager.frame.getSize() / viewsToShow
     }
 
-    if (viewInstance) {
-      style[axis === 'y' ? 'top' : 'left'] = viewInstance.getPosition()
+    if (this._viewInstance) {
+      style[axis === 'y' ? 'top' : 'left'] = this._viewInstance.getPosition()
     }
 
     return cloneElement(child, { ...restProps, style })

@@ -29,8 +29,8 @@ class Frame extends Component {
   componentDidMount() {
     const { viewPager } = this.context
     viewPager.addFrame(findDOMNode(this))
-    viewPager.on('firstViewAdded', this._setFrameSize)
-    viewPager.on('onViewChange', this._setFrameSize)
+    viewPager.on('viewAdded', this._setFrameSize)
+    viewPager.on('viewChange', this._setFrameSize)
   }
 
   _setFrameSize = () => {
@@ -61,12 +61,14 @@ class Frame extends Component {
   render() {
     const { viewPager } = this.context
     const { tag, ...restProps } = this.props
+    const { width, height } = this.state
     const componentProps = {
       ...restProps,
       ...this.swipe.getEvents()
     }
 
-    if (viewPager.options.autoSize) {
+    // make sure we have a width and height before we try animating to it
+    if (viewPager.options.autoSize && width && height) {
       return (
         <Motion style={this._getFrameStyle()}>
           { frameStyles =>

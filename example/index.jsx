@@ -273,12 +273,12 @@ class App extends Component {
           ref={c => this.slider = c}
           currentView={activeIndex}
           autoSize
-          // viewsToShow={3}
+          viewsToShow={2}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
           // infinite
-          contain
+          // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
           <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
@@ -316,13 +316,13 @@ class App extends Component {
           <div className="cell cell-4" style={{ width: size ? size : 125, height: 400 }}>4</div>
         </Slider>
 
-        <h1 className="center">Images</h1>
+        {/*<h1 className="center">Images</h1>
         <Slider align={0.5}>
           <img src="https://unsplash.it/200/200?image=0" className="cell"/>
           <img src="https://unsplash.it/200/200?image=1" className="cell"/>
           <img src="https://unsplash.it/200/200?image=2" className="cell"/>
           <img src="https://unsplash.it/200/200?image=3" className="cell"/>
-        </Slider>
+        </Slider>*/}
       </div>
     )
   }

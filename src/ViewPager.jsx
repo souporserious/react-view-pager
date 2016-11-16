@@ -7,8 +7,6 @@ import Track from './Track'
 import View from './View'
 import getIndex from './get-index'
 
-// move to percentage values over pixel, maybe allow this as an option
-
 class ViewPager extends Component {
   static propTypes = {
     currentView: PropTypes.any,
@@ -26,8 +24,7 @@ class ViewPager extends Component {
     // rightToLeft: PropTypes.bool,
     // lazyLoad: PropTypes.bool,
     springConfig: React.PropTypes.objectOf(React.PropTypes.number),
-    onReady: PropTypes.func,
-    // onChange: PropTypes.func,
+    // onViewChange: PropTypes.func,
     // beforeAnimation: PropTypes.func,
     // afterAnimation: PropTypes.func
   }
@@ -48,8 +45,7 @@ class ViewPager extends Component {
     rightToLeft: false,
     lazyLoad: false,
     springConfig: presets.noWobble,
-    onReady: () => null,
-    onChange: () => null,
+    onViewChange: () => null,
     beforeAnimation: () => null,
     afterAnimation: () => null
   }
@@ -63,16 +59,10 @@ class ViewPager extends Component {
 
     this._viewPager = new Pager(props)
 
-    // swiping
-    this._startSwipe = {}
-    this._swipeDiff = {}
-    this._isFlick = false
-
     this.state = {
       currentView: getIndex(props.currentView, props.children),
       instant: false,
-      isMounted: false,
-      isReady: false
+      isMounted: false
     }
   }
 
@@ -88,9 +78,16 @@ class ViewPager extends Component {
     this.setState({ isMounted: true }, () => {
       this._viewPager.setPositionValue()
 
-      // now the pager is ready, animate to whatever value instantly
-      this.props.onReady()
-      this.setState({ isReady: true })
+      // now that we have slides, run an instant render to finish setting everything up
+      this.setState({ instant: true }, () => {
+        this.setState({ instant: false })
+      })
+    })
+
+    this._viewPager.on('viewChange', index => {
+      this.setState({
+        currentView: index
+      })
     })
 
     this._viewPager.on('swipeMove', () => {
@@ -113,11 +110,6 @@ class ViewPager extends Component {
 
       // set the new view index
       this._viewPager.setCurrentView(0, newIndex)
-
-      // store it so we can compare it later
-      this.setState({
-        currentView: newIndex
-      })
     }
 
     // update instant state from props
@@ -130,21 +122,14 @@ class ViewPager extends Component {
 
   prev() {
     this._viewPager.prev()
-    this.setState({
-      currentView: this._viewPager.currentIndex
-    })
   }
 
   next() {
     this._viewPager.next()
-    this.setState({
-      currentView: this._viewPager.currentIndex
-    })
   }
 
   _getTrackStyle() {
     let { trackPosition } = this._viewPager
-
     if (!this.state.instant) {
       trackPosition = spring(trackPosition, this.props.springConfig)
     }
@@ -152,9 +137,7 @@ class ViewPager extends Component {
   }
 
   _handleOnRest = () => {
-    const { infinite, children } = this.props
-
-    if (infinite && !this.state.instant) {
+    if (this.props.infinite && !this.state.instant) {
       // reset back to a normal index
       this._viewPager.resetViews()
 
