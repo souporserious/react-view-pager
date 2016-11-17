@@ -1,21 +1,6 @@
 import Events from 'minivents'
 import PagerElement from './PagerElement'
-
-function modulo(val, max) {
-  return ((val % max) + max) % max
-}
-
-function clamp(val, min, max) {
-  return Math.min(Math.max(min, val), max)
-}
-
-function sum(arr) {
-  return arr.reduce((a, b) => a + b, 0)
-}
-
-function max(arr) {
-  return Math.max.apply(null, arr)
-}
+import { modulo, clamp, sum, max } from './utils'
 
 class View extends PagerElement {
   constructor({ index, ...restOptions }) {
@@ -51,12 +36,18 @@ class Pager extends Events {
     this.isSwiping = false
 
     this.options = {
-      axis: 'x',
+      viewsToShow: 'auto',
+      viewsToMove: 1,
       align: 0,
       contain: false,
-      infinite: false,
-      viewsToMove: 1,
+      axis: 'x',
       autoSize: false,
+      infinite: false,
+      instant: false,
+      swipe: true,
+      swipeThreshold: 0.5,
+      flickTimeout: 300,
+      accessibility: true,
       ...options
     }
 
@@ -120,6 +111,9 @@ class Pager extends Events {
 
     // re-calculate view positions
     this.hydrate()
+
+    // fire an event
+    this.emit('viewRemoved')
   }
 
   prev() {
@@ -233,10 +227,6 @@ class Pager extends Events {
 
   getView(index) {
     return this.views[modulo(index, this.views.length)]
-  }
-
-  getPercentValue(value, frameSize = this.getFrameSize()) {
-    return Math.round((value / frameSize) * 1000) * 0.1
   }
 
   // where the view should start

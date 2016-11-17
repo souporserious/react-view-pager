@@ -3,10 +3,12 @@ import ReactDOM, { findDOMNode } from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Pager from './Pager'
 import Swipe from './Swipe'
+import Keyboard from './Keyboard'
 import Track from './Track'
 import View from './View'
 import specialAssign from './special-assign'
 
+const noop = () => null
 const checkedProps = {
   tag: PropTypes.string,
   currentView: PropTypes.any,
@@ -21,12 +23,16 @@ const checkedProps = {
   swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
   swipeThreshold: PropTypes.number,
   flickTimeout: PropTypes.number,
+  accessibility: PropTypes.bool,
+  springConfig: React.PropTypes.objectOf(React.PropTypes.number),
   // rightToLeft: PropTypes.bool,
   // lazyLoad: PropTypes.bool,
-  springConfig: React.PropTypes.objectOf(React.PropTypes.number),
-  // onViewChange: PropTypes.func,
-  // beforeAnimation: PropTypes.func,
-  // afterAnimation: PropTypes.func
+  onSwipeStart: PropTypes.func,
+  onSwipeMove: PropTypes.func,
+  onSwipeEnd: PropTypes.func,
+  onScroll: PropTypes.func,
+  beforeViewChange: PropTypes.func,
+  afterViewChange: PropTypes.func
 }
 
 class ViewPager extends Component {
@@ -46,12 +52,16 @@ class ViewPager extends Component {
     swipe: true,
     swipeThreshold: 0.5,
     flickTimeout: 300,
+    accessibility: true,
+    springConfig: presets.noWobble,
     // rightToLeft: false,
     // lazyLoad: false,
-    springConfig: presets.noWobble,
-    // onViewChange: () => null,
-    // beforeAnimation: () => null,
-    // afterAnimation: () => null
+    onSwipeStart: noop,
+    onSwipeMove: noop,
+    onSwipeEnd: noop,
+    onScroll: noop,
+    beforeViewChange: noop,
+    afterViewChange: noop
   }
 
   static childContextTypes = {
@@ -63,6 +73,7 @@ class ViewPager extends Component {
 
     this._viewPager = new Pager(props)
     this._swipe = new Swipe(this._viewPager)
+    this._keyboard = new Keyboard(this._viewPager)
 
     this.state = {
       width: 0,
@@ -83,12 +94,29 @@ class ViewPager extends Component {
     // set frame size initially and then based on certain view events
     this._setFrameSize()
     this._viewPager.on('viewAdded', this._setFrameSize)
-    this._viewPager.on('viewChange', this._setFrameSize)
+
+    this._viewPager.on('viewChange', () => {
+      // fire before view callback
+      this.props.beforeViewChange()
+
+      // update component with new dimensions
+      this.forceUpdate()
+
+      // set new frame size if needed
+      this._setFrameSize()
+    })
 
     // force update top level component so children update with any new values
     this._viewPager.on('resize', () => {
       this.forceUpdate()
     })
+
+    // callbacks
+    this._viewPager.on('swipeStart', this.props.onSwipeStart)
+    this._viewPager.on('swipeMove', this.props.onSwipeMove)
+    this._viewPager.on('swipeEnd', this.props.onSwipeEnd)
+    this._viewPager.on('scroll', this.props.onScroll)
+    this._viewPager.on('rest', this.props.afterViewChange)
   }
 
   componentWillReceiveProps({ currentView, children }) {
@@ -133,9 +161,13 @@ class ViewPager extends Component {
   }
 
   render() {
-    const { tag, autoSize } = this.props
+    const { tag, autoSize, accessibility } = this.props
     const { width, height } = this.state
-    const props = specialAssign(this._swipe.getEvents(), this.props, checkedProps)
+    const props = specialAssign({
+      ...this._swipe.getEvents(),
+      ...this._keyboard.getEvents(),
+      tabIndex: accessibility ? 0 : null
+    }, this.props, checkedProps)
 
     if (autoSize) {
       return (

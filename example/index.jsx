@@ -279,7 +279,12 @@ class App extends Component {
           // align={0.5}
           // infinite
           contain
-          onChange={index => this.setState({ activeIndex: index })}
+          // onSwipeStart={() => console.log('swipe start')}
+          // onSwipeMove={() => console.log('swipe move')}
+          // onSwipeEnd={() => console.log('swipe end')}
+          // onScroll={position => console.log(position)}
+          // beforeViewChange={() => console.log('before view change')}
+          // afterViewChange={() => console.log('after view change')}
           className="frame"
         >
           <Track>

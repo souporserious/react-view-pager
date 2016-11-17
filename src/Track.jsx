@@ -84,6 +84,9 @@ class Track extends Component {
       // set instant flag so we can prime track for next move
       this._setValueInstantly(true, true)
     }
+
+    // fire event for prop callback on Frame component
+    viewPager.emit('rest')
   }
 
   _renderViews() {
@@ -118,6 +121,7 @@ class Track extends Component {
             // update view positions with current position tween
             // this method can get called hundreds of times, let's make sure to optimize as much as we can
             // maybe we do a cheaper calculation each time and run a reposition only if a new view has left/entered
+            // this could possibly help out with lazy rendering
             viewPager.positionViews(trackPosition)
           }
 
