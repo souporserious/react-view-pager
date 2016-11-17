@@ -60,27 +60,33 @@ class Pager extends Events {
       ...options
     }
 
-    window.addEventListener('resize', this.updateSizes)
+    window.addEventListener('resize', this.resize)
   }
 
-  updateSizes = () => {
-    this.frame.setSize()
-    this.track.setSize()
+  resize = () => {
+    this.hydrate()
+    this.emit('resize')
+  }
+
+  hydrate = () => {
+    this.frame && this.frame.setSize()
+    this.track && this.track.setSize()
     this.views.forEach(view => {
       view.setSize()
       view.setTarget()
     })
     this.positionViews()
     this.setPositionValue()
-    this.emit('resize')
   }
 
   addFrame(node) {
     this.frame = new PagerElement({ node, pager: this })
+    this.hydrate()
   }
 
   addTrack(node) {
     this.track = new PagerElement({ node, pager: this })
+    this.hydrate()
   }
 
   addView(node) {
@@ -99,8 +105,8 @@ class Pager extends Events {
       this.setCurrentView(0, index, true)
     }
 
-    // with each view added we need to re-calculate positions
-    this.positionViews()
+    // with each view added we need to re-calculate widths and positions
+    this.hydrate()
 
     // fire an event
     this.emit('viewAdded')
@@ -113,7 +119,7 @@ class Pager extends Events {
     this.views = this.views.filter(_view => view !== _view)
 
     // re-calculate view positions
-    this.positionViews()
+    this.hydrate()
   }
 
   prev() {
@@ -153,7 +159,7 @@ class Pager extends Events {
       }
 
       if (contain) {
-        const trackEndOffset = ((viewsToShow === 'auto' && autoSize) || viewsToShow <= 1) ? 0 : this.frame.getSize()
+        const trackEndOffset = ((viewsToShow === 'auto' && autoSize) || viewsToShow <= 1) ? 0 : this.getFrameSize(false)
         trackPosition = clamp(trackPosition, trackEndOffset - trackSize, 0)
       }
     }
@@ -202,7 +208,7 @@ class Pager extends Events {
           }
         }
         dimensions = this.getMaxDimensions(currentViews)
-      } else {
+      } else if (this.frame) {
         dimensions = {
           width: this.frame.getSize('width'),
           height: this.frame.getSize('height')
@@ -244,7 +250,7 @@ class Pager extends Events {
 
   // how much to offset the view defined by the align option
   getAlignOffset(view) {
-    const frameSize = this.frame.getSize()
+    const frameSize = this.getFrameSize(false)
     const viewSize = view.getSize()
     return (frameSize - viewSize) * this.options.align
   }

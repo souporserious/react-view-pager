@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import Collapse from 'react-collapse'
-import Slider from '../src/react-motion-slider'
+import { Frame, Track } from '../src/react-motion-slider'
 
 import './main.scss';
 
@@ -269,52 +269,63 @@ class App extends Component {
           </button>
         </div>
         current view: {activeIndex + 1}
-        <Slider
+        <Frame
           ref={c => this.slider = c}
           currentView={activeIndex}
           autoSize
-          // viewsToShow={2}
+          viewsToShow={2}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
           // infinite
-          // contain
+          contain
           onChange={index => this.setState({ activeIndex: index })}
+          className="frame"
         >
-          <div className="cell cell-1" style={{ width: size ? size : 500, height: 100 }}>1</div>
-          <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
-          <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
-          <div className="cell cell-4" style={{ width: size ? size : 125, height: 125 }}>4</div>
-        </Slider>
+          <Track>
+            <div className="cell cell-1" style={{ width: size ? size : 500, height: 100 }}>1</div>
+            <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
+            <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
+            <div className="cell cell-4" style={{ width: size ? size : 125, height: 125 }}>4</div>
+          </Track>
+        </Frame>
 
         <h1 className="center">Y Axis</h1>
-        <Slider axis="y">
-          <div className="cell cell-1">1</div>
-          <div className="cell cell-2">2</div>
-          <div className="cell cell-3">3</div>
-          <div className="cell cell-4">4</div>
-        </Slider>
+        <Frame axis="y" className="frame">
+          <Track>
+            <div className="cell cell-1">1</div>
+            <div className="cell cell-2">2</div>
+            <div className="cell cell-3">3</div>
+            <div className="cell cell-4">4</div>
+          </Track>
+        </Frame>
 
         <h1 className="center">Infinite</h1>
-        <Slider
+        <Frame
           infinite
           viewsToShow={2}
+          className="frame"
         >
-          <div className="cell cell-1">1</div>
-          <div className="cell cell-2">2</div>
-          <div className="cell cell-3">3</div>
-          <div className="cell cell-4">4</div>
-        </Slider>
+          <Track>
+            <div className="cell cell-1">1</div>
+            <div className="cell cell-2">2</div>
+            <div className="cell cell-3">3</div>
+            <div className="cell cell-4">4</div>
+          </Track>
+        </Frame>
 
         <h1 className="center">Align</h1>
-        <Slider
+        <Frame
           align={0.5}
+          className="frame"
         >
-          <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
-          <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
-          <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
-          <div className="cell cell-4" style={{ width: size ? size : 125, height: 400 }}>4</div>
-        </Slider>
+          <Track>
+            <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
+            <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
+            <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
+            <div className="cell cell-4" style={{ width: size ? size : 125, height: 400 }}>4</div>
+          </Track>
+        </Frame>
 
         {/*<h1 className="center">Images</h1>
         <Slider align={0.5}>
