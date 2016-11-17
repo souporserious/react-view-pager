@@ -287,7 +287,7 @@ class App extends Component {
           // afterViewChange={() => console.log('after view change')}
           className="frame"
         >
-          <Track>
+          <Track className="track">
             <div className="cell cell-1" style={{ width: size ? size : 500, height: 100 }}>1</div>
             <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
             <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
@@ -297,7 +297,7 @@ class App extends Component {
 
         <h1 className="center">Y Axis</h1>
         <Frame axis="y" className="frame">
-          <Track>
+          <Track className="track">
             <div className="cell cell-1">1</div>
             <div className="cell cell-2">2</div>
             <div className="cell cell-3">3</div>
@@ -311,7 +311,7 @@ class App extends Component {
           viewsToShow={2}
           className="frame"
         >
-          <Track>
+          <Track className="track">
             <div className="cell cell-1">1</div>
             <div className="cell cell-2">2</div>
             <div className="cell cell-3">3</div>
@@ -324,7 +324,7 @@ class App extends Component {
           align={0.5}
           className="frame"
         >
-          <Track>
+          <Track className="track">
             <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
             <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
             <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
@@ -333,12 +333,14 @@ class App extends Component {
         </Frame>
 
         {/*<h1 className="center">Images</h1>
-        <Slider align={0.5}>
-          <img src="https://unsplash.it/200/200?image=0" className="cell"/>
-          <img src="https://unsplash.it/200/200?image=1" className="cell"/>
-          <img src="https://unsplash.it/200/200?image=2" className="cell"/>
-          <img src="https://unsplash.it/200/200?image=3" className="cell"/>
-        </Slider>*/}
+        <Frame className="frame">
+          <Track className="track">
+            <img src="https://unsplash.it/200/200?image=0" className="cell"/>
+            <img src="https://unsplash.it/200/200?image=1" className="cell"/>
+            <img src="https://unsplash.it/200/200?image=2" className="cell"/>
+            <img src="https://unsplash.it/200/200?image=3" className="cell"/>
+          </Track>
+        </Frame>*/}
       </div>
     )
   }

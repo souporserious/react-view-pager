@@ -109,11 +109,6 @@ class Track extends Component {
           const { x, y } = viewPager.getPositionValue(trackPosition)
           const style = {
             ...restProps.style,
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            left: 0,
-            bottom: 0,
             [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
           }
 
