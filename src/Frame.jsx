@@ -138,17 +138,15 @@ class ViewPager extends Component {
   }
 
   _setFrameSize = () => {
-    if (this.props.autoSize) {
-      const frameSize = this._viewPager.getFrameSize(true, true)
+    const frameSize = this._viewPager.getFrameSize(true, true)
 
-      if (frameSize.width && frameSize.height) {
-        this.setState(frameSize, () => {
-          // we need to unset instant flag now that React Motion has dimensions to animate to
-          if (this.state.instant) {
-            this.setState({ instant: false })
-          }
-        })
-      }
+    if (frameSize.width && frameSize.height) {
+      this.setState(frameSize, () => {
+        // we need to unset instant flag now that React Motion has dimensions to animate to
+        if (this.state.instant) {
+          this.setState({ instant: false })
+        }
+      })
     }
   }
 
@@ -161,7 +159,7 @@ class ViewPager extends Component {
   }
 
   render() {
-    const { tag, autoSize, accessibility } = this.props
+    const { tag, axis, autoSize, accessibility } = this.props
     const { width, height } = this.state
     const props = specialAssign({
       ...this._swipe.getEvents(),
@@ -194,7 +192,17 @@ class ViewPager extends Component {
         </Motion>
       )
     } else {
-      return createElement(tag, props)
+      const dimensions = {}
+
+      if (width && axis === 'y') {
+        dimensions.width = width
+      }
+
+      if (height && axis === 'x') {
+        dimensions.height = height
+      }
+
+      return createElement(tag, { ...props, style: { ...dimensions, ...props.style } })
     }
   }
 }
