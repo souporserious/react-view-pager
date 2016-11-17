@@ -14,8 +14,14 @@ Major Update again, sorry for the big changes. This has been a rough road, but I
 `autoHeight` -> `autoSize`
 
 *Props added*
-`contain`: don't allow empty space in frame
-`lazyLoad`: load components on the fly as they enter the frame
+`contain`
+`accessibility`
+`onSwipeStart`
+`onSwipeMove`
+`onSwipeEnd`
+`onScroll`
+`beforeViewChange`
+`afterViewChange`
 
 ### 0.4.2
 Use constructor in `Slider` to fix undefined props in IE10
