@@ -17,6 +17,28 @@ function max(arr) {
   return Math.max.apply(null, arr)
 }
 
+class View extends PagerElement {
+  constructor({ index, ...restOptions }) {
+    super(restOptions)
+    this.index = index
+    this.setTarget()
+  }
+
+  setTarget() {
+    let target = this.pager.getStartCoords(this.index)
+
+    if (this.pager.options.align) {
+      target += this.pager.getAlignOffset(this)
+    }
+
+    this.target = target
+  }
+
+  getTarget() {
+    return this.target
+  }
+}
+
 class Pager extends Events {
   constructor(options = {}) {
     super()
@@ -24,6 +46,7 @@ class Pager extends Events {
     this.views = []
     this.currentIndex = 0
     this.currentView = null
+    this.currentTween = 0
     this.trackPosition = 0
     this.isSwiping = false
 
@@ -36,6 +59,20 @@ class Pager extends Events {
       autoSize: false,
       ...options
     }
+
+    window.addEventListener('resize', this.updateSizes)
+  }
+
+  updateSizes = () => {
+    this.frame.setSize()
+    this.track.setSize()
+    this.views.forEach(view => {
+      view.setSize()
+      view.setTarget()
+    })
+    this.positionViews()
+    this.setPositionValue()
+    this.emit('resize')
   }
 
   addFrame(node) {
@@ -48,22 +85,14 @@ class Pager extends Events {
 
   addView(node) {
     const index = this.views.length
-    const view = new PagerElement({
+    const view = new View({
       node,
+      index,
       pager: this
     })
 
     // add view to collection
     this.views.push(view)
-
-    // set target position
-    let target = this.getStartCoords(index)
-
-    if (this.options.align) {
-      target += this.getAlignOffset(view)
-    }
-
-    view.target = target
 
     // set this as the first view if there isn't one yet
     if (!this.currentView) {
@@ -73,7 +102,7 @@ class Pager extends Events {
     // with each view added we need to re-calculate positions
     this.positionViews()
 
-    // fire event
+    // fire an event
     this.emit('viewAdded')
 
     return view
@@ -142,15 +171,21 @@ class Pager extends Events {
     }
   }
 
-  getFrameSize(auto = this.options.autoSize) {
+  getFrameSize(autoSize = this.options.autoSize, fullSize = false) {
+    const { infinite, contain, axis } = this.options
+    let dimensions = {
+      width: 0,
+      height: 0
+    }
+
     if (this.views.length) {
-      if (auto) {
+      if (autoSize) {
         // gather all current indices depending on options
-        const { infinite, contain, axis } = this.options
         const currentViews = []
         const viewsToShow = isNaN(this.options.viewsToShow) ? 1 : this.options.viewsToShow
         let minIndex = this.currentIndex
         let maxIndex = this.currentIndex + (viewsToShow - 1)
+
         if (contain) {
           // if containing, we need to clamp the start and end indexes so we only return what's in view
           minIndex = clamp(minIndex, 0, this.views.length - viewsToShow)
@@ -166,13 +201,19 @@ class Pager extends Events {
             currentViews.push(this.getView(index))
           }
         }
-        return this.getMaxDimensions(currentViews)
+        dimensions = this.getMaxDimensions(currentViews)
       } else {
-        return {
+        dimensions = {
           width: this.frame.getSize('width'),
           height: this.frame.getSize('height')
         }
       }
+    }
+
+    if (fullSize) {
+      return dimensions
+    } else {
+      return dimensions[axis === 'x' ? 'width' : 'height']
     }
   }
 
@@ -186,6 +227,10 @@ class Pager extends Events {
 
   getView(index) {
     return this.views[modulo(index, this.views.length)]
+  }
+
+  getPercentValue(value, frameSize = this.getFrameSize()) {
+    return Math.round((value / frameSize) * 1000) * 0.1
   }
 
   // where the view should start
@@ -204,7 +249,7 @@ class Pager extends Events {
     return (frameSize - viewSize) * this.options.align
   }
 
-  getTransformValue(trackPosition = this.trackPosition) {
+  getPositionValue(trackPosition = this.trackPosition) {
     const { infinite, contain } = this.options
     const position = { x: 0, y: 0 }
 
@@ -223,7 +268,7 @@ class Pager extends Events {
     // set the proper transform axis based on our options
     position[this.options.axis] = trackPosition
 
-    return `translate3d(${position.x}px, ${position.y}px, 0)`
+    return position
   }
 
   resetViews() {

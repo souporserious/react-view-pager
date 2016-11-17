@@ -24,7 +24,7 @@ class View extends Component {
     const style = { ...child.props.style }
 
     if (viewsToShow !== 'auto') {
-      style[axis === 'x' ? 'width' : 'height'] = viewPager.frame.getSize() / viewsToShow
+      style[axis === 'x' ? 'width' : 'height'] = (100 / viewsToShow) + '%'
     }
 
     if (this._viewInstance) {

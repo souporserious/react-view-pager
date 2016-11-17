@@ -101,6 +101,10 @@ class ViewPager extends Component {
         instant: false
       })
     })
+
+    this._viewPager.on('resize', () => {
+      this.forceUpdate()
+    })
   }
 
   componentWillReceiveProps({ currentView, children, instant }) {

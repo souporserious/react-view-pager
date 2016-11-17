@@ -37,7 +37,7 @@ class Frame extends Component {
     const { viewPager } = this.context
 
     if (viewPager.options.autoSize) {
-      const frameSize = viewPager.getFrameSize(true)
+      const frameSize = viewPager.getFrameSize(true, true)
 
       if (frameSize.width && frameSize.height) {
         this.setState(frameSize, () => {
@@ -53,7 +53,7 @@ class Frame extends Component {
   _getFrameStyle() {
     const { width, height, instant } = this.state
     return {
-      width: instant ? width : spring(width),
+      maxWidth: instant ? width : spring(width),
       height: instant ? height : spring(height)
     }
   }

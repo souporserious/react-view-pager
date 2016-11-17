@@ -18,16 +18,21 @@ class Track extends Component {
   }
 
   componentWillUpdate({ position }) {
+    const { viewPager } = this.context
     // update view positions with current position tween
     // this method can get called hundreds of times, let's make sure to optimize as much as we can
-    this.context.viewPager.positionViews(position)
+    // maybe we do a cheaper calculation each time and run a reposition only if a new view has left/entered
+    if (viewPager.options.infinite) {
+      viewPager.positionViews(position)
+    }
   }
 
   render() {
     const { tag, position, ...restProps } = this.props
+    const { x, y } = this.context.viewPager.getPositionValue(position)
     const style = {
       ...restProps.style,
-      [TRANSFORM]: this.context.viewPager.getTransformValue(position)
+      [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
     }
 
     return createElement(tag, { ...restProps, style })

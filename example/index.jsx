@@ -273,7 +273,7 @@ class App extends Component {
           ref={c => this.slider = c}
           currentView={activeIndex}
           autoSize
-          viewsToShow={2}
+          // viewsToShow={2}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
@@ -281,7 +281,7 @@ class App extends Component {
           // contain
           onChange={index => this.setState({ activeIndex: index })}
         >
-          <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
+          <div className="cell cell-1" style={{ width: size ? size : 500, height: 100 }}>1</div>
           <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
           <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
           <div className="cell cell-4" style={{ width: size ? size : 125, height: 125 }}>4</div>
