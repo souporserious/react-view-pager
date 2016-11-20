@@ -1,111 +1,9 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import Collapse from 'react-collapse'
-import { Frame, Track } from '../src/react-motion-slider'
+import { Frame, Track, ImageView } from '../src/react-motion-slider'
 
 import './main.scss';
-
-class One extends Component {
-  render() {
-    return (
-      <div>
-        <h1>Component 1</h1>
-        <div>
-          <a href="#" onClick={() => routerActions.moveTo('slide-1')}>
-            Move to Component Two.
-          </a>
-        </div>
-      </div>
-    )
-  }
-}
-
-class Two extends Component {
-  state = {
-    toggle: true
-  }
-
-  render() {
-    const { isCurrentSlide } = this.props
-    const { toggle } = this.state
-    return (
-      <div>
-        <button
-          onClick={() => this.setState({toggle: !toggle})}
-        >
-          Toggle
-        </button>
-        <Collapse isOpened={toggle}>
-          <div>
-            <h1 style={{margin: 0}}>Component 2</h1>
-          </div>
-        </Collapse>
-      </div>
-    )
-  }
-}
-
-class Three extends Component {
-  prev() {
-    this.refs['slider'].prev()
-  }
-
-  next() {
-    this.refs['slider'].next()
-  }
-
-  render() {
-    return (
-      <div>
-        <h1>Component 3</h1>
-        <div className="slider-wrapper">
-          <Slider
-            ref="slider"
-            className="slider"
-          >
-            <div style={{flex: 1}}>Slide 1</div>
-            <div style={{flex: 1}}>Slide 2</div>
-            <div style={{flex: 1}}>Slide 3</div>
-          </Slider>
-        </div>
-        <nav className="slider__controls">
-          <a className="slider__control slider__control--prev" onClick={this.prev.bind(this)}>Prev</a>
-          <a className="slider__control slider__control--next" onClick={this.next.bind(this)}>Next</a>
-        </nav>
-        <div>
-          <a href="#" onClick={() => routerActions.moveTo('slide-0')}>
-            Move to Component One.
-          </a>
-        </div>
-      </div>
-    )
-  }
-}
-
-class View extends Component {
-  render() {
-    const { style, index } = this.props
-
-    return(
-      <div
-        className={`slide slide--${index + 1}`}
-        style={{ ...style }}
-      >
-        {this.props.children}
-      </div>
-    )
-  }
-}
-
-class Slide extends Component {
-  render() {
-    return (
-      <div>
-        Slide {this.props.index}
-      </div>
-    )
-  }
-}
 
 // class App extends Component {
 //   state = {
@@ -261,7 +159,7 @@ class App extends Component {
             type="range"
             min={0}
             max={3}
-            value={activeIndex}
+            value={+activeIndex}
             onChange={e => this.setState({ activeIndex: +e.target.value })}
           />
           <button onClick={() => this.slider.next()}>
@@ -273,7 +171,7 @@ class App extends Component {
           ref={c => this.slider = c}
           currentView={activeIndex}
           autoSize
-          viewsToShow={2}
+          // viewsToShow={2}
           // viewsToMove={2}
           // axis="y"
           // align={0.5}
@@ -283,27 +181,35 @@ class App extends Component {
           // onSwipeMove={() => console.log('swipe move')}
           // onSwipeEnd={() => console.log('swipe end')}
           // onScroll={position => console.log(position)}
-          // beforeViewChange={() => console.log('before view change')}
+          beforeViewChange={({ from, to }) => {
+            this.setState({ activeIndex: to[0] })
+          }}
           // afterViewChange={() => console.log('after view change')}
           className="frame"
         >
           <Track className="track">
-            <div className="cell cell-1" style={{ width: size ? size : 500, height: 100 }}>1</div>
-            <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
-            <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
-            <div className="cell cell-4" style={{ width: size ? size : 125, height: 125 }}>4</div>
+            <div className="view" style={{ width: size ? size : 500, height: 100 }}>1</div>
+            <div className="view" style={{ width: size ? size : 175, height: 200 }}>2</div>
+            <div className="view" style={{ width: size ? size : 315, height: 300 }}>3</div>
+            <div className="view" style={{ width: size ? size : 125, height: 125 }}>4</div>
           </Track>
         </Frame>
 
         <h1 className="center">Y Axis</h1>
-        <Frame axis="y" className="frame">
-          <Track className="track">
-            <div className="cell cell-1">1</div>
-            <div className="cell cell-2">2</div>
-            <div className="cell cell-3">3</div>
-            <div className="cell cell-4">4</div>
+        <Frame ref={c => this.pager = c} axis="y" className="frame">
+          <Track className="track track-y">
+            <div className="view">1</div>
+            <div className="view">2</div>
+            <div className="view">3</div>
+            <div className="view">4</div>
           </Track>
         </Frame>
+        <div style={{ textAlign: 'center' }}>
+          <button onClick={() => this.pager.scrollTo(0)}>1</button>
+          <button onClick={() => this.pager.scrollTo(1)}>2</button>
+          <button onClick={() => this.pager.scrollTo(2)}>3</button>
+          <button onClick={() => this.pager.scrollTo(3)}>4</button>
+        </div>
 
         <h1 className="center">Infinite</h1>
         <Frame
@@ -312,10 +218,10 @@ class App extends Component {
           className="frame"
         >
           <Track className="track">
-            <div className="cell cell-1">1</div>
-            <div className="cell cell-2">2</div>
-            <div className="cell cell-3">3</div>
-            <div className="cell cell-4">4</div>
+            <div className="view">1</div>
+            <div className="view">2</div>
+            <div className="view">3</div>
+            <div className="view">4</div>
           </Track>
         </Frame>
 
@@ -325,22 +231,23 @@ class App extends Component {
           className="frame"
         >
           <Track className="track">
-            <div className="cell cell-1" style={{ width: size ? size : 300, height: 100 }}>1</div>
-            <div className="cell cell-2" style={{ width: size ? size : 175, height: 200 }}>2</div>
-            <div className="cell cell-3" style={{ width: size ? size : 315, height: 300 }}>3</div>
-            <div className="cell cell-4" style={{ width: size ? size : 125, height: 400 }}>4</div>
+            <div className="view" style={{ width: size ? size : 200 }}>1</div>
+            <div className="view" style={{ width: size ? size : 175 }}>2</div>
+            <div className="view" style={{ width: size ? size : 315 }}>3</div>
+            <div className="view" style={{ width: size ? size : 125 }}>4</div>
           </Track>
         </Frame>
 
-        {/*<h1 className="center">Images</h1>
-        <Frame className="frame">
+        <h1 className="center">Images</h1>
+        <Frame align={0.5} className="frame">
           <Track className="track">
-            <img src="https://unsplash.it/200/200?image=0" className="cell"/>
-            <img src="https://unsplash.it/200/200?image=1" className="cell"/>
-            <img src="https://unsplash.it/200/200?image=2" className="cell"/>
-            <img src="https://unsplash.it/200/200?image=3" className="cell"/>
+            <ImageView src="https://unsplash.it/300/200?image=10" className="view"/>
+            <ImageView src="https://unsplash.it/450/200?image=20" className="view"/>
+            <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
+            <ImageView src="https://unsplash.it/250/200?image=40" className="view"/>
+            <ImageView src="https://unsplash.it/375/200?image=50" className="view"/>
           </Track>
-        </Frame>*/}
+        </Frame>
       </div>
     )
   }

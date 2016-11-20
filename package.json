@@ -1,7 +1,7 @@
 {
   "name": "react-motion-slider",
   "version": "0.4.2",
-  "description": "Slider/Carousel powered by React Motion.",
+  "description": "View-Pager/Slider/Carousel powered by React Motion.",
   "main": "lib/react-motion-slider.js",
   "files": [
     "dist",

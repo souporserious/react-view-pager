@@ -18,25 +18,28 @@ import { Frame, Track } from 'react-motion-slider'
 
 <div>
   <Frame
-    ref="pager"
-    currentView="view-3" // move to a specific view by passing its key
+    ref={c => this.pager = c}
+    viewsToShow={2}
+    infinite
+    className="frame"
   >
-    <Track>
-      {this.state.views.map((view, i) =>
-        <li key={`view-${i}`} className="view"/>
-      )}
+    <Track className="track">
+      <div className="view">1</div>
+      <div className="view">2</div>
+      <div className="view">3</div>
+      <div className="view">4</div>
     </Track>
   </Frame>
   <nav className="pager-controls">
     <a
       className="pager-control pager-control--prev"
-      onClick={() => this.refs['pager'].prev()}
+      onClick={() => this.pager.prev()}
     >
       Prev
     </a>
     <a
       className="pager-control pager-control--next"
-      onClick={() => this.refs['pager'].next()}
+      onClick={() => this.pager.next()}
     >
       Next
     </a>
@@ -51,15 +54,15 @@ The HTML tag for this element. Defaults to `div`.
 
 ### `currentView`: PropTypes.any
 
-Move to a slide by its index or key.
+Specify the index or key of a view to move to that view. Use with `beforeViewChange` to control the state of the pager.
 
 ### `viewsToShow`: PropTypes.number
 
-The amount of views shown in the frame. Defaults to `auto`.
+The number of views visible in the frame at one time. Defaults to `auto` which will respect the views's natural or defined dimensions.
 
 ### `viewsToMove`: PropTypes.number
 
-The amount of views to move upon using `prev` and `next` methods. Defaults to `1`.
+The number of views to move upon using `prev` and `next` methods. Defaults to `1`.
 
 ### `align`: PropTypes.oneOf(['left', 'center', 'right'])
 
@@ -75,7 +78,7 @@ Prepare your pager for intergalactic space travel. Allows the track to wrap to t
 
 ### `instant`: PropTypes.bool
 
-Move to a views instantly without any animation.
+Move to a view instantly without any animation. This will control the internal `instant` state inside of the component.
 
 ### `axis`: PropTypes.oneOf(['x', 'y'])
 
@@ -127,11 +130,24 @@ Prop callback fired when track is scrolling. Useful for parallax or progress bar
 
 ### `beforeViewChange`: PropTypes.func
 
-Prop callback fired before view change.
+Prop callback fired before view change. Passes back the newly selected index.
 
 ### `afterViewChange`: PropTypes.fun
 
 Prop callback fired after view change.
+
+### Public methods
+### `prev`
+
+Moves to the previous view.
+
+### `next`
+
+Advances to the next view.
+
+### `scrollTo`
+
+Scroll to a view by it's index or key.
 
 ## `Track` Props
 
@@ -141,15 +157,6 @@ The HTML tag for this element. Defaults to `div`.
 ### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
 
 Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
-
-## Public methods
-### `prev`
-
-Moves to the previous slide.
-
-### `next`
-
-Advances to the next slide.
 
 ## Running Locally
 

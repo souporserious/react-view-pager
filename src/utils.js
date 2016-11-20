@@ -13,3 +13,9 @@ export function sum(arr) {
 export function max(arr) {
   return Math.max.apply(null, arr)
 }
+
+export function range(from, to, max) {
+  return [...Array(to - from)].map(
+    (_, i) => modulo(from + i, max)
+  )
+}

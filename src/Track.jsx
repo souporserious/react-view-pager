@@ -36,13 +36,16 @@ class Track extends Component {
     // refresh instantly to set first track position
     this._setValueInstantly(true, true)
 
-    viewPager.on('viewAdded', () => this._setValueInstantly(true, true))
+    // set values instantly on respective events
+    viewPager.on('hydrated', () => this._setValueInstantly(true, true))
     viewPager.on('swipeMove', () => this._setValueInstantly(true))
     viewPager.on('swipeEnd', () => this._setValueInstantly(false))
 
     // set initial view index and listen for any incoming view index changes
     this.setCurrentView(viewPager.options.currentView)
 
+    // updateView event comes from Frame component props
+    // this is a little weird, probably should handle this through context
     viewPager.on('updateView', index => {
       this.setCurrentView(index)
     })

@@ -21,13 +21,24 @@ class View extends Component {
     const { viewsToShow, axis } = viewPager.options
     const { children, ...restProps } = this.props
     const child = Children.only(children)
-    const style = { ...child.props.style }
+    const style = {
+      ...child.props.style,
+      position: 'relative',
+      top: 0,
+      left: 0
+    }
 
     if (viewsToShow !== 'auto') {
       style[axis === 'x' ? 'width' : 'height'] = (100 / viewsToShow) + '%'
     }
 
     if (this._viewInstance) {
+      // absolute position non-current views
+      if (!this._viewInstance.isCurrent) {
+        style.position = 'absolute'
+      }
+
+      // position view along the track
       style[axis === 'y' ? 'top' : 'left'] = this._viewInstance.getPosition()
     }
 

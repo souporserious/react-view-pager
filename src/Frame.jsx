@@ -95,23 +95,18 @@ class ViewPager extends Component {
     this._setFrameSize()
     this._viewPager.on('viewAdded', this._setFrameSize)
 
-    this._viewPager.on('viewChange', () => {
-      // fire before view callback
-      this.props.beforeViewChange()
-
-      // update component with new dimensions
+    // update the whole tree on hydration so children update with any new values
+    this._viewPager.on('hydrated', () => {
       this.forceUpdate()
+    })
 
-      // set new frame size if needed
+    // fire before view callback and set frame size on view change
+    this._viewPager.on('viewChange', indicies => {
+      this.props.beforeViewChange(indicies)
       this._setFrameSize()
     })
 
-    // force update top level component so children update with any new values
-    this._viewPager.on('resize', () => {
-      this.forceUpdate()
-    })
-
-    // callbacks
+    // prop callbacks
     this._viewPager.on('swipeStart', this.props.onSwipeStart)
     this._viewPager.on('swipeMove', this.props.onSwipeMove)
     this._viewPager.on('swipeEnd', this.props.onSwipeEnd)
@@ -122,11 +117,16 @@ class ViewPager extends Component {
   componentWillReceiveProps({ currentView, children }) {
     // update state with new index if necessary
     if (typeof currentView !== undefined && this.props.currentView !== currentView) {
-      // this is pretty anti-react, but since we might not know the children we need
-      // to listen for this event in Track and update it there to allow people the ability
-      // to move to a view by it's key
-      this._viewPager.emit('updateView', currentView)
+      this.scrollTo(currentView)
     }
+  }
+
+  componentWillUnmount() {
+    this._viewPager.destroy()
+  }
+
+  getInstance() {
+    return this._viewPager
   }
 
   prev() {
@@ -135,6 +135,13 @@ class ViewPager extends Component {
 
   next() {
     this._viewPager.next()
+  }
+
+  scrollTo(view) {
+    // this is pretty anti-react, but since we might not know the children we need
+    // to listen for this event in Track and update it there to allow people the ability
+    // to move to a view by it's key
+    this._viewPager.emit('updateView', view)
   }
 
   _setFrameSize = () => {
@@ -158,51 +165,46 @@ class ViewPager extends Component {
     }
   }
 
-  render() {
+  _renderFrame(style) {
     const { tag, axis, autoSize, accessibility } = this.props
-    const { width, height } = this.state
     const props = specialAssign({
       ...this._swipe.getEvents(),
       ...this._keyboard.getEvents(),
       tabIndex: accessibility ? 0 : null
     }, this.props, checkedProps)
 
-    if (autoSize) {
+    return createElement(tag, {
+      ...props,
+      style: {
+        ...style,
+        ...props.style
+      }
+    })
+  }
+
+  render() {
+    const { height } = this.state
+    const style = {
+      position: 'relative',
+      overflow: 'hidden'
+    }
+
+    if (this.props.autoSize) {
       return (
         <Motion style={this._getFrameStyle()}>
           { dimensions => {
-            const frameStyles = {}
-
             if (dimensions.maxWidth) {
-              frameStyles.maxWidth = dimensions.maxWidth
+              style.maxWidth = dimensions.maxWidth
             }
-
             if (dimensions.height) {
-              frameStyles.height = dimensions.height
+              style.height = dimensions.height
             }
-
-            return createElement(tag, {
-              ...props,
-              style: {
-                ...frameStyles,
-                ...props.style
-              }
-            })
+            return this._renderFrame(style)
           }}
         </Motion>
       )
     } else {
-      const dimensions = {}
-
-      if (width && axis === 'y') {
-        dimensions.width = width
-      }
-
-      if (height && axis === 'x') {
-        dimensions.height = height
-      }
-
-      return createElement(tag, { ...props, style: { ...dimensions, ...props.style } })
+      return this._renderFrame(style)
     }
   }
 }
