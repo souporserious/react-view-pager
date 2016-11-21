@@ -59,7 +59,11 @@ class Pager extends Events {
       view => view.origin
     )
 
-    window.addEventListener('resize', this.resize)
+    if (typeof window === 'undefined') {
+      return
+    } else {
+      window.addEventListener('resize', this.resize)  
+    }
   }
 
   destroy() {
