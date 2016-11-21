@@ -88,6 +88,29 @@ Which axis the track moves on. Defaults to `x`.
 
 Animates the wrapper's width and height to fit the current view. Defaults to `false`.
 
+### `animations`: PropTypes.array
+
+Define a limitless array of animation stops. Each object in the array requires a `name` and `stops` property along with an optional `unit` property.
+
+```js
+// scale and fade views as they enter and leave
+const animations = [{
+  name: 'scale',
+  stops: [
+    [-200, 0.85],
+    [0, 1],
+    [200, 0.85]
+  ]
+}, {
+  name: 'opacity',
+  stops: [
+    [-200, 0.15],
+    [0, 1],
+    [200, 0.15]
+  ]
+}]
+```
+
 ### `swipe`: PropTypes.oneOf([true, false, 'touch', 'mouse'])
 
 Enable touch and/or mouse dragging. Defaults to `true`.

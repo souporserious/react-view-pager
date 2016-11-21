@@ -15,6 +15,7 @@ Major Update again, sorry for the big changes. This has been a rough road, but I
 
 *Props added*
 `contain`
+`animations`
 `accessibility`
 `onSwipeStart`
 `onSwipeMove`
