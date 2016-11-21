@@ -38,6 +38,7 @@
   },
   "homepage": "https://github.com/souporserious/react-motion-slider",
   "dependencies": {
+    "animation-bus": "^0.1.0",
     "get-prefix": "^1.0.0",
     "minivents": "^2.0.2",
     "react-motion": "^0.4.5"

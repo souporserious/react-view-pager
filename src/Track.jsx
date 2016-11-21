@@ -9,7 +9,7 @@ const TRANSFORM = require('get-prefix')('transform')
 
 class Track extends Component {
   static propTypes = {
-    springConfig: React.PropTypes.objectOf(React.PropTypes.number)
+    springConfig: PropTypes.objectOf(PropTypes.number)
   }
 
   static defaultProps = {
@@ -115,15 +115,14 @@ class Track extends Component {
             [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
           }
 
-          if (viewPager.options.infinite) {
-            // update view positions with current position tween
-            // this method can get called hundreds of times, let's make sure to optimize as much as we can
-            // maybe we do a cheaper calculation each time and run a reposition only if a new view has left/entered
-            // this could possibly help out with lazy rendering
-            viewPager.positionViews(trackPosition)
-          }
+          // update view styles with current position tween
+          // this method can get called hundreds of times, let's make sure to optimize as much as we can
+          viewPager.setViewStyles(trackPosition)
 
-          return createElement(tag, { ...restProps, style }, this._renderViews())
+          return createElement(tag, {
+            ...restProps,
+            style
+          }, this._renderViews())
         }}
       </Motion>
     )

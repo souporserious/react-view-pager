@@ -18,6 +18,7 @@ const checkedProps = {
   contain: PropTypes.bool,
   axis: PropTypes.oneOf(['x', 'y']),
   autoSize: PropTypes.bool,
+  animations: PropTypes.array,
   infinite: PropTypes.bool,
   instant: PropTypes.bool,
   swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
@@ -41,7 +42,7 @@ class ViewPager extends Component {
   static defaultProps = {
     tag: 'div',
     currentView: 0,
-    viewsToShow: 'auto',
+    viewsToShow: 1,
     viewsToMove: 1,
     align: 0,
     contain: false,

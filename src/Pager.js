@@ -1,4 +1,5 @@
 import Events from 'minivents'
+import AnimationBus from 'animation-bus'
 import PagerElement from './PagerElement'
 import { modulo, clamp, sum, max, range } from './utils'
 
@@ -8,6 +9,7 @@ class View extends PagerElement {
     this.index = index
     this.isCurrent = false
     this.setTarget()
+    this.setOrigin()
   }
 
   setTarget() {
@@ -20,21 +22,14 @@ class View extends PagerElement {
     this.target = target
   }
 
-  getTarget() {
-    return this.target
+  setOrigin(trackPosition = this.pager.trackPosition) {
+    this.origin = this.target - trackPosition
   }
 }
 
 class Pager extends Events {
   constructor(options = {}) {
     super()
-
-    this.views = []
-    this.currentIndex = 0
-    this.currentView = null
-    this.currentTween = 0
-    this.trackPosition = 0
-    this.isSwiping = false
 
     this.options = {
       viewsToShow: 'auto',
@@ -43,6 +38,7 @@ class Pager extends Events {
       contain: false,
       axis: 'x',
       autoSize: false,
+      animations: [],
       infinite: false,
       instant: false,
       swipe: true,
@@ -51,6 +47,17 @@ class Pager extends Events {
       accessibility: true,
       ...options
     }
+
+    this.views = []
+    this.currentIndex = 0
+    this.currentView = null
+    this.currentTween = 0
+    this.trackPosition = 0
+    this.isSwiping = false
+    this.animationBus = new AnimationBus(
+      this.options.animations,
+      view => view.origin
+    )
 
     window.addEventListener('resize', this.resize)
   }
@@ -71,8 +78,8 @@ class Pager extends Events {
       view.setSize()
       view.setTarget()
     })
-    this.positionViews()
     this.setPositionValue()
+    this.setViewStyles()
     this.emit('hydrated')
   }
 
@@ -131,7 +138,7 @@ class Pager extends Events {
   }
 
   setCurrentView(direction = 0, index = this.currentIndex, suppressEvent) {
-    const { viewsToMove, infinite, onChange } = this.options
+    const { viewsToMove, infinite } = this.options
     const newIndex = index + (direction * viewsToMove)
 
     const previousIndex = this.currentIndex
@@ -181,6 +188,33 @@ class Pager extends Events {
     }
 
     this.trackPosition = trackPosition
+  }
+
+  setViewStyles(trackPosition = 0) {
+    const { infinite, align } = this.options
+    const frameSize = this.getFrameSize()
+    const trackSize = this.getTrackSize()
+    const wrappedtrackPosition = modulo(trackPosition, -trackSize)
+
+    this.views.reduce((lastPosition, view, index) => {
+      const viewSize = view.getSize()
+      const nextPosition = lastPosition + viewSize
+      let position = lastPosition
+
+      if (infinite) {
+        // shift views around so they are always visible in frame
+        if (nextPosition + (viewSize * align) < Math.abs(wrappedtrackPosition)) {
+          position += trackSize
+        } else if (lastPosition > (frameSize - wrappedtrackPosition)) {
+          position -= trackSize
+        }
+      }
+
+      view.setPosition(position)
+      view.setOrigin(trackPosition)
+
+      return nextPosition
+    }, 0)
   }
 
   getNumericViewsToShow() {
@@ -296,33 +330,6 @@ class Pager extends Events {
   resetViews() {
     // reset back to a normal index
     this.setCurrentView(0, modulo(this.currentIndex, this.views.length), true)
-  }
-
-  positionViews(trackPosition = 0) {
-    const { infinite, align } = this.options
-    const frameSize = this.getFrameSize()
-    const trackSize = this.getTrackSize()
-
-    trackPosition = modulo(trackPosition, -trackSize)
-
-    this.views.reduce((lastPosition, view, index) => {
-      const viewSize = view.getSize()
-      const nextPosition = lastPosition + viewSize
-      let position = lastPosition
-
-      if (infinite) {
-        // shift views around so they are always visible in frame
-        if (nextPosition + (viewSize * align) < Math.abs(trackPosition)) {
-          position += trackSize
-        } else if (lastPosition > (frameSize - trackPosition)) {
-          position -= trackSize
-        }
-      }
-
-      view.setPosition(position)
-
-      return nextPosition
-    }, 0)
   }
 }
 

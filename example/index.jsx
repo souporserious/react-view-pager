@@ -1,141 +1,25 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component, PropTypes, Children, cloneElement } from 'react'
 import ReactDOM from 'react-dom'
 import Collapse from 'react-collapse'
 import { Frame, Track, ImageView } from '../src/react-motion-slider'
 
 import './main.scss';
 
-// class App extends Component {
-//   state = {
-//     slides: [Slide, Slide, Slide, Slide, Slide, Slide, Slide],
-//     currentKey: 'slide-3',
-//     currentIndexes: [],
-//     autoHeight: false,
-//     vertical: false,
-//     slidesToShow: 3,
-//     slidesToMove: 1,
-//     align: 'left',
-//     instant: false
-//   }
-//
-//   addSlide = () => {
-//     this.setState({
-//       slides: [...this.state.slides, Slide]
-//     })
-//   }
-//
-//   prev = () => {
-//     this.refs['slider'].prev()
-//   }
-//
-//   next = () => {
-//     this.refs['slider'].next()
-//   }
-//
-//   _handleChange = (nextIndexes, nextKey) => {
-//     this.setState({
-//       currentKey: nextKey,
-//       currentIndexes: nextIndexes
-//     })
-//   }
-//
-//   render() {
-//     const { currentKey, currentIndexes, slides, autoHeight, vertical, slidesToShow, slidesToMove, align, instant } = this.state
-//     return (
-//       <div>
-//         <button onClick={this.addSlide}>
-//           Add Slides
-//         </button>
-//         <label>
-//           <input
-//             type="checkbox"
-//             onChange={() => this.setState({autoHeight: !autoHeight})}
-//           />
-//           Auto Height
-//         </label>
-//         <label>
-//           <input
-//             type="checkbox"
-//             onChange={() => this.setState({vertical: !vertical})}
-//           />
-//           Vertical
-//         </label>
-//         <label>
-//           <input
-//             type="checkbox"
-//             onChange={() => this.setState({instant: !instant})}
-//           />
-//           Instant
-//         </label>
-//         <label>
-//           <input
-//             type="number"
-//             onChange={e => this.setState({slidesToShow: +e.target.value})}
-//             value={slidesToShow}
-//           />
-//           Slides To Show
-//         </label>
-//         <label>
-//           <input
-//             type="number"
-//             onChange={e => this.setState({slidesToMove: +e.target.value})}
-//             value={slidesToMove}
-//           />
-//           Slides To Move
-//         </label>
-//         <select
-//           onChange={e => this.setState({align: e.target.value})}
-//           value={align}
-//         >
-//           <option value="left">Left</option>
-//           <option value="center">Center</option>
-//           <option value="right">Right</option>
-//         </select>
-//         <nav className="slider__controls">
-//           <a className="slider__control slider__control--prev" onClick={this.prev}>Prev</a>
-//           <a className="slider__control slider__control--next" onClick={this.next}>Next</a>
-//         </nav>
-//         <div className="slider-wrapper">
-//           <Slider
-//             ref="slider"
-//             className="slider"
-//             vertical={vertical}
-//             slidesToShow={slidesToShow}
-//             slidesToMove={slidesToMove}
-//             autoHeight={autoHeight}
-//             align={align}
-//             instant={instant}
-//             currentKey={currentKey}
-//             onChange={this._handleChange}
-//           >
-//             {
-//               this.state.slides.map((InnerView, i) =>
-//                 <View key={`slide-${i}`} index={i}>
-//                   <InnerView
-//                     index={i}
-//                     isCurrentSlide={this.props.currentRoute === `slide-${i}`}
-//                     onHeightUpdate={this._handleHeightUpdate}
-//                   />
-//                 </View>
-//               )
-//             }
-//           </Slider>
-//         </div>
-//         <nav className="slider__pager">
-//           {this.state.slides.map((slide, i) =>
-//             <a
-//               key={`page-${i}`}
-//               className={`slider__page ${currentIndexes.indexOf(i) > -1 ? 'slider__page--active' : ''}`}
-//               onClick={() => this.setState({ currentKey: `slide-${i}` })}
-//             >
-//               {i}
-//             </a>
-//           )}
-//         </nav>
-//       </div>
-//     )
-//   }
-// }
+const animations = [{
+  name: 'scale',
+  stops: [
+    [-200, 0.85],
+    [0, 1],
+    [200, 0.85]
+  ]
+}, {
+  name: 'opacity',
+  stops: [
+    [-200, 0.15],
+    [0, 1],
+    [200, 0.15]
+  ]
+}]
 
 class App extends Component {
   constructor(props) {
@@ -227,6 +111,7 @@ class App extends Component {
 
         <h1 className="center">Align</h1>
         <Frame
+          viewsToShow="auto"
           align={0.5}
           className="frame"
         >
@@ -239,13 +124,36 @@ class App extends Component {
         </Frame>
 
         <h1 className="center">Images</h1>
-        <Frame align={0.5} className="frame">
+        <Frame
+          viewsToShow="auto"
+          align={0.5}
+          className="frame"
+        >
           <Track className="track">
             <ImageView src="https://unsplash.it/300/200?image=10" className="view"/>
             <ImageView src="https://unsplash.it/450/200?image=20" className="view"/>
             <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
             <ImageView src="https://unsplash.it/250/200?image=40" className="view"/>
             <ImageView src="https://unsplash.it/375/200?image=50" className="view"/>
+          </Track>
+        </Frame>
+
+        <h1 className="center">Animations</h1>
+        <Frame
+          viewsToShow="auto"
+          align={0.5}
+          animations={animations}
+          style={{
+            margin: '0 auto',
+            outline: 0
+          }}
+        >
+          <Track>
+            <ImageView src="https://unsplash.it/200/200?image=10" className="view"/>
+            <ImageView src="https://unsplash.it/200/200?image=20" className="view"/>
+            <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
+            <ImageView src="https://unsplash.it/200/200?image=40" className="view"/>
+            <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
           </Track>
         </Frame>
       </div>

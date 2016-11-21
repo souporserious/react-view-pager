@@ -21,13 +21,14 @@ class View extends Component {
     const { viewsToShow, axis } = viewPager.options
     const { children, ...restProps } = this.props
     const child = Children.only(children)
-    const style = {
+    let style = {
       ...child.props.style,
       position: 'relative',
       top: 0,
       left: 0
     }
 
+    // set width or height on view when viewsToShow is not auto
     if (viewsToShow !== 'auto') {
       style[axis === 'x' ? 'width' : 'height'] = (100 / viewsToShow) + '%'
     }
@@ -38,8 +39,13 @@ class View extends Component {
         style.position = 'absolute'
       }
 
-      // position view along the track
-      style[axis === 'y' ? 'top' : 'left'] = this._viewInstance.getPosition()
+      // apply top or left value and any animations defined in props
+      const edge = (axis === 'y') ? 'top' : 'left'
+      style = {
+        ...style,
+        [edge]: this._viewInstance.getPosition(),
+        ...viewPager.animationBus.getStyles(this._viewInstance)
+      }
     }
 
     return cloneElement(child, { ...restProps, style })
