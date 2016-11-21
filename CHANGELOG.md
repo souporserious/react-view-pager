@@ -1,4 +1,28 @@
 ## CHANGELOG
+### 0.5.0
+Major Update again, sorry for the big changes. This has been a rough road, but I feel it has finally smoothed out and I'm very happy with where everything is at.
+
+**Name Change**
+`react-motion-slider` -> `react-view-pager`
+
+**Breaking Changes**
+*Props changed*
+`currentIndex` && `currentKey` -> `currentView`
+`slidesToShow` -> `viewsToShow`
+`slidesToMove` -> `viewsToMove`
+`vertical` -> `axis`
+`autoHeight` -> `autoSize`
+
+*Props added*
+`contain`
+`accessibility`
+`onSwipeStart`
+`onSwipeMove`
+`onSwipeEnd`
+`onScroll`
+`beforeViewChange`
+`afterViewChange`
+
 ### 0.4.2
 Use constructor in `Slider` to fix undefined props in IE10
 

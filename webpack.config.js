@@ -12,7 +12,7 @@ module.exports = {
   module: {
     loaders: [
       { test: /\.(js|jsx)/, loader: 'babel-loader' },
-      { test: /\.scss$/, loader: 'style!css!postcss!sass?sourceMap' }
+      { test: /\.(css|scss)/, loader: 'style!css!postcss!sass?sourceMap' }
     ]
   },
   resolve: {

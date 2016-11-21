@@ -2,38 +2,44 @@
 
 [![Dependency Status](https://david-dm.org/souporserious/react-motion-slider.svg)](https://david-dm.org/souporserious/react-motion-slider)
 
-Slider/Carousel powered by React Motion.
+View-Pager/Slider/Carousel powered by React Motion.
 
 ![react-motion-slider](example/images/react-motion-slider.gif)
 
 ## Usage
 
-`npm install react-motion-slider --save`
+`yarn add react-motion-slider`
 
-`bower install react-motion-slider --save`
+`npm install react-motion-slider --save`
 
 ## Example Usage
 ```js
+import { Frame, Track } from 'react-motion-slider'
+
 <div>
-  <Slider
-    ref="slider"
-    currentKey="slide-3" // move to a specific slide by passing its key
-    autoHeight={true} // animate slider wrapper
+  <Frame
+    ref={c => this.pager = c}
+    viewsToShow={2}
+    infinite
+    className="frame"
   >
-    {this.state.slides.map((slide, i) =>
-      <li key={`slide-${i}`} className="slide" />
-    )}
-  </Slider>
-  <nav className="slider__controls">
+    <Track className="track">
+      <div className="view">1</div>
+      <div className="view">2</div>
+      <div className="view">3</div>
+      <div className="view">4</div>
+    </Track>
+  </Frame>
+  <nav className="pager-controls">
     <a
-      className="slider__control slider__control--prev"
-      onClick={() => this.refs['slider'].prev()}
+      className="pager-control pager-control--prev"
+      onClick={() => this.pager.prev()}
     >
       Prev
     </a>
     <a
-      className="slider__control slider__control--next"
-      onClick={() => this.refs['slider'].next()}
+      className="pager-control pager-control--next"
+      onClick={() => this.pager.next()}
     >
       Next
     </a>
@@ -41,30 +47,46 @@ Slider/Carousel powered by React Motion.
 </div>
 ```
 
-## Props
-### `currentKey`: PropTypes.any
+## `Frame` Props
 
-Move to a slide by its key.
+### `tag`: PropTypes.string
+The HTML tag for this element. Defaults to `div`.
 
-### `currentIndex`: PropTypes.number
+### `currentView`: PropTypes.any
 
-Move to a slide by its index.
+Specify the index or key of a view to move to that view. Use with `beforeViewChange` to control the state of the pager.
 
-### `slidesToShow`: PropTypes.number
+### `viewsToShow`: PropTypes.number
 
-The amount of slides shown in view. Defaults to `1`.
+The number of views visible in the frame at one time. Defaults to `auto` which will respect the views's natural or defined dimensions.
 
-### `slidesToMove`: PropTypes.number
+### `viewsToMove`: PropTypes.number
 
-The amount of slides to move upon using `prev` and `next` methods. Defaults to `1`.
-
-### `autoHeight`: PropTypes.bool
-
-Animates the wrapper height to fit the current slide. Defaults to `false`.
+The number of views to move upon using `prev` and `next` methods. Defaults to `1`.
 
 ### `align`: PropTypes.oneOf(['left', 'center', 'right'])
 
 Offsets the slide to align either `left` (default), `center`, or `right`.
+
+### `contain`: PropTypes.bool
+
+Prevents empty space from showing in frame. Defaults to `false`.
+
+### `infinite`: PropTypes.bool
+
+Prepare your pager for intergalactic space travel. Allows the track to wrap to the beginning/end when moving to a view. To infinity and beyond!
+
+### `instant`: PropTypes.bool
+
+Move to a view instantly without any animation. This will control the internal `instant` state inside of the component.
+
+### `axis`: PropTypes.oneOf(['x', 'y'])
+
+Which axis the track moves on. Defaults to `x`.
+
+### `autoSize`: PropTypes.bool
+
+Animates the wrapper's width and height to fit the current view. Defaults to `false`.
 
 ### `swipe`: PropTypes.oneOf([true, false, 'touch', 'mouse'])
 
@@ -72,32 +94,69 @@ Enable touch and/or mouse dragging. Defaults to `true`.
 
 ### `swipeThreshold`: PropTypes.number
 
-The amount the user must swipe to advance slides. `(sliderWidth * swipeThreshold)`. Defaults  to `0.5`
+The amount the user must swipe to advance views. `(frameWidth * swipeThreshold)`. Defaults  to `0.5`.
 
 ### `flickTimeout`: PropTypes.number
 
 The amount of time in milliseconds that determines if a swipe was a flick or not.
 
+### `accessibility`: PropTypes.bool
+
+Enable tabbing and keyboard navigation.
+
 ### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
 
 Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
 
-### `beforeSlide`: PropTypes.func(currentIndex, nextIndex)
+### `rightToLeft`: PropTypes.bool (Coming Soon)
 
-Prop callback fired before slide change.
+### `lazyLoad`: PropTypes.bool (Coming Soon)
 
-### `afterSlide`: PropTypes.fun(currentIndex)
+### `onSwipeStart`: PropTypes.func
 
-Prop callback fired after slide change.
+Prop callback fired before swipe.
 
-## Public methods
+### `onSwipeMove`: PropTypes.func
+
+Prop callback fired during swipe.
+
+### `onSwipeEnd`: PropTypes.func
+
+Prop callback fired after swipe.
+
+### `onScroll`: PropTypes.func
+
+Prop callback fired when track is scrolling. Useful for parallax or progress bars.
+
+### `beforeViewChange`: PropTypes.func
+
+Prop callback fired before view change. Passes back the newly selected index.
+
+### `afterViewChange`: PropTypes.fun
+
+Prop callback fired after view change.
+
+### Public methods
 ### `prev`
 
-Moves to the previous slide.
+Moves to the previous view.
 
 ### `next`
 
-Advances to the next slide.
+Advances to the next view.
+
+### `scrollTo`
+
+Scroll to a view by it's index or key.
+
+## `Track` Props
+
+### `tag`: PropTypes.string
+The HTML tag for this element. Defaults to `div`.
+
+### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
+
+Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
 
 ## Running Locally
 

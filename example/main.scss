@@ -1,110 +1,48 @@
-.slider-wrapper {
-  max-width: 400px;
-  margin: 24px auto;
-  border-radius: 3px;
-  // background: #fff;
-  // padding: 12px;
-}
-
-.slider {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    cursor: grab;
-  }
-  &:active {
-    cursor: grabbing;
-  }
-}
-
-.slider--is-sliding {
-}
-
-.slider--is-dragging {
-}
-
-.slider__track {
-  display: flex;
-}
-
-.slide {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 12px;
-  text-align: center;
-  color: #fff;
-
-  @for $i from 1 through 10 {
-    &--#{$i} {
-      //height: 50 * $i + px;
-      height: 200px;
-      background: darken(#B2D8FF, 7% * $i);
-    }
-  }
-
-  h1 {
-    margin-top: 0;
-    color: #fff;
-  }
-}
-
-.slider__controls {
-  margin-top: 12px;
-  text-align: center;
-}
-
-.slider__control {
-  display: inline-block;
-  padding: 12px;
-  border-radius: 3px;
-  background: #D6D9DA;
-  cursor: pointer;
-  user-select: none;
-}
-
-.slider__control--prev {
-  margin-right: 12px;
-}
-
-.slider__control--next {
-
-}
-
-.slider__pager {
-  display: flex;
-  justify-content: center;
-  max-width: 300px;
-  margin: 25px auto 0;
-}
-
-.slider__page {
-  flex: 0 0 35px;
-  margin: 12px;
-  text-align: center;
-  line-height: 35px;
-  border: 1px solid #D4D4D4;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.slider__page--active {
-  border-color: #0C82E6;
-  color: #0C82E6;
-}
-
-// layout specific
 * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: "Helvetica", sans-serif;
-  background: #F1F1F1;
+  padding: 0;
+  margin: 0;
+  font-family: Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.center {
+  text-align: center;
+}
+
+.frame {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.track-y {
+  .view {
+    width: 100%;
+  }
+}
+
+.view {
+  font-size: 60px;
+  font-weight: bold;
+  line-height: 100px;
+  text-align: center;
+  color: white;
+  user-select: none;
+
+  $colors: #209D22, #106CCC, #C1146B, #11BDBF, #8A19EA;
+
+  @for $i from 1 through length($colors) {
+    $color: nth($colors, $i);
+    &:nth-of-type(#{$i}) {
+      background-color: lighten($color, 10%);
+    }
+  }
 }
