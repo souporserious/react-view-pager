@@ -12,7 +12,7 @@ const noop = () => null
 const checkedProps = {
   tag: PropTypes.string,
   currentView: PropTypes.any,
-  viewsToShow: PropTypes.any,
+  viewsToShow: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
   viewsToMove: PropTypes.number,
   align: PropTypes.number,
   contain: PropTypes.bool,

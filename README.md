@@ -56,9 +56,9 @@ The HTML tag for this element. Defaults to `div`.
 
 Specify the index or key of a view to move to that view. Use with `beforeViewChange` to control the state of the pager.
 
-### `viewsToShow`: PropTypes.number
+### `viewsToShow`: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])])
 
-The number of views visible in the frame at one time. Defaults to `auto` which will respect the views's natural or defined dimensions.
+The number of views visible in the frame at one time. Defaults to `1`. Use `auto` to respect the views's natural or defined dimensions.
 
 ### `viewsToMove`: PropTypes.number
 
