@@ -12,6 +12,11 @@ View-Pager/Slider/Carousel powered by React Motion.
 
 `npm install react-view-pager --save`
 
+```html
+<script src="https://unpkg.com/react-view-pager/dist/react-view-pager.js"></script>
+(UMD library exposed as `ReactViewPager`)
+```
+
 ## Example Usage
 ```js
 import { Frame, Track } from 'react-view-pager'
