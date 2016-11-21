@@ -32,14 +32,14 @@ var externals = {
 
 var config = {
   entry: {
-    index: './src/react-motion-slider.js',
+    index: './src/react-view-pager.js',
   },
   output: {
     path: path.join(__dirname, 'dist'),
     publicPath: 'dist/',
-    filename: 'react-motion-slider.js',
-    sourceMapFilename: 'react-motion-slider.sourcemap.js',
-    library: 'Slider',
+    filename: 'react-view-pager.js',
+    sourceMapFilename: 'react-view-pager.sourcemap.js',
+    library: 'ReactViewPager',
     libraryTarget: 'umd'
   },
   module: {
@@ -57,14 +57,14 @@ var config = {
 };
 
 if (TARGET === 'minify') {
-  config.output.filename = 'react-motion-slider.min.js';
-  config.output.sourceMapFilename = 'react-motion-slider.min.js';
+  config.output.filename = 'react-view-pager.min.js';
+  config.output.sourceMapFilename = 'react-view-pager.min.js';
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
     compress: {
       warnings: false
     },
     mangle: {
-      except: ['React', 'ReactDOM', 'ReactMotion', 'Slider']
+      except: ['React', 'ReactDOM', 'ReactMotion', 'ReactViewPager']
     }
   }));
 }

@@ -1,8 +1,8 @@
 {
-  "name": "react-motion-slider",
+  "name": "react-view-pager",
   "version": "0.4.2",
   "description": "View-Pager/Slider/Carousel powered by React Motion.",
-  "main": "lib/react-motion-slider.js",
+  "main": "lib/react-view-pager.js",
   "files": [
     "dist",
     "lib"
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/souporserious/react-motion-slider"
+    "url": "https://github.com/souporserious/react-view-pager"
   },
   "keywords": [
     "react",
@@ -34,9 +34,9 @@
   "author": "Travis Arnold <travis@souporserious.com> (http://souporserious.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/souporserious/react-motion-slider/issues"
+    "url": "https://github.com/souporserious/react-view-pager/issues"
   },
-  "homepage": "https://github.com/souporserious/react-motion-slider",
+  "homepage": "https://github.com/souporserious/react-view-pager",
   "dependencies": {
     "animation-bus": "^0.1.0",
     "get-prefix": "^1.0.0",

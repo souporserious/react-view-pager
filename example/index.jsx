@@ -1,7 +1,6 @@
-import React, { Component, PropTypes, Children, cloneElement } from 'react'
+import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import Collapse from 'react-collapse'
-import { Frame, Track, ImageView } from '../src/react-motion-slider'
+import { Frame, Track, ImageView } from '../src/react-view-pager'
 
 import './main.scss';
 

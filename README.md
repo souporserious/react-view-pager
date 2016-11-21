@@ -1,20 +1,20 @@
-## React Motion Slider
+## React View Pager
 
-[![Dependency Status](https://david-dm.org/souporserious/react-motion-slider.svg)](https://david-dm.org/souporserious/react-motion-slider)
+[![Dependency Status](https://david-dm.org/souporserious/react-view-pager.svg)](https://david-dm.org/souporserious/react-view-pager)
 
 View-Pager/Slider/Carousel powered by React Motion.
 
-![react-motion-slider](example/images/react-motion-slider.gif)
+![react-motion-slider](example/images/react-view-pager.gif)
 
 ## Usage
 
-`yarn add react-motion-slider`
+`yarn add react-view-pager`
 
-`npm install react-motion-slider --save`
+`npm install react-view-pager --save`
 
 ## Example Usage
 ```js
-import { Frame, Track } from 'react-motion-slider'
+import { Frame, Track } from 'react-view-pager'
 
 <div>
   <Frame
@@ -162,11 +162,11 @@ Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#
 
 clone repo
 
-`git clone git@github.com:souporserious/react-motion-slider.git`
+`git clone git@github.com:souporserious/react-view-pager.git`
 
 move into folder
 
-`cd ~/react-motion-slider`
+`cd ~/react-view-pager`
 
 install dependencies
 
