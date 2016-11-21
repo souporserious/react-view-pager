@@ -64,9 +64,9 @@ The number of views visible in the frame at one time. Defaults to `auto` which w
 
 The number of views to move upon using `prev` and `next` methods. Defaults to `1`.
 
-### `align`: PropTypes.oneOf(['left', 'center', 'right'])
+### `align`: PropTypes.number
 
-Offsets the slide to align either `left` (default), `center`, or `right`.
+Pass any number to offset the view from the start of the track. For example, `0` aligns to the start of the track, `0.5` to the center, and `1` aligns to the end.
 
 ### `contain`: PropTypes.bool
 
