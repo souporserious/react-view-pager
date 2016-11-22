@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Frame, Track, ImageView } from '../src/react-view-pager'
+import { PagerState, Frame, Track, ImageView } from '../src/react-view-pager'
 
 import './main.scss';
 
@@ -19,6 +19,38 @@ const animations = [{
     [200, 0.15]
   ]
 }]
+
+class ProgressExample extends Component {
+  render() {
+    return (
+      <PagerState>
+        { ({ progress }) =>
+          <div className="viewport">
+            <Frame
+              ref={c => this.pager = c}
+              className="frame"
+            >
+              <Track className="track track-y">
+                <div className="view">{progress}</div>
+                <div className="view">2</div>
+                <div className="view">3</div>
+                <div className="view">4</div>
+              </Track>
+            </Frame>
+            <div className="progress-container">
+              <div
+                className="progress-bar"
+                style={{
+                  transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
+                }}
+              />
+            </div>
+          </div>
+        }
+      </PagerState>
+    )
+  }
+}
 
 class App extends Component {
   constructor(props) {
@@ -155,6 +187,9 @@ class App extends Component {
             <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
           </Track>
         </Frame>
+
+        <h1 className="center">Progress</h1>
+        <ProgressExample/>
       </div>
     )
   }

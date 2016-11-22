@@ -69,6 +69,10 @@ class ViewPager extends Component {
     viewPager: PropTypes.instanceOf(Pager)
   }
 
+  static contextTypes = {
+    getTrackPosition: PropTypes.func
+  }
+
   constructor(props) {
     super(props)
 
@@ -119,6 +123,14 @@ class ViewPager extends Component {
     // update state with new index if necessary
     if (typeof currentView !== undefined && this.props.currentView !== currentView) {
       this.scrollTo(currentView)
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (this.context.getTrackPosition) {
+      return this.context.getTrackPosition() !== nextContext.getTrackPosition()
+    } else {
+      return true
     }
   }
 

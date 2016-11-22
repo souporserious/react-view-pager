@@ -3,7 +3,7 @@
 }
 
 body {
-  padding: 0;
+  padding: 30px 0;
   margin: 0;
   font-family: Helvetica, sans-serif;
   overflow-x: hidden;
@@ -18,9 +18,19 @@ img {
   text-align: center;
 }
 
-.frame {
+.viewport {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
+}
+
+.frame {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  outline: 0;
 }
 
 .track-y {
@@ -45,4 +55,19 @@ img {
       background-color: lighten($color, 10%);
     }
   }
+}
+
+.progress-container {
+  width: 100%;
+  height: 10px;
+  position: relative;
+  background: #e6e6e6;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: #ffbc00;
+  transform-origin: left center;
+  position: absolute;
 }

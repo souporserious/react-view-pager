@@ -62,7 +62,7 @@ class Pager extends Events {
     if (typeof window === 'undefined') {
       return
     } else {
-      window.addEventListener('resize', this.resize)  
+      window.addEventListener('resize', this.resize)
     }
   }
 
@@ -281,9 +281,10 @@ class Pager extends Events {
     }
   }
 
-  getTrackSize() {
+  getTrackSize(includeLastSlide = true) {
+    const lastIndex = includeLastSlide ? this.views.length : this.views.length - 1
     let size = 0
-    this.views.forEach(view => {
+    this.views.slice(0, lastIndex).forEach(view => {
       size += view.getSize()
     })
     return size
@@ -323,7 +324,10 @@ class Pager extends Events {
     }
 
     // emit a "scroll" event so we can do things based on the progress of the track
-    this.emit('scroll', trackPosition)
+    this.emit('scroll', {
+      progress: trackPosition / this.getTrackSize(false),
+      position: trackPosition
+    })
 
     // set the proper transform axis based on our options
     position[this.options.axis] = trackPosition
