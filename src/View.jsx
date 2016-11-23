@@ -4,21 +4,21 @@ import Pager from './Pager'
 
 class View extends Component {
   static contextTypes = {
-    viewPager: PropTypes.instanceOf(Pager)
+    pager: PropTypes.instanceOf(Pager)
   }
 
   componentDidMount() {
-    this._viewInstance = this.context.viewPager.addView(findDOMNode(this))
+    this._viewInstance = this.context.pager.addView(findDOMNode(this))
     this.forceUpdate()
   }
 
   componentWillUnmount() {
-    this.context.viewPager.removeView(this._viewInstance)
+    this.context.pager.removeView(this._viewInstance)
   }
 
   render() {
-    const { viewPager } = this.context
-    const { viewsToShow, axis } = viewPager.options
+    const { pager } = this.context
+    const { viewsToShow, axis } = pager.options
     const { children, ...restProps } = this.props
     const child = Children.only(children)
     let style = {
@@ -44,7 +44,7 @@ class View extends Component {
       style = {
         ...style,
         [edge]: this._viewInstance.getPosition(),
-        ...viewPager.animationBus.getStyles(this._viewInstance)
+        ...pager.animationBus.getStyles(this._viewInstance)
       }
     }
 

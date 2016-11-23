@@ -3,12 +3,12 @@ import Pager from './Pager'
 
 class ImageView extends Component {
   static contextTypes = {
-    viewPager: PropTypes.instanceOf(Pager)
+    pager: PropTypes.instanceOf(Pager)
   }
 
   _handleLoaded = (e) => {
     // hydrate the pager now that the image has loaded
-    this.context.viewPager.hydrate()
+    this.context.pager.hydrate()
 
     if (typeof this.props.onLoad === 'function') {
       this.props.onLoad(e)

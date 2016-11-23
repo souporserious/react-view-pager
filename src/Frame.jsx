@@ -58,15 +58,15 @@ class Frame extends Component {
   }
 
   static childContextTypes = {
-    viewPager: PropTypes.instanceOf(Pager)
+    pager: PropTypes.instanceOf(Pager)
   }
 
   constructor(props) {
     super(props)
 
-    this._viewPager = new Pager(props)
-    this._swipe = new Swipe(this._viewPager)
-    this._keyboard = new Keyboard(this._viewPager)
+    this._pager = new Pager(props)
+    this._swipe = new Swipe(this._pager)
+    this._keyboard = new Keyboard(this._pager)
 
     this.state = {
       width: 0,
@@ -77,56 +77,56 @@ class Frame extends Component {
 
   getChildContext() {
     return {
-      viewPager: this._viewPager
+      pager: this._pager
     }
   }
 
   componentDidMount() {
-    this._viewPager.addFrame(findDOMNode(this))
+    this._pager.addFrame(findDOMNode(this))
 
     // set frame size initially and then based on certain view events
     this._setFrameSize()
-    this._viewPager.on('viewAdded', this._setFrameSize)
-    this._viewPager.on('viewChange', this._setFrameSize)
+    this._pager.on('viewAdded', this._setFrameSize)
+    this._pager.on('viewChange', this._setFrameSize)
 
     // prop callbacks
-    this._viewPager.on('viewChange', this.props.beforeViewChange)
-    this._viewPager.on('rest', this.props.afterViewChange)
+    this._pager.on('viewChange', this.props.beforeViewChange)
+    this._pager.on('rest', this.props.afterViewChange)
   }
 
   componentWillReceiveProps({ currentView, children }) {
     // update state with new index if necessary
-    // if (typeof currentView !== undefined && this._viewPager.currentIndex !== currentView) {
+    // if (typeof currentView !== undefined && this._pager.currentIndex !== currentView) {
     if (typeof currentView !== undefined && this.props.currentView !== currentView) {
       this.scrollTo(currentView)
     }
   }
 
   componentWillUnmount() {
-    this._viewPager.destroy()
+    this._pager.destroy()
   }
 
   getInstance() {
-    return this._viewPager
+    return this._pager
   }
 
   prev() {
-    this._viewPager.prev()
+    this._pager.prev()
   }
 
   next() {
-    this._viewPager.next()
+    this._pager.next()
   }
 
   scrollTo(view) {
     // this is pretty anti-react, but since we might not know the children we need
     // to listen for this event in Track and update it there to allow people the ability
     // to move to a view by it's key
-    this._viewPager.emit('updateView', view)
+    this._pager.emit('updateView', view)
   }
 
   _setFrameSize = () => {
-    const frameSize = this._viewPager.getFrameSize(true, true)
+    const frameSize = this._pager.getFrameSize(true, true)
 
     if (frameSize.width && frameSize.height) {
       this.setState(frameSize, () => {
