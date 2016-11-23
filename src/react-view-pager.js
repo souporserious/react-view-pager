@@ -1,5 +1,5 @@
 export Frame from './Frame'
 export Track from './Track'
 export ImageView from './ImageView'
-export AnimateView from './AnimateView'
+export AnimatedView from './AnimatedView'
 export utils from './utils'

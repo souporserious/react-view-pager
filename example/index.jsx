@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Frame, Track, ImageView, AnimateView } from '../src/react-view-pager'
+import { Frame, Track, ImageView, AnimatedView } from '../src/react-view-pager'
 
 import './main.scss';
 
@@ -23,7 +23,7 @@ const animations = [{
 class ProgressView extends Component {
   render() {
     return (
-      <AnimateView
+      <AnimatedView
         animations={[{
           name: 'opacity',
           stops: [
@@ -41,7 +41,7 @@ class ProgressView extends Component {
         }]}
       >
         {this.props.children}
-      </AnimateView>
+      </AnimatedView>
     )
   }
 }
