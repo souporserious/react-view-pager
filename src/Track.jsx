@@ -4,13 +4,17 @@ import { Motion, spring, presets } from 'react-motion'
 import Pager from './Pager'
 import View from './View'
 import getIndex from './get-index'
+import specialAssign from './special-assign'
 
 const TRANSFORM = require('get-prefix')('transform')
 
+// Track scroller is an intermediate component that allows us to provide the
+// React Motion value to onScroll and lets any user of onScroll use setState
 class TrackScroller extends Component {
+  static propTypes = checkedProps
+
   static contextTypes = {
-    viewPager: PropTypes.instanceOf(Pager),
-    setTrackPosition: PropTypes.func
+    viewPager: PropTypes.instanceOf(Pager)
   }
 
   state = {
@@ -19,7 +23,7 @@ class TrackScroller extends Component {
   }
 
   componentWillReceiveProps({ trackPosition }) {
-    const { viewPager, setTrackPosition } = this.context
+    const { viewPager } = this.context
 
     // update view styles with current position tween
     // this method can get called hundreds of times, let's make sure to optimize as much as we can
@@ -28,9 +32,13 @@ class TrackScroller extends Component {
     // get the x & y values to position the track
     this.setState(viewPager.getPositionValue(trackPosition))
 
-    // update context with current trackPosition
-    if (setTrackPosition && this.props.trackPosition !== trackPosition) {
-      setTrackPosition((trackPosition / viewPager.getTrackSize(false)) * -1, trackPosition)
+    // update onScroll callback, we use requestAnimationFrame to avoid bouncing
+    // back from updates from onScroll while React Motion is trying to update it's own tree
+    // https://github.com/chenglou/react-motion/issues/357#issuecomment-262393424
+    if (this.props.trackPosition !== trackPosition) {
+      requestAnimationFrame(() =>
+        this.props.onScroll((trackPosition / viewPager.getTrackSize(false)) * -1, trackPosition)
+      )
     }
   }
 
@@ -57,6 +65,15 @@ class TrackScroller extends Component {
   }
 }
 
+const noop = () => null
+const checkedProps = {
+  springConfig: React.PropTypes.objectOf(React.PropTypes.number),
+  onSwipeStart: PropTypes.func,
+  onSwipeMove: PropTypes.func,
+  onSwipeEnd: PropTypes.func,
+  onScroll: PropTypes.func
+}
+
 class Track extends Component {
   static propTypes = {
     springConfig: PropTypes.objectOf(PropTypes.number)
@@ -64,7 +81,11 @@ class Track extends Component {
 
   static defaultProps = {
     tag: 'div',
-    springConfig: presets.noWobble
+    springConfig: presets.noWobble,
+    onSwipeStart: noop,
+    onSwipeMove: noop,
+    onSwipeEnd: noop,
+    onScroll: noop
   }
 
   static contextTypes = {
@@ -99,6 +120,11 @@ class Track extends Component {
     viewPager.on('updateView', index => {
       this.setCurrentView(index)
     })
+
+    // prop callbacks
+    viewPager.on('swipeStart', this.props.onSwipeStart)
+    viewPager.on('swipeMove', this.props.onSwipeMove)
+    viewPager.on('swipeEnd', this.props.onSwipeEnd)
   }
 
   setCurrentView(index) {
@@ -130,6 +156,7 @@ class Track extends Component {
 
   _handleOnRest = () => {
     const { viewPager } = this.context
+
     if (viewPager.options.infinite && !this.state.instant) {
       // reset back to a normal index
       viewPager.resetViews()
@@ -139,19 +166,22 @@ class Track extends Component {
     }
 
     // fire event for prop callback on Frame component
+    // this is super weird as well, can't be a prop callback though since
+    // we can have two motion callbacks, maybe use context here as well?
     viewPager.emit('rest')
   }
 
   render() {
-    const { viewPager } = this.context
-    const { springConfig, ...restProps } = this.props
+    const { onScroll, ...restProps } = this.props
     return (
       <Motion
         style={this._getTrackStyle()}
         onRest={this._handleOnRest}
         >
         { ({ trackPosition }) =>
-          createElement(TrackScroller, { trackPosition, ...restProps })
+          createElement(TrackScroller,
+            specialAssign({ trackPosition, onScroll }, restProps, checkedProps)
+          )
         }
       </Motion>
     )

@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { PagerState, Frame, Track, ImageView } from '../src/react-view-pager'
+import { Frame, Track, ImageView } from '../src/react-view-pager'
 
 import './main.scss';
 
@@ -21,33 +21,44 @@ const animations = [{
 }]
 
 class ProgressExample extends Component {
+  state = {
+    progress: 0
+  }
+
+  _handleScroll = (progress, trackPosition) => {
+    this.setState({ progress })
+  }
+
   render() {
+    const { progress } = this.state
     return (
-      <PagerState>
-        { ({ progress }) =>
-          <div className="viewport">
-            <Frame
-              ref={c => this.pager = c}
-              className="frame"
-            >
-              <Track className="track track-y">
-                <div className="view">{progress}</div>
-                <div className="view">2</div>
-                <div className="view">3</div>
-                <div className="view">4</div>
-              </Track>
-            </Frame>
-            <div className="progress-container">
-              <div
-                className="progress-bar"
-                style={{
-                  transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
-                }}
-              />
-            </div>
-          </div>
-        }
-      </PagerState>
+      <div className="viewport">
+        <Frame
+          ref={c => this.pager = c}
+          className="frame"
+        >
+          <Track
+            onScroll={this._handleScroll}
+            // onSwipeStart={() => console.log('swipe start')}
+            // onSwipeMove={() => console.log('swipe move')}
+            // onSwipeEnd={() => console.log('swipe end')}
+            className="track track-y"
+          >
+            <div className="view">1</div>
+            <div className="view">2</div>
+            <div className="view">3</div>
+            <div className="view">4</div>
+          </Track>
+        </Frame>
+        <div className="progress-container">
+          <div
+            className="progress-bar"
+            style={{
+              transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
+            }}
+          />
+        </div>
+      </div>
     )
   }
 }
@@ -92,11 +103,8 @@ class App extends Component {
           // align={0.5}
           // infinite
           contain
-          // onSwipeStart={() => console.log('swipe start')}
-          // onSwipeMove={() => console.log('swipe move')}
-          // onSwipeEnd={() => console.log('swipe end')}
-          // onScroll={position => console.log(position)}
           beforeViewChange={({ from, to }) => {
+            console.log('beforeViewChange', from, to)
             this.setState({ activeIndex: to[0] })
           }}
           // afterViewChange={() => console.log('after view change')}

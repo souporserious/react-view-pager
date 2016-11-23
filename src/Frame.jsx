@@ -28,15 +28,11 @@ const checkedProps = {
   springConfig: React.PropTypes.objectOf(React.PropTypes.number),
   // rightToLeft: PropTypes.bool,
   // lazyLoad: PropTypes.bool,
-  onSwipeStart: PropTypes.func,
-  onSwipeMove: PropTypes.func,
-  onSwipeEnd: PropTypes.func,
-  onScroll: PropTypes.func,
   beforeViewChange: PropTypes.func,
   afterViewChange: PropTypes.func
 }
 
-class ViewPager extends Component {
+class Frame extends Component {
   static propTypes = checkedProps
 
   static defaultProps = {
@@ -57,20 +53,12 @@ class ViewPager extends Component {
     springConfig: presets.noWobble,
     // rightToLeft: false,
     // lazyLoad: false,
-    onSwipeStart: noop,
-    onSwipeMove: noop,
-    onSwipeEnd: noop,
-    onScroll: noop,
     beforeViewChange: noop,
     afterViewChange: noop
   }
 
   static childContextTypes = {
     viewPager: PropTypes.instanceOf(Pager)
-  }
-
-  static contextTypes = {
-    getTrackPosition: PropTypes.func
   }
 
   constructor(props) {
@@ -99,38 +87,17 @@ class ViewPager extends Component {
     // set frame size initially and then based on certain view events
     this._setFrameSize()
     this._viewPager.on('viewAdded', this._setFrameSize)
-
-    // update the whole tree on hydration so children update with any new values
-    this._viewPager.on('hydrated', () => {
-      this.forceUpdate()
-    })
-
-    // fire before view callback and set frame size on view change
-    this._viewPager.on('viewChange', indicies => {
-      this.props.beforeViewChange(indicies)
-      this._setFrameSize()
-    })
+    this._viewPager.on('viewChange', this._setFrameSize)
 
     // prop callbacks
-    this._viewPager.on('swipeStart', this.props.onSwipeStart)
-    this._viewPager.on('swipeMove', this.props.onSwipeMove)
-    this._viewPager.on('swipeEnd', this.props.onSwipeEnd)
-    this._viewPager.on('scroll', this.props.onScroll)
+    this._viewPager.on('viewChange', this.props.beforeViewChange)
     this._viewPager.on('rest', this.props.afterViewChange)
   }
 
   componentWillReceiveProps({ currentView, children }) {
     // update state with new index if necessary
-    if (typeof currentView !== undefined && this.props.currentView !== currentView) {
+    if (typeof currentView !== undefined && this._viewPager.currentIndex !== currentView) {
       this.scrollTo(currentView)
-    }
-  }
-
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.context.getTrackPosition) {
-      return this.context.getTrackPosition() !== nextContext.getTrackPosition()
-    } else {
-      return true
     }
   }
 
@@ -162,7 +129,7 @@ class ViewPager extends Component {
 
     if (frameSize.width && frameSize.height) {
       this.setState(frameSize, () => {
-        // we need to unset instant flag now that React Motion has dimensions to animate to
+        // we need to unset the instant flag now that React Motion has dimensions to animate to
         if (this.state.instant) {
           this.setState({ instant: false })
         }
@@ -179,7 +146,7 @@ class ViewPager extends Component {
   }
 
   _renderFrame(style) {
-    const { tag, axis, autoSize, accessibility } = this.props
+    const { tag, accessibility } = this.props
     const props = specialAssign({
       ...this._swipe.getEvents(),
       ...this._keyboard.getEvents(),
@@ -222,4 +189,4 @@ class ViewPager extends Component {
   }
 }
 
-export default ViewPager
+export default Frame
