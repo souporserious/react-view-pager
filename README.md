@@ -14,7 +14,7 @@ View-Pager/Slider/Carousel powered by React Motion.
 
 ```html
 <script src="https://unpkg.com/react-view-pager/dist/react-view-pager.js"></script>
-(UMD library exposed as `ReactViewPager`)
+(UMD library exposed as `Reactpager`)
 ```
 
 ## Example Usage
@@ -140,22 +140,6 @@ Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#
 
 ### `lazyLoad`: PropTypes.bool (Coming Soon)
 
-### `onSwipeStart`: PropTypes.func
-
-Prop callback fired before swipe.
-
-### `onSwipeMove`: PropTypes.func
-
-Prop callback fired during swipe.
-
-### `onSwipeEnd`: PropTypes.func
-
-Prop callback fired after swipe.
-
-### `onScroll`: PropTypes.func
-
-Prop callback fired when track is scrolling. Useful for parallax or progress bars.
-
 ### `beforeViewChange`: PropTypes.func
 
 Prop callback fired before view change. Passes back the newly selected index.
@@ -185,6 +169,22 @@ The HTML tag for this element. Defaults to `div`.
 ### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
 
 Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
+
+### `onSwipeStart`: PropTypes.func
+
+Prop callback fired before swipe.
+
+### `onSwipeMove`: PropTypes.func
+
+Prop callback fired during swipe.
+
+### `onSwipeEnd`: PropTypes.func
+
+Prop callback fired after swipe.
+
+### `onScroll`: PropTypes.func
+
+Prop callback fired when track is scrolling. Useful for parallax or progress bars.
 
 ## Running Locally
 
