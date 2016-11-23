@@ -1,27 +1,59 @@
 ## CHANGELOG
-### 0.5.0
+### 0.5.0-prerelease.1
+General cleanup
+
+Fixed `beforeViewChange` being called twice
+
+Fixed `onScroll` callback to allow use of `setState`
+
+Moved the following callbacks to the `Track` component:
+
+`onSwipeStart`
+
+`onSwipeMove`
+
+`onSwipeEnd`
+
+`onScroll`
+
+### 0.5.0-prerelease
 Major Update again, sorry for the big changes. This has been a rough road, but I feel it has finally smoothed out and I'm very happy with where everything is at.
 
 **Name Change**
 `react-motion-slider` -> `react-view-pager`
 
 **Breaking Changes**
+
 *Props changed*
+
 `currentIndex` && `currentKey` -> `currentView`
+
 `slidesToShow` -> `viewsToShow`
+
 `slidesToMove` -> `viewsToMove`
+
 `vertical` -> `axis`
+
 `autoHeight` -> `autoSize`
 
 *Props added*
+
 `contain`
+
 `animations`
+
 `accessibility`
+
 `onSwipeStart`
+
 `onSwipeMove`
+
 `onSwipeEnd`
+
 `onScroll`
+
 `beforeViewChange`
+
 `afterViewChange`
 
 ### 0.4.2
