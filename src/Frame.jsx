@@ -96,7 +96,8 @@ class Frame extends Component {
 
   componentWillReceiveProps({ currentView, children }) {
     // update state with new index if necessary
-    if (typeof currentView !== undefined && this._viewPager.currentIndex !== currentView) {
+    // if (typeof currentView !== undefined && this._viewPager.currentIndex !== currentView) {
+    if (typeof currentView !== undefined && this.props.currentView !== currentView) {
       this.scrollTo(currentView)
     }
   }

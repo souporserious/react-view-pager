@@ -161,7 +161,7 @@ class Pager extends Events {
 
     // set the track position to the new view
     this.setPositionValue()
-// console.log('setCurrentView', direction, index, suppressEvent)
+
     if (!suppressEvent) {
       const viewsToShow = this.getNumericViewsToShow()
       const viewCount = this.views.length
