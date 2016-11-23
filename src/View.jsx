@@ -7,6 +7,18 @@ class View extends Component {
     pager: PropTypes.instanceOf(Pager)
   }
 
+  static childContextTypes = {
+    view: PropTypes.any
+  }
+
+  _viewInstance = null
+
+  getChildContext() {
+    return {
+      view: this._viewInstance
+    }
+  }
+
   componentDidMount() {
     this._viewInstance = this.context.pager.addView(findDOMNode(this))
     this.forceUpdate()

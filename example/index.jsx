@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Frame, Track, ImageView } from '../src/react-view-pager'
+import { Frame, Track, ImageView, AnimateView } from '../src/react-view-pager'
 
 import './main.scss';
 
@@ -20,6 +20,32 @@ const animations = [{
   ]
 }]
 
+class ProgressView extends Component {
+  render() {
+    return (
+      <AnimateView
+        animations={[{
+          name: 'opacity',
+          stops: [
+            [-200, 0],
+            [0, 1],
+            [200, 0]
+          ]
+        }, {
+          name: 'translateY',
+          stops: [
+            [-200, 100],
+            [0, 0],
+            [200, 100]
+          ]
+        }]}
+      >
+        {this.props.children}
+      </AnimateView>
+    )
+  }
+}
+
 class ProgressExample extends Component {
   state = {
     progress: 0
@@ -34,7 +60,7 @@ class ProgressExample extends Component {
     return (
       <div className="viewport">
         <Frame
-          ref={c => this.pager = c}
+          ref={c => this.frame = c}
           className="frame"
         >
           <Track
@@ -44,12 +70,35 @@ class ProgressExample extends Component {
             // onSwipeEnd={() => console.log('swipe end')}
             className="track track-y"
           >
-            <div className="view">1</div>
-            <div className="view">2</div>
-            <div className="view">3</div>
-            <div className="view">4</div>
+            <div className="view">
+              <ProgressView>1</ProgressView>
+            </div>
+            <div className="view">
+              <ProgressView>2</ProgressView>
+            </div>
+            <div className="view">
+              <ProgressView>3</ProgressView>
+            </div>
+            <div className="view">
+              <ProgressView>4</ProgressView>
+            </div>
           </Track>
         </Frame>
+        {/*somehow allow outside animations*/}
+        {/*<AnimationView
+          frame={this.frame}
+          view={0}
+          animations={[{
+            name: 'scale',
+            stops: [
+              [-200, 0.85],
+              [0, 1],
+              [200, 0.85]
+            ]
+          }]}
+        >
+          This should animate based on scroll
+        </AnimationView>*/}
         <div className="progress-container">
           <div
             className="progress-bar"
