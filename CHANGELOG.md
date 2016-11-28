@@ -2,19 +2,19 @@
 ### 0.5.0-prerelease.1
 General cleanup
 
-Fixed `beforeViewChange` being called twice
+Fixes Avoid call to window in window-less environment [#28](https://github.com/souporserious/react-view-pager/pull/28)
 
-Fixed `onScroll` callback to allow use of `setState`
+Fixes `beforeViewChange` being called twice
 
-Moved the following callbacks to the `Track` component:
+Fixes `onScroll` callback to allow use of `setState`
 
-`onSwipeStart`
+Moved main props to the `Track` component
 
-`onSwipeMove`
+Added `ViewPager` wrapper component. It was a hard decision to add another component, but this will allow some cool animations and other features.
 
-`onSwipeEnd`
+Added `AnimatedView` component to allow animations that are relative to the pager.
 
-`onScroll`
+Updated `animation-bus` to `0.2.0`
 
 ### 0.5.0-prerelease
 Major Update again, sorry for the big changes. This has been a rough road, but I feel it has finally smoothed out and I'm very happy with where everything is at.

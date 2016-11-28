@@ -1,4 +1,4 @@
-## React View Pager
+## React View Pager (Prerelease)
 
 [![Dependency Status](https://david-dm.org/souporserious/react-view-pager.svg)](https://david-dm.org/souporserious/react-view-pager)
 
@@ -52,7 +52,28 @@ import { Frame, Track } from 'react-view-pager'
 </div>
 ```
 
+## `ViewPager` Props
+
+Mandatory wrapper component that connects child components together.
+
 ## `Frame` Props
+
+### `tag`: PropTypes.string
+The HTML tag for this element. Defaults to `div`.
+
+### `autoSize`: PropTypes.bool
+
+Animates the wrapper's width and height to fit the current view. Defaults to `false`.
+
+### `accessibility`: PropTypes.bool
+
+Enable tabbing and keyboard navigation.
+
+### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
+
+Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
+
+## `Track` Props
 
 ### `tag`: PropTypes.string
 The HTML tag for this element. Defaults to `div`.
@@ -89,25 +110,21 @@ Move to a view instantly without any animation. This will control the internal `
 
 Which axis the track moves on. Defaults to `x`.
 
-### `autoSize`: PropTypes.bool
-
-Animates the wrapper's width and height to fit the current view. Defaults to `false`.
-
 ### `animations`: PropTypes.array
 
-Define a limitless array of animation stops. Each object in the array requires a `name` and `stops` property along with an optional `unit` property.
+Define a limitless array of animation stops. Each object in the array requires a `prop` and `stops` property along with an optional `unit` property.
 
 ```js
 // scale and fade views as they enter and leave
 const animations = [{
-  name: 'scale',
+  prop: 'scale',
   stops: [
     [-200, 0.85],
     [0, 1],
     [200, 0.85]
   ]
 }, {
-  name: 'opacity',
+  prop: 'opacity',
   stops: [
     [-200, 0.15],
     [0, 1],
@@ -128,17 +145,29 @@ The amount the user must swipe to advance views. `(frameWidth * swipeThreshold)`
 
 The amount of time in milliseconds that determines if a swipe was a flick or not.
 
-### `accessibility`: PropTypes.bool
+### `rightToLeft`: PropTypes.bool (Coming Soon)
 
-Enable tabbing and keyboard navigation.
+### `lazyLoad`: PropTypes.bool (Coming Soon)
 
 ### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
 
 Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
 
-### `rightToLeft`: PropTypes.bool (Coming Soon)
+### `onSwipeStart`: PropTypes.func
 
-### `lazyLoad`: PropTypes.bool (Coming Soon)
+Prop callback fired before swipe.
+
+### `onSwipeMove`: PropTypes.func
+
+Prop callback fired during swipe.
+
+### `onSwipeEnd`: PropTypes.func
+
+Prop callback fired after swipe.
+
+### `onScroll`: PropTypes.func
+
+Prop callback fired when track is scrolling. Useful for parallax or progress bars.
 
 ### `beforeViewChange`: PropTypes.func
 
@@ -160,31 +189,6 @@ Advances to the next view.
 ### `scrollTo`
 
 Scroll to a view by it's index or key.
-
-## `Track` Props
-
-### `tag`: PropTypes.string
-The HTML tag for this element. Defaults to `div`.
-
-### `springConfig`: React.PropTypes.objectOf(React.PropTypes.number)
-
-Accepts a [React Motion spring config](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig).
-
-### `onSwipeStart`: PropTypes.func
-
-Prop callback fired before swipe.
-
-### `onSwipeMove`: PropTypes.func
-
-Prop callback fired during swipe.
-
-### `onSwipeEnd`: PropTypes.func
-
-Prop callback fired after swipe.
-
-### `onScroll`: PropTypes.func
-
-Prop callback fired when track is scrolling. Useful for parallax or progress bars.
 
 ## Running Locally
 
