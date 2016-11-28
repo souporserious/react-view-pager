@@ -1,3 +1,4 @@
+export ViewPager from './ViewPager'
 export Frame from './Frame'
 export Track from './Track'
 export ImageView from './ImageView'

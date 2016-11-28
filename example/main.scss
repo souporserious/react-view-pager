@@ -3,7 +3,7 @@
 }
 
 body {
-  padding: 30px 0;
+  padding: 30px;
   margin: 0;
   font-family: Helvetica, sans-serif;
   overflow-x: hidden;
@@ -70,4 +70,23 @@ img {
   background: #ffbc00;
   transform-origin: left center;
   position: absolute;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+}
+
+.page {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+
+  & + & {
+    margin-left: 10px;
+  }
 }

@@ -67,25 +67,55 @@ class TrackScroller extends Component {
 
 const noop = () => null
 const checkedProps = {
-  springConfig: React.PropTypes.objectOf(React.PropTypes.number),
+  tag: PropTypes.any,
+  currentView: PropTypes.any,
+  viewsToShow: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
+  viewsToMove: PropTypes.number,
+  align: PropTypes.number,
+  contain: PropTypes.bool,
+  axis: PropTypes.oneOf(['x', 'y']),
+  animations: PropTypes.array,
+  infinite: PropTypes.bool,
+  instant: PropTypes.bool,
+  swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
+  swipeThreshold: PropTypes.number,
+  flickTimeout: PropTypes.number,
+  springConfig: PropTypes.objectOf(PropTypes.number),
   onSwipeStart: PropTypes.func,
   onSwipeMove: PropTypes.func,
   onSwipeEnd: PropTypes.func,
-  onScroll: PropTypes.func
+  onScroll: PropTypes.func,
+  // rightToLeft: PropTypes.bool,
+  // lazyLoad: PropTypes.bool,
+  beforeViewChange: PropTypes.func,
+  afterViewChange: PropTypes.func
+  // beforeAnimation: PropTypes.func,
+  // afterAnimation: PropTypes.func
 }
 
 class Track extends Component {
-  static propTypes = {
-    springConfig: PropTypes.objectOf(PropTypes.number)
-  }
+  static propTypes = checkedProps
 
   static defaultProps = {
     tag: 'div',
+    currentView: 0,
+    viewsToShow: 1,
+    viewsToMove: 1,
+    align: 0,
+    contain: false,
+    axis: 'x',
+    infinite: false,
+    instant: false,
+    swipe: true,
+    swipeThreshold: 0.5,
+    flickTimeout: 300,
     springConfig: presets.noWobble,
     onSwipeStart: noop,
     onSwipeMove: noop,
     onSwipeEnd: noop,
-    onScroll: noop
+    onScroll: noop,
+    beforeViewChange: noop,
+    afterViewChange: noop
   }
 
   static contextTypes = {
@@ -98,6 +128,10 @@ class Track extends Component {
 
   _currentTween = 0
 
+  componentWillMount() {
+    this.context.pager.setOptions(this.props)
+  }
+
   componentDidMount() {
     const { pager } = this.context
 
@@ -105,37 +139,45 @@ class Track extends Component {
     pager.addTrack(findDOMNode(this))
 
     // refresh instantly to set first track position
-    this._setValueInstantly(true, true)
+    // this._setValueInstantly(true, true)
+
+    // set initial view index and listen for any incoming view index changes
+    // this.setCurrentView(this.props.currentView)
 
     // set values instantly on respective events
     pager.on('hydrated', () => this._setValueInstantly(true, true))
     pager.on('swipeMove', () => this._setValueInstantly(true))
     pager.on('swipeEnd', () => this._setValueInstantly(false))
 
-    // set initial view index and listen for any incoming view index changes
-    this.setCurrentView(pager.options.currentView)
-
-    // updateView event comes from Frame component props
-    // this is a little weird, probably should handle this through context
-    pager.on('updateView', index => {
-      this.setCurrentView(index)
-    })
-
     // prop callbacks
     pager.on('swipeStart', this.props.onSwipeStart)
     pager.on('swipeMove', this.props.onSwipeMove)
     pager.on('swipeEnd', this.props.onSwipeEnd)
+    pager.on('viewChange', this.props.beforeViewChange)
   }
 
-  setCurrentView(index) {
-    this.context.pager.setCurrentView(0, getIndex(index, this.props.children))
-  }
-
-  componentWillReceiveProps({ instant }) {
+  componentWillReceiveProps({ currentView, instant, children }) {
     // update instant state from props
     if (this.props.instant !== instant) {
-      this.setState({ instant })
+      this._setValueInstantly(instant)
     }
+
+    // update state with new index if necessary
+    if (typeof currentView !== undefined && this.props.currentView !== currentView) {
+      this.scrollTo(getIndex(currentView, children))
+    }
+  }
+
+  prev() {
+    this.context.pager.prev()
+  }
+
+  next() {
+    this.context.pager.next()
+  }
+
+  scrollTo(index) {
+    this.context.pager.setCurrentView(0, index)
   }
 
   _setValueInstantly(instant, reset) {
@@ -155,24 +197,19 @@ class Track extends Component {
   }
 
   _handleOnRest = () => {
-    const { pager } = this.context
-
-    if (pager.options.infinite && !this.state.instant) {
+    if (this.props.infinite && !this.state.instant) {
       // reset back to a normal index
-      pager.resetViews()
+      this.context.pager.resetViews()
 
       // set instant flag so we can prime track for next move
       this._setValueInstantly(true, true)
     }
 
-    // fire event for prop callback on Frame component
-    // this is super weird as well, can't be a prop callback though since
-    // we can have two motion callbacks, maybe use context here as well?
-    pager.emit('rest')
+    this.props.afterViewChange()
   }
 
   render() {
-    const { onScroll, ...restProps } = this.props
+    const { tag, onScroll, ...restProps } = this.props
     return (
       <Motion
         style={this._getTrackStyle()}
@@ -180,7 +217,7 @@ class Track extends Component {
         >
         { ({ trackPosition }) =>
           createElement(TrackScroller,
-            specialAssign({ trackPosition, onScroll }, restProps, checkedProps)
+            specialAssign({ trackPosition, tag, onScroll }, restProps, checkedProps)
           )
         }
       </Motion>

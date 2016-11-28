@@ -31,11 +31,9 @@ amdefine@>=0.0.4:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.0.tgz#fd17474700cb5cc9c2b709f0be9d23ce3c198c33"
 
-animation-bus@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/animation-bus/-/animation-bus-0.1.0.tgz#8ed4837841735dce1d02ee6f39e080261c570ba7"
-  dependencies:
-    polylinear-scale "^1.0.8"
+animation-bus@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/animation-bus/-/animation-bus-0.2.0.tgz#43854c2c9463fb82c664eff0e19b9733081150fa"
 
 ansi-regex@^2.0.0:
   version "2.0.0"
@@ -2941,10 +2939,6 @@ pkg-dir@^1.0.0:
   resolved "https://registry.yarnpkg.com/pkg-dir/-/pkg-dir-1.0.0.tgz#7a4b508a8d5bb2d629d447056ff4e9c9314cf3d4"
   dependencies:
     find-up "^1.0.0"
-
-polylinear-scale@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/polylinear-scale/-/polylinear-scale-1.0.8.tgz#c469e1d0d9ae43ea282253630d206196a2e9c88c"
 
 portfinder@0.4.x:
   version "0.4.0"

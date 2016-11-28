@@ -53,6 +53,7 @@ class View extends Component {
 
       // apply top or left value and any animations defined in props
       const edge = (axis === 'y') ? 'top' : 'left'
+
       style = {
         ...style,
         [edge]: this._viewInstance.getPosition(),

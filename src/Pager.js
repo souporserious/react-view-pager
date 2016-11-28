@@ -54,16 +54,27 @@ class Pager extends Events {
     this.currentTween = 0
     this.trackPosition = 0
     this.isSwiping = false
-    this.animationBus = new AnimationBus(
-      this.options.animations,
-      view => view.origin
-    )
+    this.animationBus = new AnimationBus({
+      animations: this.options.animations,
+      origin: view => view.origin
+    })
 
     if (typeof window === 'undefined') {
       return
     } else {
       window.addEventListener('resize', this.resize)
     }
+  }
+
+  setOptions(options) {
+    // spread new options over the old ones
+    this.options = {
+      ...this.options,
+      ...options
+    }
+
+    // merge animations into animation bus
+    this.animationBus.animations = this.options.animations
   }
 
   destroy() {

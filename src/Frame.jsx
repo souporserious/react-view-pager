@@ -4,70 +4,31 @@ import { Motion, spring, presets } from 'react-motion'
 import Pager from './Pager'
 import Swipe from './Swipe'
 import Keyboard from './Keyboard'
-import Track from './Track'
-import View from './View'
 import specialAssign from './special-assign'
 
-const noop = () => null
 const checkedProps = {
-  tag: PropTypes.string,
-  currentView: PropTypes.any,
-  viewsToShow: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
-  viewsToMove: PropTypes.number,
-  align: PropTypes.number,
-  contain: PropTypes.bool,
-  axis: PropTypes.oneOf(['x', 'y']),
+  tag: PropTypes.any,
   autoSize: PropTypes.bool,
-  animations: PropTypes.array,
-  infinite: PropTypes.bool,
-  instant: PropTypes.bool,
-  swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
-  swipeThreshold: PropTypes.number,
-  flickTimeout: PropTypes.number,
   accessibility: PropTypes.bool,
-  springConfig: React.PropTypes.objectOf(React.PropTypes.number),
-  // rightToLeft: PropTypes.bool,
-  // lazyLoad: PropTypes.bool,
-  beforeViewChange: PropTypes.func,
-  afterViewChange: PropTypes.func
+  springConfig: PropTypes.objectOf(PropTypes.number)
 }
 
 class Frame extends Component {
+  static contextTypes = {
+    pager: PropTypes.instanceOf(Pager)
+  }
+
   static propTypes = checkedProps
 
   static defaultProps = {
     tag: 'div',
-    currentView: 0,
-    viewsToShow: 1,
-    viewsToMove: 1,
-    align: 0,
-    contain: false,
-    axis: 'x',
     autoSize: false,
-    infinite: false,
-    instant: false,
-    swipe: true,
-    swipeThreshold: 0.5,
-    flickTimeout: 300,
     accessibility: true,
-    springConfig: presets.noWobble,
-    // rightToLeft: false,
-    // lazyLoad: false,
-    beforeViewChange: noop,
-    afterViewChange: noop
-  }
-
-  static childContextTypes = {
-    pager: PropTypes.instanceOf(Pager)
+    springConfig: presets.noWobble
   }
 
   constructor(props) {
     super(props)
-
-    this._pager = new Pager(props)
-    this._swipe = new Swipe(this._pager)
-    this._keyboard = new Keyboard(this._pager)
-
     this.state = {
       width: 0,
       height: 0,
@@ -75,58 +36,28 @@ class Frame extends Component {
     }
   }
 
-  getChildContext() {
-    return {
-      pager: this._pager
-    }
+  componentWillMount() {
+    const { pager } = this.context
+
+    pager.setOptions(this.props)
+
+    this._swipe = new Swipe(pager)
+    this._keyboard = new Keyboard(pager)
   }
 
   componentDidMount() {
-    this._pager.addFrame(findDOMNode(this))
+    const { pager } = this.context
+
+    pager.addFrame(findDOMNode(this))
 
     // set frame size initially and then based on certain view events
     this._setFrameSize()
-    this._pager.on('viewAdded', this._setFrameSize)
-    this._pager.on('viewChange', this._setFrameSize)
-
-    // prop callbacks
-    this._pager.on('viewChange', this.props.beforeViewChange)
-    this._pager.on('rest', this.props.afterViewChange)
-  }
-
-  componentWillReceiveProps({ currentView, children }) {
-    // update state with new index if necessary
-    // if (typeof currentView !== undefined && this._pager.currentIndex !== currentView) {
-    if (typeof currentView !== undefined && this.props.currentView !== currentView) {
-      this.scrollTo(currentView)
-    }
-  }
-
-  componentWillUnmount() {
-    this._pager.destroy()
-  }
-
-  getInstance() {
-    return this._pager
-  }
-
-  prev() {
-    this._pager.prev()
-  }
-
-  next() {
-    this._pager.next()
-  }
-
-  scrollTo(view) {
-    // this is pretty anti-react, but since we might not know the children we need
-    // to listen for this event in Track and update it there to allow people the ability
-    // to move to a view by it's key
-    this._pager.emit('updateView', view)
+    pager.on('viewAdded', this._setFrameSize)
+    pager.on('viewChange', this._setFrameSize)
   }
 
   _setFrameSize = () => {
-    const frameSize = this._pager.getFrameSize(true, true)
+    const frameSize = this.context.pager.getFrameSize(true, true)
 
     if (frameSize.width && frameSize.height) {
       this.setState(frameSize, () => {

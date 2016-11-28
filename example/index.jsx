@@ -1,18 +1,18 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Frame, Track, ImageView, AnimatedView } from '../src/react-view-pager'
+import { ViewPager, Frame, Track, ImageView, AnimatedView } from '../src/react-view-pager'
 
 import './main.scss';
 
 const animations = [{
-  name: 'scale',
+  prop: 'scale',
   stops: [
     [-200, 0.85],
     [0, 1],
     [200, 0.85]
   ]
 }, {
-  name: 'opacity',
+  prop: 'opacity',
   stops: [
     [-200, 0.15],
     [0, 1],
@@ -23,32 +23,82 @@ const animations = [{
 class ProgressView extends Component {
   render() {
     return (
-      <AnimatedView
-        animations={[{
-          name: 'opacity',
-          stops: [
-            [-200, 0],
-            [0, 1],
-            [200, 0]
-          ]
-        }, {
-          name: 'translateY',
-          stops: [
-            [-200, 100],
-            [0, 0],
-            [200, 100]
-          ]
-        }]}
-      >
-        {this.props.children}
-      </AnimatedView>
+      <div className="view" {...this.props}>
+        <AnimatedView
+          animations={[{
+            prop: 'opacity',
+            stops: [
+              [-200, 0],
+              [0, 1],
+              [200, 0]
+            ]
+          }, {
+            prop: 'translateY',
+            stops: [
+              [-200, 50],
+              [0, 0],
+              [200, 50]
+            ]
+          }]}
+        >
+          {this.props.children}
+        </AnimatedView>
+      </div>
     )
   }
 }
 
+const ProgressBar = ({ progress }) => (
+  <div className="progress-container">
+    <div
+      className="progress-bar"
+      style={{
+        transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
+      }}
+    />
+  </div>
+)
+
+const colors = ['#209D22', '#106CCC', '#C1146B', '#11BDBF', '#8A19EA']
+const ProgressPage = ({ view, index, onClick }) => (
+  <AnimatedView
+    key={index}
+    index={index}
+    // index={[0, 1]} // maybe allow the ability to specify a range of indices
+    animations={[{
+      prop: 'scale',
+      stops: [
+        [-300, 0.75],
+        [0, 1],
+        [300, 0.75]
+      ]
+    }, {
+      prop: 'opacity',
+      stops: [
+        [-300, 0.5],
+        [0, 1],
+        [300, 0.5]
+      ]
+    }, {
+      prop: 'backgroundColor',
+      stops: [
+        [-300, '#cccccc'],
+        [0, colors[index]],
+        [300, '#cccccc']
+      ]
+    }]}
+    className="page"
+    onClick={e => {
+      onClick(e)
+    }}
+  />
+)
+
 class ProgressExample extends Component {
   state = {
-    progress: 0
+    views: [1, 2, 3, 4],
+    currentView: 0,
+    progress: 0,
   }
 
   _handleScroll = (progress, trackPosition) => {
@@ -56,58 +106,41 @@ class ProgressExample extends Component {
   }
 
   render() {
-    const { progress } = this.state
+    const { views, currentView, progress } = this.state
     return (
-      <div className="viewport">
+      <ViewPager className="viewport">
         <Frame
           ref={c => this.frame = c}
           className="frame"
         >
           <Track
+            currentView={currentView}
             onScroll={this._handleScroll}
             // onSwipeStart={() => console.log('swipe start')}
             // onSwipeMove={() => console.log('swipe move')}
             // onSwipeEnd={() => console.log('swipe end')}
-            className="track track-y"
+            beforeViewChange={({ from, to }) => {
+              this.setState({ currentView: to[0] })
+            }}
+            className="track"
           >
-            <div className="view">
-              <ProgressView>1</ProgressView>
-            </div>
-            <div className="view">
-              <ProgressView>2</ProgressView>
-            </div>
-            <div className="view">
-              <ProgressView>3</ProgressView>
-            </div>
-            <div className="view">
-              <ProgressView>4</ProgressView>
-            </div>
+            {views.map(view =>
+              <ProgressView key={view} children={view}/>
+            )}
           </Track>
         </Frame>
-        {/*somehow allow outside animations*/}
-        {/*<AnimationView
-          frame={this.frame}
-          view={0}
-          animations={[{
-            name: 'scale',
-            stops: [
-              [-200, 0.85],
-              [0, 1],
-              [200, 0.85]
-            ]
-          }]}
-        >
-          This should animate based on scroll
-        </AnimationView>*/}
-        <div className="progress-container">
-          <div
-            className="progress-bar"
-            style={{
-              transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
-            }}
-          />
-        </div>
-      </div>
+        <ProgressBar progress={progress}/>
+        <nav className="pager">
+          {views.map((view, index) =>
+            <ProgressPage
+              key={view}
+              view={view}
+              index={index}
+              onClick={() => this.setState({ currentView: index })}
+            />
+          )}
+        </nav>
+      </ViewPager>
     )
   }
 }
@@ -142,108 +175,111 @@ class App extends Component {
           </button>
         </div>
         current view: {activeIndex + 1}
-        <Frame
-          ref={c => this.slider = c}
-          currentView={activeIndex}
-          autoSize
-          // viewsToShow={2}
-          // viewsToMove={2}
-          // axis="y"
-          // align={0.5}
-          // infinite
-          contain
-          beforeViewChange={({ from, to }) => {
-            console.log('beforeViewChange', from, to)
-            this.setState({ activeIndex: to[0] })
-          }}
-          // afterViewChange={() => console.log('after view change')}
-          className="frame"
-        >
-          <Track className="track">
-            <div className="view" style={{ width: size ? size : 500, height: 100 }}>1</div>
-            <div className="view" style={{ width: size ? size : 175, height: 200 }}>2</div>
-            <div className="view" style={{ width: size ? size : 315, height: 300 }}>3</div>
-            <div className="view" style={{ width: size ? size : 125, height: 125 }}>4</div>
-          </Track>
-        </Frame>
+        <ViewPager>
+          <Frame
+            autoSize
+            className="frame"
+          >
+            <Track
+              ref={c => this.slider = c}
+              currentView={activeIndex}
+              // viewsToShow={2}
+              // viewsToMove={2}
+              // axis="y"
+              // align={0.5}
+              // infinite
+              contain
+              beforeViewChange={({ from, to }) => {
+                console.log('beforeViewChange', from, to)
+                this.setState({ activeIndex: to[0] })
+              }}
+              // afterViewChange={() => console.log('after view change')}
+              className="track"
+            >
+              <div className="view" style={{ width: size ? size : 500, height: 100 }}>1</div>
+              <div className="view" style={{ width: size ? size : 175, height: 200 }}>2</div>
+              <div className="view" style={{ width: size ? size : 315, height: 300 }}>3</div>
+              <div className="view" style={{ width: size ? size : 125, height: 125 }}>4</div>
+            </Track>
+          </Frame>
+        </ViewPager>
 
         <h1 className="center">Y Axis</h1>
-        <Frame ref={c => this.pager = c} axis="y" className="frame">
-          <Track className="track track-y">
-            <div className="view">1</div>
-            <div className="view">2</div>
-            <div className="view">3</div>
-            <div className="view">4</div>
-          </Track>
-        </Frame>
-        <div style={{ textAlign: 'center' }}>
-          <button onClick={() => this.pager.scrollTo(0)}>1</button>
-          <button onClick={() => this.pager.scrollTo(1)}>2</button>
-          <button onClick={() => this.pager.scrollTo(2)}>3</button>
-          <button onClick={() => this.pager.scrollTo(3)}>4</button>
-        </div>
+        <ViewPager>
+          <Frame className="frame">
+            <Track ref={c => this.track = c} axis="y" className="track track-y">
+              <div className="view">1</div>
+              <div className="view">2</div>
+              <div className="view">3</div>
+              <div className="view">4</div>
+            </Track>
+          </Frame>
+          <div style={{ textAlign: 'center' }}>
+            <button onClick={() => this.track.scrollTo(0)}>1</button>
+            <button onClick={() => this.track.scrollTo(1)}>2</button>
+            <button onClick={() => this.track.scrollTo(2)}>3</button>
+            <button onClick={() => this.track.scrollTo(3)}>4</button>
+          </div>
+        </ViewPager>
 
         <h1 className="center">Infinite</h1>
-        <Frame
-          infinite
-          viewsToShow={2}
-          className="frame"
-        >
-          <Track className="track">
-            <div className="view">1</div>
-            <div className="view">2</div>
-            <div className="view">3</div>
-            <div className="view">4</div>
-          </Track>
-        </Frame>
+        <ViewPager>
+          <Frame className="frame">
+            <Track viewsToShow={2} infinite className="track">
+              <div className="view">1</div>
+              <div className="view">2</div>
+              <div className="view">3</div>
+              <div className="view">4</div>
+            </Track>
+          </Frame>
+        </ViewPager>
 
         <h1 className="center">Align</h1>
-        <Frame
-          viewsToShow="auto"
-          align={0.5}
-          className="frame"
-        >
-          <Track className="track">
-            <div className="view" style={{ width: size ? size : 200 }}>1</div>
-            <div className="view" style={{ width: size ? size : 175 }}>2</div>
-            <div className="view" style={{ width: size ? size : 315 }}>3</div>
-            <div className="view" style={{ width: size ? size : 125 }}>4</div>
-          </Track>
-        </Frame>
+        <ViewPager>
+          <Frame className="frame">
+            <Track viewsToShow="auto" align={0.5} className="track">
+              <div className="view" style={{ width: size ? size : 200 }}>1</div>
+              <div className="view" style={{ width: size ? size : 175 }}>2</div>
+              <div className="view" style={{ width: size ? size : 315 }}>3</div>
+              <div className="view" style={{ width: size ? size : 125 }}>4</div>
+            </Track>
+          </Frame>
+        </ViewPager>
 
         <h1 className="center">Images</h1>
-        <Frame
-          viewsToShow="auto"
-          align={0.5}
-          className="frame"
-        >
-          <Track className="track">
-            <ImageView src="https://unsplash.it/300/200?image=10" className="view"/>
-            <ImageView src="https://unsplash.it/450/200?image=20" className="view"/>
-            <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
-            <ImageView src="https://unsplash.it/250/200?image=40" className="view"/>
-            <ImageView src="https://unsplash.it/375/200?image=50" className="view"/>
-          </Track>
-        </Frame>
+        <ViewPager>
+          <Frame className="frame">
+            <Track viewsToShow="auto" align={0.5} className="track">
+              <ImageView src="https://unsplash.it/300/200?image=10" className="view"/>
+              <ImageView src="https://unsplash.it/450/200?image=20" className="view"/>
+              <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
+              <ImageView src="https://unsplash.it/250/200?image=40" className="view"/>
+              <ImageView src="https://unsplash.it/375/200?image=50" className="view"/>
+            </Track>
+          </Frame>
+        </ViewPager>
 
         <h1 className="center">Animations</h1>
-        <Frame
-          viewsToShow="auto"
-          align={0.5}
-          animations={animations}
-          style={{
-            margin: '0 auto',
-            outline: 0
-          }}
-        >
-          <Track>
-            <ImageView src="https://unsplash.it/200/200?image=10" className="view"/>
-            <ImageView src="https://unsplash.it/200/200?image=20" className="view"/>
-            <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
-            <ImageView src="https://unsplash.it/200/200?image=40" className="view"/>
-            <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
-          </Track>
-        </Frame>
+        <ViewPager>
+          <Frame
+            style={{
+              margin: '0 auto',
+              outline: 0
+            }}
+          >
+            <Track
+              viewsToShow="auto"
+              align={0.5}
+              animations={animations}
+            >
+              <ImageView src="https://unsplash.it/200/200?image=10" className="view"/>
+              <ImageView src="https://unsplash.it/200/200?image=20" className="view"/>
+              <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
+              <ImageView src="https://unsplash.it/200/200?image=40" className="view"/>
+              <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
+            </Track>
+          </Frame>
+        </ViewPager>
 
         <h1 className="center">Progress</h1>
         <ProgressExample/>

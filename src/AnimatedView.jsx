@@ -1,45 +1,58 @@
 import React, { Component, PropTypes, createElement } from 'react'
 import AnimationBus from 'animation-bus'
+import Pager from './Pager'
+import specialAssign from './special-assign'
 
-class AnimateView extends Component {
+const checkedProps = {
+  tag: PropTypes.string,
+  index: PropTypes.number,
+  animations: PropTypes.array
+}
+
+class AnimatedView extends Component {
   static contextTypes = {
+    pager: PropTypes.instanceOf(Pager),
     view: PropTypes.any
   }
 
-  static propTypes = {
-    tag: PropTypes.string,
-    animations: PropTypes.array
-  }
+  static propTypes = checkedProps
 
   static defaultProps = {
     tag: 'div',
     animations: []
   }
 
-  componentWillUpdate({ animations }) {
-    if (animations.length && !this._animationBus && this.context.view) {
-      this._animationBus = new AnimationBus(
+  componentWillMount() {
+    const { animations } = this.props
+
+    if (animations.length) {
+      this._animationBus = new AnimationBus({
         animations,
-        view => this.context.view.origin
-      )
+        origin: view => view.origin
+      })
     }
   }
 
   render() {
-    const { tag, animations, ...restProps } = this.props
+    const { tag, index, ...restProps } = this.props
     let style = {
       ...restProps.style
     }
 
-    if (animations.length && this._animationBus) {
-      style = {
-        ...restProps.style,
-        ...this._animationBus.getStyles(this.context.view)
+    if (this._animationBus) {
+      const view = this.context.view || this.context.pager.getView(index)
+      if (view) {
+        style = {
+          ...restProps.style,
+          ...this._animationBus.getStyles(view)
+        }
       }
     }
 
-    return createElement(tag, { ...restProps, style })
+    return createElement(tag,
+      specialAssign({ style }, this.props, checkedProps)
+    )
   }
 }
 
-export default AnimateView
+export default AnimatedView
