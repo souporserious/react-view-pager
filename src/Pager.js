@@ -37,7 +37,6 @@ class Pager extends Events {
       align: 0,
       contain: false,
       axis: 'x',
-      fixedSize: false, // true, false, 'width', 'height'
       autoSize: false,
       animations: [],
       infinite: false,
@@ -195,7 +194,7 @@ class Pager extends Events {
 
       if (contain) {
         const trackEndOffset = ((viewsToShow === 'auto' && autoSize) || viewsToShow <= 1)
-          ? 0 : this.getFrameSize({ autoSize: false, fixedSize: false })
+          ? 0 : this.getFrameSize({ autoSize: false })
         trackPosition = clamp(trackPosition, trackEndOffset - trackSize, 0)
       }
     }
@@ -278,11 +277,7 @@ class Pager extends Events {
     return currentViews
   }
 
-  getFrameSize({
-    autoSize = this.options.autoSize,
-    fixedSize = this.options.fixedSize,
-    fullSize = false
-  } = {}) {
+  getFrameSize({ autoSize = this.options.autoSize, fullSize = false } = {}) {
     let dimensions = {
       width: 0,
       height: 0
@@ -292,8 +287,6 @@ class Pager extends Events {
       if (autoSize) {
         const currentViews = this.getCurrentViewIndicies()
         dimensions = this.getMaxDimensions(currentViews)
-      } else if (fixedSize) {
-        dimensions = this.getMaxDimensions(this.views)
       } else if (this.frame) {
         dimensions = {
           width: this.frame.getSize('width'),

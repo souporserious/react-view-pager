@@ -9,7 +9,6 @@ import specialAssign from './special-assign'
 const checkedProps = {
   tag: PropTypes.any,
   autoSize: PropTypes.bool,
-  fixedSize: PropTypes.any,
   accessibility: PropTypes.bool,
   springConfig: PropTypes.objectOf(PropTypes.number)
 }
@@ -24,7 +23,6 @@ class Frame extends Component {
   static defaultProps = {
     tag: 'div',
     autoSize: false,
-    fixedSize: false,
     accessibility: true,
     springConfig: presets.noWobble
   }
@@ -62,7 +60,6 @@ class Frame extends Component {
   componentWillReceiveProps(nextProps) {
     // update any options that have changed
     if (this.props.autoSize !== nextProps.autoSize ||
-        this.props.fixedSize !== nextProps.fixedSize ||
         this.props.accessibility !== nextProps.accessibility) {
         this.context.pager.setOptions(nextProps)
         this._hydrate = true
@@ -105,14 +102,6 @@ class Frame extends Component {
       ...this._keyboard.getEvents(),
       tabIndex: accessibility ? 0 : null
     }, this.props, checkedProps)
-
-    if (this.props.fixedSize === 'width' && this.state.width) {
-      style.width = this.state.width
-    }
-
-    if (this.props.fixedSize === 'height' && this.state.height) {
-      style.height = this.state.height
-    }
 
     return createElement(tag, {
       ...props,

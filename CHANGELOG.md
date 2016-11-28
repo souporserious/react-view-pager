@@ -6,8 +6,6 @@ Fixes the indices in callbacks to return proper indices in view
 
 Replaced `from`, `to` object returned in `beforeViewChange` callback with `currentIndicies`
 
-Added `fixedSize` prop to allow either the `width` or `height` of the `Frame` component to be fixed
-
 ### 0.5.0-prerelease.1
 General cleanup
 
