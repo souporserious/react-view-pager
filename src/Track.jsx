@@ -92,6 +92,17 @@ const checkedProps = {
   // beforeAnimation: PropTypes.func,
   // afterAnimation: PropTypes.func
 }
+const isNotEqual = (current, next) => (
+  current.viewsToShow !== next.viewsToShow ||
+  current.viewsToMove !== next.viewsToMove ||
+  current.align !== next.align ||
+  current.axis !== next.axis ||
+  current.animations !== next.animations ||
+  current.infinite !== next.infinite ||
+  current.swipe !== next.swipe ||
+  current.swipeThreshold !== next.swipeThreshold ||
+  current.flickTimeout !== next.flickTimeout
+)
 
 class Track extends Component {
   static propTypes = checkedProps
@@ -127,6 +138,7 @@ class Track extends Component {
   }
 
   _currentTween = 0
+  _hydrate = false
 
   componentWillMount() {
     this.context.pager.setOptions(this.props)
@@ -138,11 +150,8 @@ class Track extends Component {
     // add track to pager
     pager.addTrack(findDOMNode(this))
 
-    // refresh instantly to set first track position
-    // this._setValueInstantly(true, true)
-
     // set initial view index and listen for any incoming view index changes
-    // this.setCurrentView(this.props.currentView)
+    this.scrollTo(getIndex(this.props.currentView, this.props.children))
 
     // set values instantly on respective events
     pager.on('hydrated', () => this._setValueInstantly(true, true))
@@ -156,7 +165,9 @@ class Track extends Component {
     pager.on('viewChange', this.props.beforeViewChange)
   }
 
-  componentWillReceiveProps({ currentView, instant, children }) {
+  componentWillReceiveProps(nextProps) {
+    const { currentView, instant, children } = nextProps
+
     // update instant state from props
     if (this.props.instant !== instant) {
       this._setValueInstantly(instant)
@@ -165,6 +176,19 @@ class Track extends Component {
     // update state with new index if necessary
     if (typeof currentView !== undefined && this.props.currentView !== currentView) {
       this.scrollTo(getIndex(currentView, children))
+    }
+
+    // update any options that have changed
+    if (isNotEqual(this.props, nextProps)) {
+      this.context.pager.setOptions(nextProps)
+      this._hydrate = true
+    }
+  }
+
+  componentDidUpdate(nextProps) {
+    if (this._hydrate) {
+      this.context.pager.hydrate()
+      this._hydrate = false
     }
   }
 

@@ -9,6 +9,7 @@ import specialAssign from './special-assign'
 const checkedProps = {
   tag: PropTypes.any,
   autoSize: PropTypes.bool,
+  fixedSize: PropTypes.any,
   accessibility: PropTypes.bool,
   springConfig: PropTypes.objectOf(PropTypes.number)
 }
@@ -23,6 +24,7 @@ class Frame extends Component {
   static defaultProps = {
     tag: 'div',
     autoSize: false,
+    fixedSize: false,
     accessibility: true,
     springConfig: presets.noWobble
   }
@@ -34,6 +36,7 @@ class Frame extends Component {
       height: 0,
       instant: true
     }
+    this._hydrate = false
   }
 
   componentWillMount() {
@@ -56,8 +59,25 @@ class Frame extends Component {
     pager.on('viewChange', this._setFrameSize)
   }
 
+  componentWillReceiveProps(nextProps) {
+    // update any options that have changed
+    if (this.props.autoSize !== nextProps.autoSize ||
+        this.props.fixedSize !== nextProps.fixedSize ||
+        this.props.accessibility !== nextProps.accessibility) {
+        this.context.pager.setOptions(nextProps)
+        this._hydrate = true
+    }
+  }
+
+  componentDidUpdate(nextProps) {
+    if (this._hydrate) {
+      this.context.pager.hydrate()
+      this._hydrate = false
+    }
+  }
+
   _setFrameSize = () => {
-    const frameSize = this.context.pager.getFrameSize(true, true)
+    const frameSize = this.context.pager.getFrameSize({ fullSize: true })
 
     if (frameSize.width && frameSize.height) {
       this.setState(frameSize, () => {
@@ -78,12 +98,21 @@ class Frame extends Component {
   }
 
   _renderFrame(style) {
+    const { pager } = this.context
     const { tag, accessibility } = this.props
     const props = specialAssign({
       ...this._swipe.getEvents(),
       ...this._keyboard.getEvents(),
       tabIndex: accessibility ? 0 : null
     }, this.props, checkedProps)
+
+    if (this.props.fixedSize === 'width' && this.state.width) {
+      style.width = this.state.width
+    }
+
+    if (this.props.fixedSize === 'height' && this.state.height) {
+      style.height = this.state.height
+    }
 
     return createElement(tag, {
       ...props,

@@ -80,11 +80,10 @@ class Swipe {
   }
 
   _onSwipeEnd = () =>  {
-    const { frame, currentView, trackPosition } = this.pager
     const { swipeThreshold, viewsToMove, axis, infinite } = this.pager.options
     const threshold = this._isFlick
       ? swipeThreshold
-      : (currentView.getSize() * viewsToMove) * swipeThreshold
+      : (this.pager.currentView.getSize() * viewsToMove) * swipeThreshold
 
     // we've stopped swiping
     this.pager.isSwiping = false

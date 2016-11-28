@@ -97,7 +97,7 @@ const ProgressPage = ({ view, index, onClick }) => (
 class ProgressExample extends Component {
   state = {
     views: [1, 2, 3, 4],
-    currentView: 0,
+    currentView: 2,
     progress: 0,
   }
 
@@ -124,8 +124,8 @@ class ProgressExample extends Component {
             }}
             className="track"
           >
-            {views.map(view =>
-              <ProgressView key={view} children={view}/>
+            {views.map((view, index) =>
+              <ProgressView key={`page-${index}`} children={view}/>
             )}
           </Track>
         </Frame>
@@ -136,7 +136,9 @@ class ProgressExample extends Component {
               key={view}
               view={view}
               index={index}
-              onClick={() => this.setState({ currentView: index })}
+              onClick={() =>
+                this.setState({ currentView: `page-${index}` })
+              }
             />
           )}
         </nav>
@@ -151,12 +153,13 @@ class App extends Component {
     this.state = {
       images: [[500, 350], [800, 600], [800, 400], [700, 500], [200, 650], [600, 600]],
       activeIndex: 0,
+      viewsToShow: 1
       // size: '50%'
     }
   }
 
   render() {
-    const { images, activeIndex, size } = this.state
+    const { images, activeIndex, size, viewsToShow } = this.state
     return (
       <div>
         <div>
@@ -173,24 +176,33 @@ class App extends Component {
           <button onClick={() => this.slider.next()}>
             Next
           </button>
+
+          <label>Views To Show</label>
+          <input
+            type="range"
+            min={1}
+            max={3}
+            value={+viewsToShow}
+            onChange={e => this.setState({ viewsToShow: +e.target.value })}
+          />
         </div>
         current view: {activeIndex + 1}
         <ViewPager>
           <Frame
-            autoSize
+            fixedSize="height"
+            // autoSize
             className="frame"
           >
             <Track
               ref={c => this.slider = c}
               currentView={activeIndex}
-              // viewsToShow={2}
+              viewsToShow={viewsToShow}
               // viewsToMove={2}
               // axis="y"
               // align={0.5}
               // infinite
               contain
               beforeViewChange={({ from, to }) => {
-                console.log('beforeViewChange', from, to)
                 this.setState({ activeIndex: to[0] })
               }}
               // afterViewChange={() => console.log('after view change')}
@@ -246,7 +258,7 @@ class App extends Component {
           </Frame>
         </ViewPager>
 
-        <h1 className="center">Images</h1>
+        {/*<h1 className="center">Images</h1>
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5} className="track">
@@ -279,7 +291,7 @@ class App extends Component {
               <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
             </Track>
           </Frame>
-        </ViewPager>
+        </ViewPager>*/}
 
         <h1 className="center">Progress</h1>
         <ProgressExample/>

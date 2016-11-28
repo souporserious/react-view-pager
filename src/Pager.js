@@ -37,6 +37,7 @@ class Pager extends Events {
       align: 0,
       contain: false,
       axis: 'x',
+      fixedSize: false, // true, false, 'width', 'height'
       autoSize: false,
       animations: [],
       infinite: false,
@@ -197,7 +198,8 @@ class Pager extends Events {
       }
 
       if (contain) {
-        const trackEndOffset = ((viewsToShow === 'auto' && autoSize) || viewsToShow <= 1) ? 0 : this.getFrameSize(false)
+        const trackEndOffset = ((viewsToShow === 'auto' && autoSize) || viewsToShow <= 1)
+          ? 0 : this.getFrameSize({ autoSize: false, fixedSize: false })
         trackPosition = clamp(trackPosition, trackEndOffset - trackSize, 0)
       }
     }
@@ -236,17 +238,28 @@ class Pager extends Events {
     return isNaN(this.options.viewsToShow) ? 1 : this.options.viewsToShow
   }
 
-  getMaxDimensions(views) {
+  getMaxDimensions(indices) {
     const { axis } = this.options
-    const widths = views.map(view => view.getSize('width'))
-    const heights = views.map(view => view.getSize('height'))
+    const widths = []
+    const heights = []
+
+    indices.forEach(index => {
+      const view = isNaN(index) ? index : this.getView(index)
+      widths.push(view.getSize('width'))
+      heights.push(view.getSize('height'))
+    })
+
     return {
       width: (axis === 'x') ? sum(widths) : max(widths),
       height: (axis === 'y') ? sum(heights) : max(heights)
     }
   }
 
-  getFrameSize(autoSize = this.options.autoSize, fullSize = false) {
+  getFrameSize({
+    autoSize = this.options.autoSize,
+    fixedSize = this.options.fixedSize,
+    fullSize = false
+  } = {}) {
     const { infinite, contain, axis } = this.options
     let dimensions = {
       width: 0,
@@ -266,17 +279,19 @@ class Pager extends Events {
           minIndex = clamp(minIndex, 0, this.views.length - viewsToShow)
           maxIndex = clamp(maxIndex, 0, this.views.length - 1)
           for (let i = minIndex; i <= maxIndex; i++) {
-            currentViews.push(this.getView(i))
+            currentViews.push(i)
           }
         } else {
           for (let i = minIndex; i <= maxIndex; i++) {
-            const index = infinite
+            currentViews.push(infinite
               ? modulo(i, this.views.length)
               : clamp(i, 0, this.views.length - 1)
-            currentViews.push(this.getView(index))
+            )
           }
         }
         dimensions = this.getMaxDimensions(currentViews)
+      } else if (fixedSize) {
+        dimensions = this.getMaxDimensions(this.views)
       } else if (this.frame) {
         dimensions = {
           width: this.frame.getSize('width'),
@@ -316,7 +331,7 @@ class Pager extends Events {
 
   // how much to offset the view defined by the align option
   getAlignOffset(view) {
-    const frameSize = this.getFrameSize(false)
+    const frameSize = this.getFrameSize({ autoSize: false })
     const viewSize = view.getSize()
     return (frameSize - viewSize) * this.options.align
   }
