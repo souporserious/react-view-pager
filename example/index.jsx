@@ -189,8 +189,8 @@ class App extends Component {
         current view: {activeIndex + 1}
         <ViewPager>
           <Frame
-            fixedSize="height"
-            // autoSize
+            // fixedSize="height"
+            autoSize
             className="frame"
           >
             <Track
@@ -202,8 +202,9 @@ class App extends Component {
               // align={0.5}
               // infinite
               contain
-              beforeViewChange={({ from, to }) => {
-                this.setState({ activeIndex: to[0] })
+              beforeViewChange={currentIndicies => {
+                console.log(currentIndicies)
+                this.setState({ activeIndex: currentIndicies[0] })
               }}
               // afterViewChange={() => console.log('after view change')}
               className="track"

@@ -177,11 +177,7 @@ class Pager extends Events {
     if (!suppressEvent) {
       const viewsToShow = this.getNumericViewsToShow()
       const viewCount = this.views.length
-
-      this.emit('viewChange', {
-        from: range(previousIndex, previousIndex + viewsToShow, viewCount),
-        to: range(currentIndex, currentIndex + viewsToShow, viewCount)
-      })
+      this.emit('viewChange', this.getCurrentViewIndicies())
     }
   }
 
@@ -255,12 +251,37 @@ class Pager extends Events {
     }
   }
 
+  getCurrentViewIndicies() {
+    const { infinite, contain } = this.options
+    const currentViews = []
+    const viewsToShow = isNaN(this.options.viewsToShow) ? 1 : this.options.viewsToShow
+    let minIndex = this.currentIndex
+    let maxIndex = this.currentIndex + (viewsToShow - 1)
+
+    if (contain) {
+      // if containing, we need to clamp the start and end indexes so we only return what's in view
+      minIndex = clamp(minIndex, 0, this.views.length - viewsToShow)
+      maxIndex = clamp(maxIndex, 0, this.views.length - 1)
+      for (let i = minIndex; i <= maxIndex; i++) {
+        currentViews.push(i)
+      }
+    } else {
+      for (let i = minIndex; i <= maxIndex; i++) {
+        currentViews.push(infinite
+          ? modulo(i, this.views.length)
+          : clamp(i, 0, this.views.length - 1)
+        )
+      }
+    }
+
+    return currentViews
+  }
+
   getFrameSize({
     autoSize = this.options.autoSize,
     fixedSize = this.options.fixedSize,
     fullSize = false
   } = {}) {
-    const { infinite, contain, axis } = this.options
     let dimensions = {
       width: 0,
       height: 0
@@ -268,27 +289,7 @@ class Pager extends Events {
 
     if (this.views.length) {
       if (autoSize) {
-        // gather all current indices depending on options
-        const currentViews = []
-        const viewsToShow = isNaN(this.options.viewsToShow) ? 1 : this.options.viewsToShow
-        let minIndex = this.currentIndex
-        let maxIndex = this.currentIndex + (viewsToShow - 1)
-
-        if (contain) {
-          // if containing, we need to clamp the start and end indexes so we only return what's in view
-          minIndex = clamp(minIndex, 0, this.views.length - viewsToShow)
-          maxIndex = clamp(maxIndex, 0, this.views.length - 1)
-          for (let i = minIndex; i <= maxIndex; i++) {
-            currentViews.push(i)
-          }
-        } else {
-          for (let i = minIndex; i <= maxIndex; i++) {
-            currentViews.push(infinite
-              ? modulo(i, this.views.length)
-              : clamp(i, 0, this.views.length - 1)
-            )
-          }
-        }
+        const currentViews = this.getCurrentViewIndicies()
         dimensions = this.getMaxDimensions(currentViews)
       } else if (fixedSize) {
         dimensions = this.getMaxDimensions(this.views)
@@ -303,7 +304,7 @@ class Pager extends Events {
     if (fullSize) {
       return dimensions
     } else {
-      return dimensions[axis === 'x' ? 'width' : 'height']
+      return dimensions[this.options.axis === 'x' ? 'width' : 'height']
     }
   }
 
