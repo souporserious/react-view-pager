@@ -19,16 +19,16 @@ View-Pager/Slider/Carousel powered by React Motion.
 
 ## Example Usage
 ```js
-import { Frame, Track } from 'react-view-pager'
+import { ViewPager, Frame, Track } from 'react-view-pager'
 
-<div>
-  <Frame
-    ref={c => this.pager = c}
-    viewsToShow={2}
-    infinite
-    className="frame"
-  >
-    <Track className="track">
+<ViewPager>
+  <Frame className="frame">
+    <Track
+      ref={c => this.track = c}
+      viewsToShow={2}
+      infinite
+      className="track"
+    >
       <div className="view">1</div>
       <div className="view">2</div>
       <div className="view">3</div>
@@ -38,18 +38,18 @@ import { Frame, Track } from 'react-view-pager'
   <nav className="pager-controls">
     <a
       className="pager-control pager-control--prev"
-      onClick={() => this.pager.prev()}
+      onClick={() => this.track.prev()}
     >
       Prev
     </a>
     <a
       className="pager-control pager-control--next"
-      onClick={() => this.pager.next()}
+      onClick={() => this.track.next()}
     >
       Next
     </a>
   </nav>
-</div>
+</ViewPager>
 ```
 
 ## `ViewPager` Props
