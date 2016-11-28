@@ -34,10 +34,7 @@ class View extends Component {
     const { trackSize, children, ...restProps } = this.props
     const child = Children.only(children)
     let style = {
-      ...child.props.style,
-      // position: 'relative',
-      // top: 0,
-      // left: 0
+      ...child.props.style
     }
 
     // we need to position views inline when using the x axis
@@ -51,17 +48,15 @@ class View extends Component {
     }
 
     if (this._viewInstance) {
-      // absolute position non-current views
-      // if (!this._viewInstance.isCurrent) {
-      //   style.position = 'absolute'
-      // }
+      // make sure view stays in frame
+      if (pager.options.infinite && !this._viewInstance.inBounds) {
+        style.position = 'relative'
+        style[(axis === 'y') ? 'top' : 'left'] = this._viewInstance.getPosition()
+      }
 
-      // apply top or left value and any animations defined in props
-      const edge = (axis === 'y') ? 'top' : 'left'
-
+      // apply any animations
       style = {
         ...style,
-        [edge]: this._viewInstance.getPosition(),
         ...pager.animationBus.getStyles(this._viewInstance)
       }
     }

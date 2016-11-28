@@ -214,13 +214,14 @@ class Pager extends Events {
       const nextPosition = lastPosition + viewSize
       let position = lastPosition
 
-      if (infinite) {
+      if (nextPosition + (viewSize * align) < Math.abs(wrappedtrackPosition)) {
         // shift views around so they are always visible in frame
-        if (nextPosition + (viewSize * align) < Math.abs(wrappedtrackPosition)) {
-          position += trackSize
-        } else if (lastPosition > (frameSize - wrappedtrackPosition)) {
-          position -= trackSize
+        if (infinite) {
+          position += trackSize - lastPosition
         }
+        view.inBounds = false
+      } else {
+        view.inBounds = true
       }
 
       view.setPosition(position)
