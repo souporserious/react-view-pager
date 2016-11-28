@@ -33,13 +33,19 @@ img {
   outline: 0;
 }
 
+.track {
+  display: flex;
+}
+
 .track-y {
+  flex-direction: column;
   .view {
     width: 100%;
   }
 }
 
 .view {
+  flex: 1;
   font-size: 60px;
   font-weight: bold;
   line-height: 100px;

@@ -33,6 +33,13 @@ class ViewPager extends Component {
     }
   }
 
+  componentDidMount() {
+    // run a hydration on the next animation frame to obtain proper targets and positioning
+    requestAnimationFrame(() => {
+      this._pager.hydrate()
+    })
+  }
+
   componentWillUnmount() {
     this._pager.destroy()
   }

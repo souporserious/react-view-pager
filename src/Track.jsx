@@ -42,26 +42,35 @@ class TrackScroller extends Component {
     }
   }
 
-  _renderViews() {
+  _renderViews(trackSize) {
     return (
       Children.map(this.props.children, child =>
-        <View children={child}/>
+        <View trackSize={trackSize} children={child}/>
       )
     )
   }
 
   render() {
-    const { tag, trackPosition, ...restProps } = this.props
+    const { pager } = this.context
+    const { tag, trackPosition, children, ...restProps } = this.props
     const { x, y } = this.state
+    const trackSize = pager.getTrackSize()
     const style = {
       ...restProps.style,
       [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
     }
 
+    // option?
+    if (trackSize) {
+      const { axis, viewsToShow } = pager.options
+      const dimension = (axis === 'x') ? 'width' : 'height'
+      style[dimension] = (viewsToShow === 'auto') ? trackSize : Children.count(children) / viewsToShow * 100 + '%'
+    }
+
     return createElement(tag, {
       ...restProps,
       style
-    }, this._renderViews())
+    }, this._renderViews(trackSize))
   }
 }
 

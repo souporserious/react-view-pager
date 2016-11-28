@@ -31,25 +31,30 @@ class View extends Component {
   render() {
     const { pager } = this.context
     const { viewsToShow, axis } = pager.options
-    const { children, ...restProps } = this.props
+    const { trackSize, children, ...restProps } = this.props
     const child = Children.only(children)
     let style = {
       ...child.props.style,
-      position: 'relative',
-      top: 0,
-      left: 0
+      // position: 'relative',
+      // top: 0,
+      // left: 0
+    }
+
+    // we need to position views inline when using the x axis
+    if (axis === 'x') {
+      style.display = 'inline-block'
     }
 
     // set width or height on view when viewsToShow is not auto
-    if (viewsToShow !== 'auto') {
-      style[axis === 'x' ? 'width' : 'height'] = (100 / viewsToShow) + '%'
+    if (viewsToShow !== 'auto' && pager.views.length) {
+      style[axis === 'x' ? 'width' : 'height'] = 100 / pager.views.length + '%'
     }
 
     if (this._viewInstance) {
       // absolute position non-current views
-      if (!this._viewInstance.isCurrent) {
-        style.position = 'absolute'
-      }
+      // if (!this._viewInstance.isCurrent) {
+      //   style.position = 'absolute'
+      // }
 
       // apply top or left value and any animations defined in props
       const edge = (axis === 'y') ? 'top' : 'left'

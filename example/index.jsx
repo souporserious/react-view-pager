@@ -119,8 +119,8 @@ class ProgressExample extends Component {
             // onSwipeStart={() => console.log('swipe start')}
             // onSwipeMove={() => console.log('swipe move')}
             // onSwipeEnd={() => console.log('swipe end')}
-            beforeViewChange={({ from, to }) => {
-              this.setState({ currentView: to[0] })
+            beforeViewChange={currentIndicies => {
+              this.setState({ currentView: currentIndicies[0] })
             }}
             className="track"
           >
@@ -189,8 +189,7 @@ class App extends Component {
         current view: {activeIndex + 1}
         <ViewPager>
           <Frame
-            // fixedSize="height"
-            autoSize
+            // autoSize
             className="frame"
           >
             <Track
@@ -219,7 +218,7 @@ class App extends Component {
 
         <h1 className="center">Y Axis</h1>
         <ViewPager>
-          <Frame className="frame">
+          <Frame autoSize className="frame">
             <Track ref={c => this.track = c} axis="y" className="track track-y">
               <div className="view">1</div>
               <div className="view">2</div>
@@ -250,7 +249,7 @@ class App extends Component {
         <h1 className="center">Align</h1>
         <ViewPager>
           <Frame className="frame">
-            <Track viewsToShow="auto" align={0.5} className="track">
+            <Track viewsToShow="auto" align={0.5}>
               <div className="view" style={{ width: size ? size : 200 }}>1</div>
               <div className="view" style={{ width: size ? size : 175 }}>2</div>
               <div className="view" style={{ width: size ? size : 315 }}>3</div>
@@ -259,7 +258,7 @@ class App extends Component {
           </Frame>
         </ViewPager>
 
-        {/*<h1 className="center">Images</h1>
+        <h1 className="center">Images</h1>
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5} className="track">
@@ -292,7 +291,7 @@ class App extends Component {
               <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
             </Track>
           </Frame>
-        </ViewPager>*/}
+        </ViewPager>
 
         <h1 className="center">Progress</h1>
         <ProgressExample/>
