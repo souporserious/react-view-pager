@@ -1,4 +1,4 @@
-import React, { Component, Children, PropTypes, cloneElement } from 'react'
+import React, { Component, PropTypes, createElement } from 'react'
 import ReactDOM, { findDOMNode } from 'react-dom'
 import Pager from './Pager'
 
@@ -9,6 +9,14 @@ class View extends Component {
 
   static childContextTypes = {
     view: PropTypes.any
+  }
+
+  static propTypes = {
+    tag: PropTypes.any
+  }
+
+  static defaultProps = {
+    tag: 'div'
   }
 
   _viewInstance = null
@@ -31,10 +39,9 @@ class View extends Component {
   render() {
     const { pager } = this.context
     const { viewsToShow, axis } = pager.options
-    const { trackSize, children, ...restProps } = this.props
-    const child = Children.only(children)
+    const { tag, trackSize, ...restProps } = this.props
     let style = {
-      ...child.props.style
+      ...this.props.style
     }
 
     // we need to position views inline when using the x axis
@@ -46,12 +53,6 @@ class View extends Component {
     // set width or height on view when viewsToShow is not auto
     if (viewsToShow !== 'auto' && pager.views.length) {
       style[axis === 'x' ? 'width' : 'height'] = 100 / pager.views.length + '%'
-    }
-
-    // if there isn't a track-size yet, position absolute each view to prevent
-    // the layout from jumping around
-    if (!trackSize) {
-      style.position = 'absolute'
     }
 
     if (this._viewInstance) {
@@ -68,7 +69,7 @@ class View extends Component {
       }
     }
 
-    return cloneElement(child, { ...restProps, style })
+    return createElement(tag, { ...restProps, style })
   }
 }
 

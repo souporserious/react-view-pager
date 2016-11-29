@@ -135,7 +135,26 @@ class Pager extends Events {
     this.emit('viewAdded')
 
     // with each view added we need to re-calculate widths and positions
-    this.hydrate()
+    // however, if there are any images present we need to wait until
+    // they have loaded to hydrate
+
+    const childImages = node.querySelectorAll('img')
+    const childImagesLength = childImages.length
+
+    if (childImagesLength) {
+      for (let i = 0; i < childImagesLength; i++) {
+        childImages[i].onload = this.hydrate
+      }
+    }
+
+    // if the view itself is an image then we wait for it to load
+    if (node instanceof HTMLImageElement) {
+      node.onload = this.hydrate
+    }
+    // otherwise just run a hydration right now
+    else {
+      this.hydrate()
+    }
 
     return view
   }

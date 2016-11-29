@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { ViewPager, Frame, Track, ImageView, AnimatedView } from '../src/react-view-pager'
+import { ViewPager, Frame, Track, View, AnimatedView } from '../src/react-view-pager'
 
 import './main.scss';
 
@@ -23,7 +23,7 @@ const animations = [{
 class ProgressView extends Component {
   render() {
     return (
-      <div className="view" {...this.props}>
+      <View className="view" {...this.props}>
         <AnimatedView
           animations={[{
             prop: 'opacity',
@@ -43,7 +43,7 @@ class ProgressView extends Component {
         >
           {this.props.children}
         </AnimatedView>
-      </div>
+      </View>
     )
   }
 }
@@ -147,28 +147,6 @@ class ProgressExample extends Component {
   }
 }
 
-// class Slider extends Component {
-//   render() {
-//     return (
-//       <ViewPager>
-//         <Track>
-//           <Frame>
-//             {Children.map(this.props.children, child =>
-//               <View>{child}</View>
-//             )}
-//           </Frame>
-//         </Track>
-//       </ViewPager>
-//     )
-//   }
-// }
-//
-// // <Slider>
-// //   <div>Yay</div>
-// //   <div>Yay</div>
-// //   <div>Yay</div>
-// // </Slider>
-
 class App extends Component {
   constructor(props) {
     super(props)
@@ -229,10 +207,10 @@ class App extends Component {
               // onRest={() => console.log('after view change')}
               className="track"
             >
-              <div className="view" style={{ width: size ? size : 500, height: 100 }}>1</div>
-              <div className="view" style={{ width: size ? size : 175, height: 200 }}>2</div>
-              <div className="view" style={{ width: size ? size : 315, height: 300 }}>3</div>
-              <div className="view" style={{ width: size ? size : 125, height: 125 }}>4</div>
+              <View className="view" style={{ width: size ? size : 500, height: 100 }}>1</View>
+              <View className="view" style={{ width: size ? size : 175, height: 200 }}>2</View>
+              <View className="view" style={{ width: size ? size : 315, height: 300 }}>3</View>
+              <View className="view" style={{ width: size ? size : 125, height: 125 }}>4</View>
             </Track>
           </Frame>
         </ViewPager>
@@ -241,10 +219,10 @@ class App extends Component {
         <ViewPager>
           <Frame autoSize className="frame">
             <Track ref={c => this.track = c} axis="y" className="track track-y">
-              <div className="view">1</div>
-              <div className="view">2</div>
-              <div className="view">3</div>
-              <div className="view">4</div>
+              <View className="view">1</View>
+              <View className="view">2</View>
+              <View className="view">3</View>
+              <View className="view">4</View>
             </Track>
           </Frame>
           <div style={{ textAlign: 'center' }}>
@@ -259,10 +237,10 @@ class App extends Component {
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow={2} infinite className="track">
-              <div className="view">1</div>
-              <div className="view">2</div>
-              <div className="view">3</div>
-              <div className="view">4</div>
+              <View className="view">1</View>
+              <View className="view">2</View>
+              <View className="view">3</View>
+              <View className="view">4</View>
             </Track>
           </Frame>
         </ViewPager>
@@ -271,10 +249,10 @@ class App extends Component {
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5}>
-              <div className="view" style={{ width: size ? size : 200 }}>1</div>
-              <div className="view" style={{ width: size ? size : 175 }}>2</div>
-              <div className="view" style={{ width: size ? size : 315 }}>3</div>
-              <div className="view" style={{ width: size ? size : 125 }}>4</div>
+              <View className="view" style={{ width: size ? size : 200 }}>1</View>
+              <View className="view" style={{ width: size ? size : 175 }}>2</View>
+              <View className="view" style={{ width: size ? size : 315 }}>3</View>
+              <View className="view" style={{ width: size ? size : 125 }}>4</View>
             </Track>
           </Frame>
         </ViewPager>
@@ -283,11 +261,11 @@ class App extends Component {
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5} className="track">
-              <ImageView src="https://unsplash.it/300/200?image=10" className="view"/>
-              <ImageView src="https://unsplash.it/450/200?image=20" className="view"/>
-              <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
-              <ImageView src="https://unsplash.it/250/200?image=40" className="view"/>
-              <ImageView src="https://unsplash.it/375/200?image=50" className="view"/>
+              <View tag="img" src="https://unsplash.it/300/200?image=10"/>
+              <View tag="img" src="https://unsplash.it/450/200?image=20"/>
+              <View tag="img" src="https://unsplash.it/200/200?image=30"/>
+              <View tag="img" src="https://unsplash.it/250/200?image=40"/>
+              <View tag="img" src="https://unsplash.it/375/200?image=50"/>
             </Track>
           </Frame>
         </ViewPager>
@@ -305,11 +283,11 @@ class App extends Component {
               align={0.5}
               animations={animations}
             >
-              <ImageView src="https://unsplash.it/200/200?image=10" className="view"/>
-              <ImageView src="https://unsplash.it/200/200?image=20" className="view"/>
-              <ImageView src="https://unsplash.it/200/200?image=30" className="view"/>
-              <ImageView src="https://unsplash.it/200/200?image=40" className="view"/>
-              <ImageView src="https://unsplash.it/200/200?image=50" className="view"/>
+              <View tag="img" src="https://unsplash.it/200/200?image=10"/>
+              <View tag="img" src="https://unsplash.it/200/200?image=20"/>
+              <View tag="img" src="https://unsplash.it/200/200?image=30"/>
+              <View tag="img" src="https://unsplash.it/200/200?image=40"/>
+              <View tag="img" src="https://unsplash.it/200/200?image=50"/>
             </Track>
           </Frame>
         </ViewPager>
@@ -321,18 +299,18 @@ class App extends Component {
         <ViewPager>
           <Frame autoSize="height" style={{ backgroundColor: '#ccc' }}>
             <Track>
-              <div style={{ padding: 12 }}>
+              <View style={{ padding: 12 }}>
                 <input type="text" defaultValue="enter text"/>
-              </div>
+              </View>
 
-              <div style={{ padding: 12 }}>
+              <View style={{ padding: 12 }}>
                 <div>
                   <input type="range" min="0" max="10"/>
                 </div>
                 <div>
                   <input type="range" min="0" max="10"/>
                 </div>
-              </div>
+              </View>
             </Track>
           </Frame>
         </ViewPager>

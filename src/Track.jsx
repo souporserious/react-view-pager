@@ -1,4 +1,4 @@
-import React, { Component, Children, PropTypes, createElement } from 'react'
+import React, { Component, Children, PropTypes, createElement, cloneElement } from 'react'
 import ReactDOM, { findDOMNode } from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Pager from './Pager'
@@ -45,7 +45,7 @@ class TrackScroller extends Component {
   _renderViews(trackSize) {
     return (
       Children.map(this.props.children, child =>
-        <View trackSize={trackSize} children={child}/>
+        cloneElement(child, { trackSize })
       )
     )
   }

@@ -10,6 +10,8 @@ Allow `autoSize` prop to size `width` and/or `height`
 
 Use `verticalAlign: top` on views to keep them in frame when using `autoSize`
 
+Added mandatory `View` component that replaces previous views that were cloned. This will help us keep some control over props that need to be applied.
+
 ### 0.5.0-prerelease.2
 Fixes updating props after mount
 
