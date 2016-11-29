@@ -171,9 +171,9 @@ Prop callback fired when track is scrolling. Useful for parallax or progress bar
 
 ### `beforeViewChange`: PropTypes.func
 
-Prop callback fired before view change. Passes back the newly selected index.
+Prop callback fired before view change. Passes back the newly selected indicies.
 
-### `afterViewChange`: PropTypes.fun
+### `afterViewChange`: PropTypes.func
 
 Prop callback fired after view change.
 

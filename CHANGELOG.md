@@ -6,6 +6,8 @@ Fixes the indices in callbacks to return proper indices in view
 
 Replaced `from`, `to` object returned in `beforeViewChange` callback with `currentIndicies`
 
+No more absolute positioning! This is cool because now we can use things like flexbox and not get weird values due to absolute positioned views.
+
 ### 0.5.0-prerelease.1
 General cleanup
 
