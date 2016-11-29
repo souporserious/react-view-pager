@@ -119,7 +119,7 @@ class ProgressExample extends Component {
             // onSwipeStart={() => console.log('swipe start')}
             // onSwipeMove={() => console.log('swipe move')}
             // onSwipeEnd={() => console.log('swipe end')}
-            Change={currentIndicies => {
+            onViewChange={currentIndicies => {
               this.setState({ currentView: currentIndicies[0] })
             }}
             className="track"
