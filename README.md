@@ -19,9 +19,9 @@ View-Pager/Slider/Carousel powered by React Motion.
 
 ## Example Usage
 ```js
-import { ViewPager, Frame, Track } from 'react-view-pager'
+import { ViewPager, Frame, Track, View } from 'react-view-pager'
 
-<ViewPager>
+<ViewPager tag="main">
   <Frame className="frame">
     <Track
       ref={c => this.track = c}
@@ -29,10 +29,10 @@ import { ViewPager, Frame, Track } from 'react-view-pager'
       infinite
       className="track"
     >
-      <div className="view">1</div>
-      <div className="view">2</div>
-      <div className="view">3</div>
-      <div className="view">4</div>
+      <View className="view">1</View>
+      <View className="view">2</View>
+      <View className="view">3</View>
+      <View className="view">4</View>
     </Track>
   </Frame>
   <nav className="pager-controls">
@@ -54,7 +54,8 @@ import { ViewPager, Frame, Track } from 'react-view-pager'
 
 ## `ViewPager` Props
 
-Mandatory wrapper component that connects child components together.
+### `tag`: PropTypes.string
+The HTML tag for this element. Defaults to `div`.
 
 ## `Frame` Props
 
@@ -189,6 +190,11 @@ Advances to the next view.
 ### `scrollTo`
 
 Scroll to a view by it's index or key.
+
+## `View` Props
+
+### `tag`: PropTypes.string
+The HTML tag for this element. Defaults to `div`.
 
 ## Running Locally
 
