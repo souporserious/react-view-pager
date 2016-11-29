@@ -1,4 +1,11 @@
 ## CHANGELOG
+### 0.5.0-prerelease.3
+emit `viewChange` when `viewsToShow` options have changed
+
+`beforeViewChange` -> `onViewChange`
+
+`afterViewChange` -> `onRest`
+
 ### 0.5.0-prerelease.2
 Fixes updating props after mount
 

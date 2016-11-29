@@ -119,7 +119,7 @@ class ProgressExample extends Component {
             // onSwipeStart={() => console.log('swipe start')}
             // onSwipeMove={() => console.log('swipe move')}
             // onSwipeEnd={() => console.log('swipe end')}
-            beforeViewChange={currentIndicies => {
+            Change={currentIndicies => {
               this.setState({ currentView: currentIndicies[0] })
             }}
             className="track"
@@ -201,11 +201,10 @@ class App extends Component {
               // align={0.5}
               // infinite
               contain
-              beforeViewChange={currentIndicies => {
-                console.log(currentIndicies)
+              onViewChange={currentIndicies => {
                 this.setState({ activeIndex: currentIndicies[0] })
               }}
-              // afterViewChange={() => console.log('after view change')}
+              // onRest={() => console.log('after view change')}
               className="track"
             >
               <div className="view" style={{ width: size ? size : 500, height: 100 }}>1</div>

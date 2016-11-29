@@ -67,6 +67,8 @@ class Pager extends Events {
   }
 
   setOptions(options) {
+    const lastOptions = this.options
+
     // spread new options over the old ones
     this.options = {
       ...this.options,
@@ -75,6 +77,11 @@ class Pager extends Events {
 
     // merge animations into animation bus
     this.animationBus.animations = this.options.animations
+
+    // fire a viewChange event with the new indicies if viewsToShow has changed
+    if (lastOptions.viewsToShow !== this.options.viewsToShow) {
+      this.emit('viewChange', this.getCurrentViewIndicies())
+    }
   }
 
   destroy() {
@@ -174,8 +181,6 @@ class Pager extends Events {
     this.setPositionValue()
 
     if (!suppressEvent) {
-      const viewsToShow = this.getNumericViewsToShow()
-      const viewCount = this.views.length
       this.emit('viewChange', this.getCurrentViewIndicies())
     }
   }

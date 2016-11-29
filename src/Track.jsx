@@ -64,7 +64,8 @@ class TrackScroller extends Component {
     if (trackSize) {
       const { axis, viewsToShow } = pager.options
       const dimension = (axis === 'x') ? 'width' : 'height'
-      style[dimension] = (viewsToShow === 'auto') ? trackSize : Children.count(children) / viewsToShow * 100 + '%'
+      style[dimension] = (viewsToShow === 'auto') ?
+        trackSize : Children.count(children) / viewsToShow * 100 + '%'
     }
 
     return createElement(tag, {
@@ -89,17 +90,15 @@ const checkedProps = {
   swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
   swipeThreshold: PropTypes.number,
   flickTimeout: PropTypes.number,
+  // rightToLeft: PropTypes.bool,
+  // lazyLoad: PropTypes.bool,
   springConfig: PropTypes.objectOf(PropTypes.number),
   onSwipeStart: PropTypes.func,
   onSwipeMove: PropTypes.func,
   onSwipeEnd: PropTypes.func,
   onScroll: PropTypes.func,
-  // rightToLeft: PropTypes.bool,
-  // lazyLoad: PropTypes.bool,
-  beforeViewChange: PropTypes.func,
-  afterViewChange: PropTypes.func
-  // beforeAnimation: PropTypes.func,
-  // afterAnimation: PropTypes.func
+  onViewChange: PropTypes.func,
+  onRest: PropTypes.func
 }
 const isNotEqual = (current, next) => (
   current.viewsToShow !== next.viewsToShow ||
@@ -134,8 +133,8 @@ class Track extends Component {
     onSwipeMove: noop,
     onSwipeEnd: noop,
     onScroll: noop,
-    beforeViewChange: noop,
-    afterViewChange: noop
+    onViewChange: noop,
+    onRest: noop
   }
 
   static contextTypes = {
@@ -171,7 +170,7 @@ class Track extends Component {
     pager.on('swipeStart', this.props.onSwipeStart)
     pager.on('swipeMove', this.props.onSwipeMove)
     pager.on('swipeEnd', this.props.onSwipeEnd)
-    pager.on('viewChange', this.props.beforeViewChange)
+    pager.on('viewChange', this.props.onViewChange)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -238,7 +237,7 @@ class Track extends Component {
       this._setValueInstantly(true, true)
     }
 
-    this.props.afterViewChange()
+    this.props.onRest()
   }
 
   render() {

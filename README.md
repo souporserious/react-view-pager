@@ -169,13 +169,13 @@ Prop callback fired after swipe.
 
 Prop callback fired when track is scrolling. Useful for parallax or progress bars.
 
-### `beforeViewChange`: PropTypes.func
+### `onViewChange`: PropTypes.func
 
-Prop callback fired before view change. Passes back the newly selected indicies.
+Prop callback fired when view changes. Passes back the newly selected indicies.
 
-### `afterViewChange`: PropTypes.func
+### `onRest`: PropTypes.func
 
-Prop callback fired after view change.
+Prop callback fired after track scrolling animation settles.
 
 ### Public methods
 ### `prev`
