@@ -40,6 +40,7 @@ class View extends Component {
     // we need to position views inline when using the x axis
     if (axis === 'x') {
       style.display = 'inline-block'
+      style.verticalAlign = 'top'
     }
 
     // set width or height on view when viewsToShow is not auto
@@ -47,8 +48,14 @@ class View extends Component {
       style[axis === 'x' ? 'width' : 'height'] = 100 / pager.views.length + '%'
     }
 
+    // if there isn't a track-size yet, position absolute each view to prevent
+    // the layout from jumping around
+    if (!trackSize) {
+      style.position = 'absolute'
+    }
+
     if (this._viewInstance) {
-      // make sure view stays in frame
+      // make sure view stays in frame when using infinite option
       if (pager.options.infinite && !this._viewInstance.inBounds) {
         style.position = 'relative'
         style[(axis === 'y') ? 'top' : 'left'] = this._viewInstance.getPosition()

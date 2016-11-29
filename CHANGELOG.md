@@ -6,6 +6,10 @@ emit `viewChange` when `viewsToShow` options have changed
 
 `afterViewChange` -> `onRest`
 
+Allow `autoSize` prop to size `width` and/or `height`
+
+Use `verticalAlign: top` on views to keep them in frame when using `autoSize`
+
 ### 0.5.0-prerelease.2
 Fixes updating props after mount
 

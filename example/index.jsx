@@ -147,6 +147,28 @@ class ProgressExample extends Component {
   }
 }
 
+// class Slider extends Component {
+//   render() {
+//     return (
+//       <ViewPager>
+//         <Track>
+//           <Frame>
+//             {Children.map(this.props.children, child =>
+//               <View>{child}</View>
+//             )}
+//           </Frame>
+//         </Track>
+//       </ViewPager>
+//     )
+//   }
+// }
+//
+// // <Slider>
+// //   <div>Yay</div>
+// //   <div>Yay</div>
+// //   <div>Yay</div>
+// // </Slider>
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -189,7 +211,7 @@ class App extends Component {
         current view: {activeIndex + 1}
         <ViewPager>
           <Frame
-            // autoSize
+            autoSize="height"
             className="frame"
           >
             <Track
@@ -294,6 +316,26 @@ class App extends Component {
 
         <h1 className="center">Progress</h1>
         <ProgressExample/>
+
+        <h1 className="center">Simple</h1>
+        <ViewPager>
+          <Frame autoSize="height" style={{ backgroundColor: '#ccc' }}>
+            <Track>
+              <div style={{ padding: 12 }}>
+                <input type="text" defaultValue="enter text"/>
+              </div>
+
+              <div style={{ padding: 12 }}>
+                <div>
+                  <input type="range" min="0" max="10"/>
+                </div>
+                <div>
+                  <input type="range" min="0" max="10"/>
+                </div>
+              </div>
+            </Track>
+          </Frame>
+        </ViewPager>
       </div>
     )
   }

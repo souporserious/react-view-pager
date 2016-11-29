@@ -8,7 +8,7 @@ import specialAssign from './special-assign'
 
 const checkedProps = {
   tag: PropTypes.any,
-  autoSize: PropTypes.bool,
+  autoSize: PropTypes.oneOf([true, false, 'width', 'height']),
   accessibility: PropTypes.bool,
   springConfig: PropTypes.objectOf(PropTypes.number)
 }
@@ -113,20 +113,21 @@ class Frame extends Component {
   }
 
   render() {
+    const { autoSize } = this.props
     const { height } = this.state
     const style = {
       position: 'relative',
       overflow: 'hidden'
     }
 
-    if (this.props.autoSize) {
+    if (autoSize) {
       return (
         <Motion style={this._getFrameStyle()}>
           { dimensions => {
-            if (dimensions.maxWidth) {
+            if ((autoSize === true || autoSize === 'width') && dimensions.maxWidth) {
               style.maxWidth = dimensions.maxWidth
             }
-            if (dimensions.height) {
+            if ((autoSize === true || autoSize === 'height') && dimensions.height) {
               style.height = dimensions.height
             }
             return this._renderFrame(style)

@@ -61,9 +61,9 @@ Mandatory wrapper component that connects child components together.
 ### `tag`: PropTypes.string
 The HTML tag for this element. Defaults to `div`.
 
-### `autoSize`: PropTypes.bool
+### `autoSize`: PropTypes.oneOf([true, false, 'width', 'height'])
 
-Animates the wrapper's width and height to fit the current view. Defaults to `false`.
+Animates the wrapper's width and/or height to fit the current view. Defaults to `false`.
 
 ### `accessibility`: PropTypes.bool
 
