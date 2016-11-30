@@ -87,10 +87,11 @@ class Frame extends Component {
   }
 
   _getFrameStyle() {
+    const { springConfig } = this.props
     const { width, height, instant } = this.state
     return {
-      maxWidth: instant ? width : spring(width),
-      height: instant ? height : spring(height)
+      maxWidth: instant ? width : spring(width, springConfig),
+      height: instant ? height : spring(height, springConfig)
     }
   }
 

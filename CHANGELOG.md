@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 0.5.0-prerelease.6
+Apply spring config prop in `Frame` component
+
 ### 0.5.0-prerelease.5
 Fix old `destroy` method left over from window resize
 
