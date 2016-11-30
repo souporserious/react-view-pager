@@ -22,6 +22,12 @@ var externals = {
     commonjs: 'react-motion',
     amd: 'react-motion'
   },
+  'resize-observer-polyfill': {
+    root: 'ResizeObserver',
+    commonjs2: 'resize-observer-polyfill',
+    commonjs: 'resize-observer-polyfill',
+    amd: 'resize-observer-polyfill'
+  },
   'get-prefix': {
     root: 'getPrefix',
     commonjs2: 'get-prefix',
