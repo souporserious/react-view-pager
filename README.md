@@ -81,7 +81,7 @@ The HTML tag for this element. Defaults to `div`.
 
 ### `currentView`: PropTypes.any
 
-Specify the index or key of a view to move to that view. Use with `beforeViewChange` to control the state of the pager.
+Specify the index or key of a view to move to that view. Use with `onViewChange` to control the state of the pager.
 
 ### `viewsToShow`: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])])
 
