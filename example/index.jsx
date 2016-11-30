@@ -261,11 +261,11 @@ class App extends Component {
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5} className="track">
-              <View tag="img" src="https://unsplash.it/300/200?image=10"/>
-              <View tag="img" src="https://unsplash.it/450/200?image=20"/>
-              <View tag="img" src="https://unsplash.it/200/200?image=30"/>
-              <View tag="img" src="https://unsplash.it/250/200?image=40"/>
-              <View tag="img" src="https://unsplash.it/375/200?image=50"/>
+              <View tag="img" src="http://lorempixel.com/300/200?image=10"/>
+              <View tag="img" src="http://lorempixel.com/450/200?image=20"/>
+              <View tag="img" src="http://lorempixel.com/200/200?image=30"/>
+              <View tag="img" src="http://lorempixel.com/250/200?image=40"/>
+              <View tag="img" src="http://lorempixel.com/375/200?image=50"/>
             </Track>
           </Frame>
         </ViewPager>
@@ -283,11 +283,11 @@ class App extends Component {
               align={0.5}
               animations={animations}
             >
-              <View tag="img" src="https://unsplash.it/200/200?image=10"/>
-              <View tag="img" src="https://unsplash.it/200/200?image=20"/>
-              <View tag="img" src="https://unsplash.it/200/200?image=30"/>
-              <View tag="img" src="https://unsplash.it/200/200?image=40"/>
-              <View tag="img" src="https://unsplash.it/200/200?image=50"/>
+              <View tag="img" src="http://lorempixel.com/200/200?image=10"/>
+              <View tag="img" src="http://lorempixel.com/200/200?image=20"/>
+              <View tag="img" src="http://lorempixel.com/200/200?image=30"/>
+              <View tag="img" src="http://lorempixel.com/200/200?image=40"/>
+              <View tag="img" src="http://lorempixel.com/200/200?image=50"/>
             </Track>
           </Frame>
         </ViewPager>
