@@ -19,6 +19,7 @@ class View extends Component {
     tag: 'div'
   }
 
+  _viewAdded = false
   _viewInstance = null
 
   getChildContext() {
@@ -29,6 +30,7 @@ class View extends Component {
 
   componentDidMount() {
     this._viewInstance = this.context.pager.addView(findDOMNode(this))
+    this._viewAdded = true
     this.forceUpdate()
   }
 
@@ -42,6 +44,13 @@ class View extends Component {
     const { tag, trackSize, ...restProps } = this.props
     let style = {
       ...this.props.style
+    }
+
+    // hide view visually until it has been added to the pager
+    // this should help avoid FOUC
+    if (!this._viewAdded) {
+      style.visibility = 'hidden'
+      style.pointerEvents = 'none'
     }
 
     // we need to position views inline when using the x axis
