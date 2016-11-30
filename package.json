@@ -41,7 +41,8 @@
     "animation-bus": "^0.2.0",
     "get-prefix": "^1.0.0",
     "minivents": "^2.0.2",
-    "react-motion": "^0.4.5"
+    "react-motion": "^0.4.5",
+    "resize-observer-polyfill": "^1.2.1"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0",

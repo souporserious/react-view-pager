@@ -60,7 +60,6 @@ class TrackScroller extends Component {
       [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
     }
 
-    // option?
     if (trackSize) {
       const { axis, viewsToShow } = pager.options
       const dimension = (axis === 'x') ? 'width' : 'height'
@@ -209,7 +208,7 @@ class Track extends Component {
   }
 
   scrollTo(index) {
-    this.context.pager.setCurrentView(0, index)
+    this.context.pager.setCurrentView({ index })
   }
 
   _setValueInstantly(instant, reset) {
@@ -231,7 +230,7 @@ class Track extends Component {
   _handleOnRest = () => {
     if (this.props.infinite && !this.state.instant) {
       // reset back to a normal index
-      this.context.pager.resetViews()
+      this.context.pager.resetViewIndex()
 
       // set instant flag so we can prime track for next move
       this._setValueInstantly(true, true)

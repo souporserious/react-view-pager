@@ -1,4 +1,5 @@
 import Events from 'minivents'
+import ResizeObserver from 'resize-observer-polyfill'
 import AnimationBus from 'animation-bus'
 import PagerElement from './PagerElement'
 import { modulo, clamp, sum, max, range } from './utils'
@@ -13,9 +14,10 @@ class View extends PagerElement {
   }
 
   setTarget() {
+    const { align, viewsToShow } = this.pager.options
     let target = this.pager.getStartCoords(this.index)
 
-    if (this.pager.options.align) {
+    if (align) {
       target += this.pager.getAlignOffset(this)
     }
 
@@ -54,16 +56,15 @@ class Pager extends Events {
     this.currentTween = 0
     this.trackPosition = 0
     this.isSwiping = false
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.hydrate()
+    })
+
     this.animationBus = new AnimationBus({
       animations: this.options.animations,
       origin: view => view.origin
     })
-
-    if (typeof window === 'undefined') {
-      return
-    } else {
-      window.addEventListener('resize', this.resize)
-    }
   }
 
   setOptions(options) {
@@ -80,22 +81,13 @@ class Pager extends Events {
 
     // fire a viewChange event with the new indicies if viewsToShow has changed
     if (lastOptions.viewsToShow !== this.options.viewsToShow) {
-      this.emit('viewChange', this.getCurrentViewIndicies())
+      this.emit('viewChange', this.getCurrentIndicies())
     }
   }
 
-  destroy() {
-    window.removeEventListener('resize', this.resize)
-  }
-
-  resize = () => {
-    this.hydrate()
-    this.emit('resize')
-  }
-
   hydrate = () => {
-    this.frame && this.frame.setSize()
-    this.track && this.track.setSize()
+    this.frame.setSize()
+    this.track.setSize()
     this.views.forEach(view => {
       view.setSize()
       view.setTarget()
@@ -106,13 +98,17 @@ class Pager extends Events {
   }
 
   addFrame(node) {
-    this.frame = new PagerElement({ node, pager: this })
-    this.hydrate()
+    this.frame = new PagerElement({
+      node,
+      pager: this
+    })
   }
 
   addTrack(node) {
-    this.track = new PagerElement({ node, pager: this })
-    this.hydrate()
+    this.track = new PagerElement({
+      node,
+      pager: this
+    })
   }
 
   addView(node) {
@@ -128,33 +124,17 @@ class Pager extends Events {
 
     // set this as the first view if there isn't one yet
     if (!this.currentView) {
-      this.setCurrentView(0, index, true)
+      this.setCurrentView({
+        index,
+        suppressEvent: true
+      })
     }
+
+    // listen for width and height changes
+    this.resizeObserver.observe(node)
 
     // fire an event
     this.emit('viewAdded')
-
-    // with each view added we need to re-calculate widths and positions
-    // however, if there are any images present we need to wait until
-    // they have loaded to hydrate
-
-    const childImages = node.querySelectorAll('img')
-    const childImagesLength = childImages.length
-
-    if (childImagesLength) {
-      for (let i = 0; i < childImagesLength; i++) {
-        childImages[i].onload = this.hydrate
-      }
-    }
-
-    // if the view itself is an image then we wait for it to load
-    if (node instanceof HTMLImageElement) {
-      node.onload = this.hydrate
-    }
-    // otherwise just run a hydration right now
-    else {
-      this.hydrate()
-    }
 
     return view
   }
@@ -165,20 +145,21 @@ class Pager extends Events {
 
     // fire an event
     this.emit('viewRemoved')
-
-    // re-calculate view positions
-    this.hydrate()
   }
 
   prev() {
-    this.setCurrentView(-1)
+    this.setCurrentView({ direction: -1 })
   }
 
   next() {
-    this.setCurrentView(1)
+    this.setCurrentView({ direction: 1 })
   }
 
-  setCurrentView(direction = 0, index = this.currentIndex, suppressEvent) {
+  setCurrentView({
+    direction = 0,
+    index = this.currentIndex,
+    suppressEvent = false
+  }) {
     const { viewsToMove, infinite } = this.options
     const newIndex = index + (direction * viewsToMove)
 
@@ -200,7 +181,7 @@ class Pager extends Events {
     this.setPositionValue()
 
     if (!suppressEvent) {
-      this.emit('viewChange', this.getCurrentViewIndicies())
+      this.emit('viewChange', this.getCurrentIndicies())
     }
   }
 
@@ -275,7 +256,7 @@ class Pager extends Events {
     }
   }
 
-  getCurrentViewIndicies() {
+  getCurrentIndicies() {
     const { infinite, contain } = this.options
     const currentViews = []
     const viewsToShow = isNaN(this.options.viewsToShow) ? 1 : this.options.viewsToShow
@@ -309,7 +290,7 @@ class Pager extends Events {
 
     if (this.views.length) {
       if (autoSize) {
-        const currentViews = this.getCurrentViewIndicies()
+        const currentViews = this.getCurrentIndicies()
         dimensions = this.getMaxDimensions(currentViews)
       } else if (this.frame) {
         dimensions = {
@@ -380,9 +361,12 @@ class Pager extends Events {
     return position
   }
 
-  resetViews() {
+  resetViewIndex() {
     // reset back to a normal index
-    this.setCurrentView(0, modulo(this.currentIndex, this.views.length), true)
+    this.setCurrentView({
+      index: modulo(this.currentIndex, this.views.length),
+      suppressEvent: true
+    })
   }
 }
 

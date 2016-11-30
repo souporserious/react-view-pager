@@ -23,12 +23,12 @@ class Keyboard {
 
       // move to first view
       case 'Home':
-        this.pager.setCurrentView(0, 0)
+        this.pager.setCurrentView({ index: 0 })
         return;
 
       // move to last view
       case 'End':
-        this.pager.setCurrentView(0, this.pager.views.length - 1)
+        this.pager.setCurrentView({ index: this.pager.views.length - 1 })
         return;
     }
 
@@ -37,7 +37,7 @@ class Keyboard {
 
     for (let i = 1; i <= maxNumKey; i++) {
       if (+e.key === i) {
-        this.pager.setCurrentView(0, i - 1)
+        this.pager.setCurrentView({ index: i - 1 })
       }
     }
   }
