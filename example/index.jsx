@@ -294,26 +294,6 @@ class App extends Component {
 
         <h1 className="center">Progress</h1>
         <ProgressExample/>
-
-        <h1 className="center">Simple</h1>
-        <ViewPager>
-          <Frame autoSize="height" style={{ backgroundColor: '#ccc' }}>
-            <Track>
-              <View style={{ padding: 12 }}>
-                <input type="text" defaultValue="enter text"/>
-              </View>
-
-              <View style={{ padding: 12 }}>
-                <div>
-                  <input type="range" min="0" max="10"/>
-                </div>
-                <div>
-                  <input type="range" min="0" max="10"/>
-                </div>
-              </View>
-            </Track>
-          </Frame>
-        </ViewPager>
       </div>
     )
   }
