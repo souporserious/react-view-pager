@@ -4,11 +4,35 @@ import AnimationBus from 'animation-bus'
 import PagerElement from './PagerElement'
 import { modulo, clamp, sum, max, range } from './utils'
 
+const TRANSFORM = require('get-prefix')('transform')
+
+class Track extends PagerElement {
+  getStyles(trackPosition) {
+    const { x, y } = this.pager.getPositionValue(trackPosition)
+    const trackSize = this.pager.getTrackSize()
+    const style = {
+      [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
+    }
+
+    if (trackSize) {
+      const { axis, viewsToShow } = this.pager.options
+      const dimension = (axis === 'x') ? 'width' : 'height'
+
+      style[dimension] = (viewsToShow === 'auto')
+        ? trackSize
+        : this.pager.views.length / viewsToShow * 100 + '%'
+    }
+
+    return style
+  }
+}
+
 class View extends PagerElement {
   constructor({ index, ...restOptions }) {
     super(restOptions)
     this.index = index
     this.isCurrent = false
+    this.inBounds = true
     this.setTarget()
     this.setOrigin()
   }
@@ -27,6 +51,34 @@ class View extends PagerElement {
   setOrigin(trackPosition = this.pager.trackPosition) {
     this.origin = this.target - trackPosition
   }
+
+  getStyles() {
+    const { axis, viewsToShow, infinite } = this.pager.options
+    const style = {}
+
+    // we need to position views inline when using the x axis
+    if (axis === 'x') {
+      style.display = 'inline-block'
+      style.verticalAlign = 'top'
+    }
+
+    // set width or height on view when viewsToShow is not auto
+    if (viewsToShow !== 'auto') {
+      style[axis === 'x' ? 'width' : 'height'] = 100 / this.pager.views.length + '%'
+    }
+
+    // make sure view stays in frame when using infinite option
+    if (infinite && !this.inBounds) {
+      style.position = 'relative'
+      style[(axis === 'y') ? 'top' : 'left'] = this.getPosition()
+    }
+
+    // finally, apply any animations
+    return {
+      ...style,
+      ...this.pager.animationBus.getStyles(this)
+    }
+  }
 }
 
 class Pager extends Events {
@@ -34,7 +86,7 @@ class Pager extends Events {
     super()
 
     this.options = {
-      viewsToShow: 'auto',
+      viewsToShow: 1,
       viewsToMove: 1,
       align: 0,
       contain: false,
@@ -105,7 +157,7 @@ class Pager extends Events {
   }
 
   addTrack(node) {
-    this.track = new PagerElement({
+    this.track = new Track({
       node,
       pager: this
     })

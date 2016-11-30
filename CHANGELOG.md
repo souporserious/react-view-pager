@@ -4,6 +4,8 @@ Use [resize-observer-polyfill](https://github.com/que-etc/resize-observer-polyfi
 
 Hide view visually until it has been added to the pager
 
+General cleanup
+
 ### 0.5.0-prerelease.3
 emit `viewChange` when `viewsToShow` options have changed
 

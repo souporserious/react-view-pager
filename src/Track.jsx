@@ -6,8 +6,6 @@ import View from './View'
 import getIndex from './get-index'
 import specialAssign from './special-assign'
 
-const TRANSFORM = require('get-prefix')('transform')
-
 // Track scroller is an intermediate component that allows us to provide the
 // React Motion value to onScroll and lets any user of onScroll use setState
 class TrackScroller extends Component {
@@ -29,9 +27,6 @@ class TrackScroller extends Component {
     // this method can get called hundreds of times, let's make sure to optimize as much as we can
     pager.setViewStyles(trackPosition)
 
-    // get the x & y values to position the track
-    this.setState(pager.getPositionValue(trackPosition))
-
     // update onScroll callback, we use requestAnimationFrame to avoid bouncing
     // back from updates from onScroll while React Motion is trying to update it's own tree
     // https://github.com/chenglou/react-motion/issues/357#issuecomment-262393424
@@ -42,35 +37,30 @@ class TrackScroller extends Component {
     }
   }
 
-  _renderViews(trackSize) {
-    return (
-      Children.map(this.props.children, child =>
-        cloneElement(child, { trackSize })
-      )
-    )
+  _renderViews() {
+    // we need Children map in order for the infinite option to work
+    // not actually sure why this is the case
+    return Children.map(this.props.children, child => child)
   }
 
   render() {
     const { pager } = this.context
     const { tag, trackPosition, children, ...restProps } = this.props
-    const { x, y } = this.state
-    const trackSize = pager.getTrackSize()
-    const style = {
-      ...restProps.style,
-      [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
+    let style = {
+      ...restProps.style
     }
 
-    if (trackSize) {
-      const { axis, viewsToShow } = pager.options
-      const dimension = (axis === 'x') ? 'width' : 'height'
-      style[dimension] = (viewsToShow === 'auto') ?
-        trackSize : Children.count(children) / viewsToShow * 100 + '%'
+    if (pager.track) {
+      style = {
+        ...style,
+        ...pager.track.getStyles(trackPosition)
+      }
     }
 
     return createElement(tag, {
       ...restProps,
       style
-    }, this._renderViews(trackSize))
+    }, this._renderViews())
   }
 }
 
