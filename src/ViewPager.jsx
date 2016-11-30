@@ -40,10 +40,6 @@ class ViewPager extends Component {
     })
   }
 
-  componentWillUnmount() {
-    this._pager.destroy()
-  }
-
   getInstance() {
     return this._pager
   }
