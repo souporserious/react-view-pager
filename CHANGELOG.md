@@ -1,11 +1,16 @@
 ## CHANGELOG
+### 0.5.0-prerelease.7
+Only require `ResizeObserver` polyfill when `window` is available
+
+Stop observing view after it has been removed
+
 ### 0.5.0-prerelease.6
 Apply spring config prop in `Frame` component
 
 ### 0.5.0-prerelease.5
 Fix old `destroy` method left over from window resize
 
-Listen for hydration event to update Frame component size
+Listen for hydration event to update `Frame` component size
 
 ### 0.5.0-prerelease.4
 Use [resize-observer-polyfill](https://github.com/que-etc/resize-observer-polyfill) to make sure the pager is always calculated with proper view dimensions
