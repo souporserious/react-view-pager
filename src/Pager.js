@@ -1,10 +1,15 @@
 import Events from 'minivents'
-import ResizeObserver from 'resize-observer-polyfill'
 import AnimationBus from 'animation-bus'
 import PagerElement from './PagerElement'
 import { modulo, clamp, sum, max, range } from './utils'
 
 const TRANSFORM = require('get-prefix')('transform')
+const isWindowDefined = (typeof window !== 'undefined')
+
+// only require ResizeObserver polyfill if it isn't available and we aren't in a SSR environment
+if (isWindowDefined && !window.ResizeObserver) {
+  window.ResizeObserver = require('resize-observer-polyfill')
+}
 
 class Track extends PagerElement {
   getStyles(trackPosition) {
@@ -109,14 +114,16 @@ class Pager extends Events {
     this.trackPosition = 0
     this.isSwiping = false
 
-    this.resizeObserver = new ResizeObserver(() => {
-      this.hydrate()
-    })
-
     this.animationBus = new AnimationBus({
       animations: this.options.animations,
       origin: view => view.origin
     })
+
+    if (isWindowDefined) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.hydrate()
+      })
+    }
   }
 
   setOptions(options) {
@@ -183,7 +190,9 @@ class Pager extends Events {
     }
 
     // listen for width and height changes
-    this.resizeObserver.observe(node)
+    if (isWindowDefined) {
+      this.resizeObserver.observe(node)
+    }
 
     // fire an event
     this.emit('viewAdded')
