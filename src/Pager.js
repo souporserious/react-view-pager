@@ -204,6 +204,11 @@ class Pager extends Events {
     // filter out view
     this.views = this.views.filter(_view => view !== _view)
 
+    // stop observing node
+    if (isWindowDefined) {
+      this.resizeObserver.disconnect(view.node)
+    }
+
     // fire an event
     this.emit('viewRemoved')
   }
