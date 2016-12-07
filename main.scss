@@ -1,0 +1,98 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 30px;
+  margin: 0;
+  font-family: Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.center {
+  text-align: center;
+}
+
+.viewport {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.frame {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  outline: 0;
+}
+
+.track {
+  display: flex;
+}
+
+.track-y {
+  flex-direction: column;
+  .view {
+    width: 100%;
+  }
+}
+
+.view {
+  flex: 1;
+  font-size: 60px;
+  font-weight: bold;
+  line-height: 100px;
+  text-align: center;
+  color: white;
+  user-select: none;
+
+  $colors: #209D22, #106CCC, #C1146B, #11BDBF, #8A19EA;
+
+  @for $i from 1 through length($colors) {
+    $color: nth($colors, $i);
+    &:nth-of-type(#{$i}) {
+      background-color: lighten($color, 10%);
+    }
+  }
+}
+
+.progress-container {
+  width: 100%;
+  height: 10px;
+  position: relative;
+  background: #e6e6e6;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: #ffbc00;
+  transform-origin: left center;
+  position: absolute;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+}
+
+.page {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+
+  & + & {
+    margin-left: 10px;
+  }
+}
