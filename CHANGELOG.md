@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 0.5.0-prerelease.8
+Use `ResizeObserver.default` if available. Fixes [#48](https://github.com/souporserious/react-view-pager/issues/48)
+
 ### 0.5.0-prerelease.7
 Only require `ResizeObserver` polyfill when `window` is available
 
