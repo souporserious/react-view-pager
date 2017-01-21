@@ -3833,8 +3833,8 @@ requires-port@1.0.x, requires-port@1.x.x:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
 
 resize-observer-polyfill:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.2.1.tgz#55a4ff3e4f212a76470835fb7590dbb62a3e6542"
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.3.2.tgz#f467efc15a86d9ee5096fd6d7f628c8a54bb805a"
 
 right-align@^0.1.1:
   version "0.1.3"
