@@ -1,16 +1,11 @@
-import Events from 'minivents'
+import mitt from 'mitt'
 import AnimationBus from 'animation-bus'
+import ResizeObserver from 'resize-observer-polyfill'
 import PagerElement from './PagerElement'
 import { modulo, clamp, sum, max, range } from './utils'
 
 const TRANSFORM = require('get-prefix')('transform')
 const isWindowDefined = (typeof window !== 'undefined')
-
-// only require ResizeObserver polyfill if it isn't available and we aren't in a SSR environment
-if (isWindowDefined && !window.ResizeObserver) {
-  const ResizeObserver = require('resize-observer-polyfill')
-  window.ResizeObserver = ResizeObserver.default || ResizeObserver
-}
 
 class Track extends PagerElement {
   getStyles(trackPosition) {
@@ -87,26 +82,29 @@ class View extends PagerElement {
   }
 }
 
-class Pager extends Events {
-  constructor(options = {}) {
-    super()
+const defaultOptions = {
+  viewsToShow: 1,
+  viewsToMove: 1,
+  align: 0,
+  contain: false,
+  axis: 'x',
+  autoSize: false,
+  animations: [],
+  infinite: false,
+  instant: false,
+  swipe: true,
+  swipeThreshold: 0.5,
+  flickTimeout: 300,
+  accessibility: true
+}
 
-    this.options = {
-      viewsToShow: 1,
-      viewsToMove: 1,
-      align: 0,
-      contain: false,
-      axis: 'x',
-      autoSize: false,
-      animations: [],
-      infinite: false,
-      instant: false,
-      swipe: true,
-      swipeThreshold: 0.5,
-      flickTimeout: 300,
-      accessibility: true,
-      ...options
-    }
+class Pager {
+  constructor(options = {}) {
+    const emitter = mitt()
+
+    this.on = emitter.on
+    this.emit = emitter.emit
+    this.off = emitter.off
 
     this.views = []
     this.currentIndex = 0
@@ -114,6 +112,11 @@ class Pager extends Events {
     this.currentTween = 0
     this.trackPosition = 0
     this.isSwiping = false
+
+    this.options = {
+      ...defaultOptions,
+      ...options
+    }
 
     this.animationBus = new AnimationBus({
       animations: this.options.animations,

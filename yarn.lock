@@ -2830,6 +2830,10 @@ minivents:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/minivents/-/minivents-2.0.2.tgz#6ef3c0a28b0ae0341f72527bd90b9cda7151e921"
 
+mitt:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/mitt/-/mitt-1.0.0.tgz#432ee2b18a91e24a17d0e7ef21848189c8f850de"
+
 mkdirp@^0.5.0, mkdirp@^0.5.1, "mkdirp@>=0.5 0", mkdirp@~0.5.0, mkdirp@~0.5.1, mkdirp@0.5.1, mkdirp@0.5.x:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
