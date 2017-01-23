@@ -1,4 +1,5 @@
 import mitt from 'mitt'
+import tabbable from 'tabbable'
 import AnimationBus from 'animation-bus'
 import ResizeObserver from 'resize-observer-polyfill'
 import PagerElement from './PagerElement'
@@ -32,10 +33,36 @@ class View extends PagerElement {
   constructor({ index, ...restOptions }) {
     super(restOptions)
     this.index = index
-    this.isCurrent = false
     this.inBounds = true
+    this.tabbableChildren = []
+    this.setCurrent(false)
+    this.setVisible(false)
     this.setTarget()
     this.setOrigin()
+
+    // TODO: look into getting rid of setTimeout
+    // not sure the reason for needing setTimeout in order to get proper children,
+    // might be due to something in React that we're not doing at the right time
+    setTimeout(() => {
+      this.tabbableChildren = tabbable(this.node)
+      this.setTabbableChildren()
+    })
+  }
+
+  setCurrent(isCurrent) {
+    this.isCurrent = isCurrent
+  }
+
+  setVisible(isVisible) {
+    this.isVisible = isVisible
+    this.setTabbableChildren()
+  }
+
+  setTabbableChildren() {
+    // only allow tabbing in current slides
+    for (let i = 0; i < this.tabbableChildren.length; i++) {
+      this.tabbableChildren[i].tabIndex = this.isCurrent ? 0 : -1
+    }
   }
 
   setTarget() {
@@ -244,8 +271,17 @@ class Pager {
     this.currentView = currentView
 
     // swap current view flags
-    previousView.isCurrent = false
-    currentView.isCurrent = true
+    previousView.setCurrent(false)
+    currentView.setCurrent(true)
+
+    const rangeStart = currentIndex
+    const rangeEnd = (currentIndex + viewsToMove - 1)
+    const viewRange = range(rangeStart, rangeEnd, this.views.length)
+
+    // set flags for which views are currently showing
+    this.views.forEach((view, index) => {
+      view.setVisible(index === currentIndex)
+    })
 
     // set the track position to the new view
     this.setPositionValue()

@@ -207,10 +207,22 @@ class App extends Component {
               // onRest={() => console.log('after view change')}
               className="track"
             >
-              <View className="view" style={{ width: size ? size : 500, height: 100 }}>1</View>
-              <View className="view" style={{ width: size ? size : 175, height: 200 }}>2</View>
-              <View className="view" style={{ width: size ? size : 315, height: 300 }}>3</View>
-              <View className="view" style={{ width: size ? size : 125, height: 125 }}>4</View>
+              <View className="view" style={{ width: size ? size : 500, height: 100 }}>
+                1
+                <button>button</button>
+              </View>
+              <View className="view" style={{ width: size ? size : 175, height: 200 }}>
+                2
+                <button>button</button>
+              </View>
+              <View className="view" style={{ width: size ? size : 315, height: 300 }}>
+                3
+                <button>button</button>
+              </View>
+              <View className="view" style={{ width: size ? size : 125, height: 125 }}>
+                4
+                <button>button</button>
+              </View>
             </Track>
           </Frame>
         </ViewPager>

@@ -39,8 +39,9 @@ class Frame extends Component {
 
   componentWillMount() {
     const { pager } = this.context
+    const { autoSize, accessibility } = this.props
 
-    pager.setOptions(this.props)
+    pager.setOptions({ autoSize, accessibility })
 
     this._swipe = new Swipe(pager)
     this._keyboard = new Keyboard(pager)
@@ -57,11 +58,11 @@ class Frame extends Component {
     pager.on('hydrated', this._setFrameSize)
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps({ autoSize, accessibility }) {
     // update any options that have changed
-    if (this.props.autoSize !== nextProps.autoSize ||
-        this.props.accessibility !== nextProps.accessibility) {
-        this.context.pager.setOptions(nextProps)
+    if (this.props.autoSize !== autoSize ||
+        this.props.accessibility !== accessibility) {
+        this.context.pager.setOptions({ autoSize, accessibility })
         this._hydrate = true
     }
   }

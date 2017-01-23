@@ -14,8 +14,8 @@ export function max(arr) {
   return Math.max.apply(null, arr)
 }
 
-export function range(from, to, max) {
-  return [...Array(to - from)].map(
-    (_, i) => modulo(from + i, max)
+export function range(start, end, max) {
+  return [...Array(1 + end - start).keys()].map(v =>
+    max ? modulo(start + v, max) : start + v
   )
 }

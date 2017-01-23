@@ -6,6 +6,43 @@ import View from './View'
 import getIndex from './get-index'
 import specialAssign from './special-assign'
 
+const noop = () => null
+const checkedProps = {
+  tag: PropTypes.any,
+  currentView: PropTypes.any,
+  viewsToShow: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
+  viewsToMove: PropTypes.number,
+  align: PropTypes.number,
+  contain: PropTypes.bool,
+  axis: PropTypes.oneOf(['x', 'y']),
+  animations: PropTypes.array,
+  infinite: PropTypes.bool,
+  instant: PropTypes.bool,
+  swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
+  swipeThreshold: PropTypes.number,
+  flickTimeout: PropTypes.number,
+  // rightToLeft: PropTypes.bool,
+  // lazyLoad: PropTypes.bool,
+  springConfig: PropTypes.objectOf(PropTypes.number),
+  onSwipeStart: PropTypes.func,
+  onSwipeMove: PropTypes.func,
+  onSwipeEnd: PropTypes.func,
+  onScroll: PropTypes.func,
+  onViewChange: PropTypes.func,
+  onRest: PropTypes.func
+}
+const isNotEqual = (current, next) => (
+  current.viewsToShow !== next.viewsToShow ||
+  current.viewsToMove !== next.viewsToMove ||
+  current.align !== next.align ||
+  current.axis !== next.axis ||
+  current.animations !== next.animations ||
+  current.infinite !== next.infinite ||
+  current.swipe !== next.swipe ||
+  current.swipeThreshold !== next.swipeThreshold ||
+  current.flickTimeout !== next.flickTimeout
+)
+
 // Track scroller is an intermediate component that allows us to provide the
 // React Motion value to onScroll and lets any user of onScroll use setState
 class TrackScroller extends Component {
@@ -63,43 +100,6 @@ class TrackScroller extends Component {
     }, this._renderViews())
   }
 }
-
-const noop = () => null
-const checkedProps = {
-  tag: PropTypes.any,
-  currentView: PropTypes.any,
-  viewsToShow: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
-  viewsToMove: PropTypes.number,
-  align: PropTypes.number,
-  contain: PropTypes.bool,
-  axis: PropTypes.oneOf(['x', 'y']),
-  animations: PropTypes.array,
-  infinite: PropTypes.bool,
-  instant: PropTypes.bool,
-  swipe: PropTypes.oneOf([true, false, 'mouse', 'touch']),
-  swipeThreshold: PropTypes.number,
-  flickTimeout: PropTypes.number,
-  // rightToLeft: PropTypes.bool,
-  // lazyLoad: PropTypes.bool,
-  springConfig: PropTypes.objectOf(PropTypes.number),
-  onSwipeStart: PropTypes.func,
-  onSwipeMove: PropTypes.func,
-  onSwipeEnd: PropTypes.func,
-  onScroll: PropTypes.func,
-  onViewChange: PropTypes.func,
-  onRest: PropTypes.func
-}
-const isNotEqual = (current, next) => (
-  current.viewsToShow !== next.viewsToShow ||
-  current.viewsToMove !== next.viewsToMove ||
-  current.align !== next.align ||
-  current.axis !== next.axis ||
-  current.animations !== next.animations ||
-  current.infinite !== next.infinite ||
-  current.swipe !== next.swipe ||
-  current.swipeThreshold !== next.swipeThreshold ||
-  current.flickTimeout !== next.flickTimeout
-)
 
 class Track extends Component {
   static propTypes = checkedProps

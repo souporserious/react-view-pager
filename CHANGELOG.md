@@ -2,6 +2,8 @@
 ### 0.5.0-prerelease.9
 Replace `minivents` with `mitt`
 
+Add `tabbable` so we can trap focus within current slides
+
 ### 0.5.0-prerelease.8
 Use `ResizeObserver.default` if available. Fixes [#48](https://github.com/souporserious/react-view-pager/issues/48)
 
