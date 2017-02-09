@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 0.5.0-prerelease.10
+Fix build on NPM
+
 ### 0.5.0-prerelease.9
 Replace `minivents` with `mitt`
 
