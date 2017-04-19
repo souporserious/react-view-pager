@@ -1,5 +1,6 @@
-import React, { Component, PropTypes, createElement } from 'react'
-import ReactDOM, { findDOMNode } from 'react-dom'
+import React, { Component, createElement } from 'react'
+import PropTypes from 'prop-types'
+import { findDOMNode } from 'react-dom'
 import Pager from './Pager'
 
 class View extends Component {
