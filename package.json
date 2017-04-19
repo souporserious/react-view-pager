@@ -43,8 +43,8 @@
     "animation-bus": "^0.2.0",
     "get-prefix": "^1.0.0",
     "mitt": "^1.0.0",
-    "react-motion": "^0.4.5",
-    "resize-observer-polyfill": "^1.3.2",
+    "react-motion": "^0.4.8",
+    "resize-observer-polyfill": "^1.4.2",
     "tabbable": "^1.0.5"
   },
   "peerDependencies": {
