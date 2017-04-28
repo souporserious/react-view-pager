@@ -1,4 +1,5 @@
-import React, { Component, Children, PropTypes, createElement } from 'react'
+import React, { Component, createElement } from 'react'
+import PropTypes from 'prop-types'
 import Pager from './Pager'
 
 class ImageView extends Component {

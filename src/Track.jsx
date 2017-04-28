@@ -1,8 +1,8 @@
-import React, { Component, Children, PropTypes, createElement, cloneElement } from 'react'
-import ReactDOM, { findDOMNode } from 'react-dom'
+import React, { Component, Children, createElement } from 'react'
+import PropTypes from 'prop-types'
+import { findDOMNode } from 'react-dom'
 import { Motion, spring, presets } from 'react-motion'
 import Pager from './Pager'
-import View from './View'
 import getIndex from './get-index'
 import specialAssign from './special-assign'
 
