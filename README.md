@@ -6,6 +6,10 @@ View-Pager/Slider/Carousel powered by React Motion.
 
 ![react-motion-slider](example/images/react-view-pager.gif)
 
+## Note before using
+
+Use at your own risk, API's are subject to change. It's been fairly stable these last few months, but still might change slightly. Once the outstanding issues are fixed I will release 1.0.0.
+
 ## Usage
 
 `yarn add react-view-pager`
