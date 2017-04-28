@@ -1,4 +1,9 @@
 ## CHANGELOG
+### 0.5.0
+Support React 15.5.0 PropTypes [#58](https://github.com/souporserious/react-view-pager/pull/58)
+
+Update react-motion and resize-observer-polyfill dependency version
+
 ### 0.5.0-prerelease.10
 Fix build on NPM
 
