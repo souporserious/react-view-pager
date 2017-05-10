@@ -1,4 +1,7 @@
 ## CHANGELOG
+### 0.5.1
+Update react-motion [#63](https://github.com/souporserious/react-view-pager/pull/63)
+
 ### 0.5.0
 Support React 15.5.0 PropTypes [#58](https://github.com/souporserious/react-view-pager/pull/58)
 
