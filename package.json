@@ -1,6 +1,6 @@
 {
   "name": "react-view-pager",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "View-Pager/Slider/Carousel powered by React Motion.",
   "main": "lib/react-view-pager.js",
   "files": [
@@ -49,8 +49,8 @@
   },
   "peerDependencies": {
     "prop-types": "^15.5.8",
-    "react": "^0.14.0 || ^15.0.0",
-    "react-dom": "^0.14.0 || ^15.0.0"
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
@@ -70,9 +70,9 @@
     "node-sass": "^3.2.0",
     "postcss-loader": "^0.13.0",
     "prop-types": "15.5.8",
-    "react": "15.3.2",
+    "react": "^16.0.0",
     "react-addons-test-utils": "15.3.2",
-    "react-dom": "15.3.2",
+    "react-dom": "^16.0.0",
     "sass-loader": "^4.0.2",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2",
