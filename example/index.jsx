@@ -1,45 +1,41 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { ViewPager, Frame, Track, View, AnimatedView } from '../src/react-view-pager'
+import {
+  ViewPager,
+  Frame,
+  Track,
+  View,
+  AnimatedView,
+} from '../src/react-view-pager'
 
-import './main.scss';
+import './main.scss'
 
-const animations = [{
-  prop: 'scale',
-  stops: [
-    [-200, 0.85],
-    [0, 1],
-    [200, 0.85]
-  ]
-}, {
-  prop: 'opacity',
-  stops: [
-    [-200, 0.15],
-    [0, 1],
-    [200, 0.15]
-  ]
-}]
+const animations = [
+  {
+    prop: 'scale',
+    stops: [[-200, 0.85], [0, 1], [200, 0.85]],
+  },
+  {
+    prop: 'opacity',
+    stops: [[-200, 0.15], [0, 1], [200, 0.15]],
+  },
+]
 
 class ProgressView extends Component {
   render() {
     return (
       <View className="view" {...this.props}>
         <AnimatedView
-          animations={[{
-            prop: 'opacity',
-            stops: [
-              [-200, 0],
-              [0, 1],
-              [200, 0]
-            ]
-          }, {
-            prop: 'translateY',
-            stops: [
-              [-200, 50],
-              [0, 0],
-              [200, 50]
-            ]
-          }]}
+          animations={[
+            {
+              prop: 'opacity',
+              stops: [[-200, 0], [0, 1], [200, 0]],
+            },
+            {
+              prop: 'translateY',
+              stops: [[-200, 50], [0, 0], [200, 50]],
+            },
+          ]}
         >
           {this.props.children}
         </AnimatedView>
@@ -65,28 +61,20 @@ const ProgressPage = ({ view, index, onClick }) => (
     key={index}
     index={index}
     // index={[0, 1]} // maybe allow the ability to specify a range of indices
-    animations={[{
-      prop: 'scale',
-      stops: [
-        [-300, 0.75],
-        [0, 1],
-        [300, 0.75]
-      ]
-    }, {
-      prop: 'opacity',
-      stops: [
-        [-300, 0.5],
-        [0, 1],
-        [300, 0.5]
-      ]
-    }, {
-      prop: 'backgroundColor',
-      stops: [
-        [-300, '#cccccc'],
-        [0, colors[index]],
-        [300, '#cccccc']
-      ]
-    }]}
+    animations={[
+      {
+        prop: 'scale',
+        stops: [[-300, 0.75], [0, 1], [300, 0.75]],
+      },
+      {
+        prop: 'opacity',
+        stops: [[-300, 0.5], [0, 1], [300, 0.5]],
+      },
+      {
+        prop: 'backgroundColor',
+        stops: [[-300, '#cccccc'], [0, colors[index]], [300, '#cccccc']],
+      },
+    ]}
     className="page"
     onClick={e => {
       onClick(e)
@@ -109,10 +97,7 @@ class ProgressExample extends Component {
     const { views, currentView, progress } = this.state
     return (
       <ViewPager className="viewport">
-        <Frame
-          ref={c => this.frame = c}
-          className="frame"
-        >
+        <Frame ref={c => (this.frame = c)} className="frame">
           <Track
             currentView={currentView}
             onScroll={this._handleScroll}
@@ -124,23 +109,21 @@ class ProgressExample extends Component {
             }}
             className="track"
           >
-            {views.map((view, index) =>
-              <ProgressView key={`page-${index}`} children={view}/>
-            )}
+            {views.map((view, index) => (
+              <ProgressView key={`page-${index}`} children={view} />
+            ))}
           </Track>
         </Frame>
-        <ProgressBar progress={progress}/>
+        <ProgressBar progress={progress} />
         <nav className="pager">
-          {views.map((view, index) =>
+          {views.map((view, index) => (
             <ProgressPage
               key={view}
               view={view}
               index={index}
-              onClick={() =>
-                this.setState({ currentView: `page-${index}` })
-              }
+              onClick={() => this.setState({ currentView: `page-${index}` })}
             />
-          )}
+          ))}
         </nav>
       </ViewPager>
     )
@@ -151,9 +134,16 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      images: [[500, 350], [800, 600], [800, 400], [700, 500], [200, 650], [600, 600]],
+      images: [
+        [500, 350],
+        [800, 600],
+        [800, 400],
+        [700, 500],
+        [200, 650],
+        [600, 600],
+      ],
       activeIndex: 0,
-      viewsToShow: 1
+      viewsToShow: 1,
       // size: '50%'
     }
   }
@@ -163,9 +153,7 @@ class App extends Component {
     return (
       <div>
         <div>
-          <button onClick={() => this.slider.prev()}>
-            Prev
-          </button>
+          <button onClick={() => this.slider.prev()}>Prev</button>
           <input
             type="range"
             min={0}
@@ -173,9 +161,7 @@ class App extends Component {
             value={+activeIndex}
             onChange={e => this.setState({ activeIndex: +e.target.value })}
           />
-          <button onClick={() => this.slider.next()}>
-            Next
-          </button>
+          <button onClick={() => this.slider.next()}>Next</button>
 
           <label>Views To Show</label>
           <input
@@ -188,12 +174,9 @@ class App extends Component {
         </div>
         current view: {activeIndex + 1}
         <ViewPager>
-          <Frame
-            autoSize="height"
-            className="frame"
-          >
+          <Frame autoSize="height" className="frame">
             <Track
-              ref={c => this.slider = c}
+              ref={c => (this.slider = c)}
               currentView={activeIndex}
               viewsToShow={viewsToShow}
               // viewsToMove={2}
@@ -207,30 +190,45 @@ class App extends Component {
               // onRest={() => console.log('after view change')}
               className="track"
             >
-              <View className="view" style={{ width: size ? size : 500, height: 100 }}>
+              <View
+                className="view"
+                style={{ width: size ? size : 500, height: 100 }}
+              >
                 1
                 <button>button</button>
               </View>
-              <View className="view" style={{ width: size ? size : 175, height: 200 }}>
+              <View
+                className="view"
+                style={{ width: size ? size : 175, height: 200 }}
+              >
                 2
                 <button>button</button>
               </View>
-              <View className="view" style={{ width: size ? size : 315, height: 300 }}>
+              <View
+                className="view"
+                style={{ width: size ? size : 315, height: 300 }}
+              >
                 3
                 <button>button</button>
               </View>
-              <View className="view" style={{ width: size ? size : 125, height: 125 }}>
+              <View
+                className="view"
+                style={{ width: size ? size : 125, height: 125 }}
+              >
                 4
                 <button>button</button>
               </View>
             </Track>
           </Frame>
         </ViewPager>
-
         <h1 className="center">Y Axis</h1>
         <ViewPager>
           <Frame autoSize className="frame">
-            <Track ref={c => this.track = c} axis="y" className="track track-y">
+            <Track
+              ref={c => (this.track = c)}
+              axis="y"
+              className="track track-y"
+            >
               <View className="view">1</View>
               <View className="view">2</View>
               <View className="view">3</View>
@@ -244,7 +242,6 @@ class App extends Component {
             <button onClick={() => this.track.scrollTo(3)}>4</button>
           </div>
         </ViewPager>
-
         <h1 className="center">Infinite</h1>
         <ViewPager>
           <Frame className="frame">
@@ -256,59 +253,59 @@ class App extends Component {
             </Track>
           </Frame>
         </ViewPager>
-
         <h1 className="center">Align</h1>
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5}>
-              <View className="view" style={{ width: size ? size : 200 }}>1</View>
-              <View className="view" style={{ width: size ? size : 175 }}>2</View>
-              <View className="view" style={{ width: size ? size : 315 }}>3</View>
-              <View className="view" style={{ width: size ? size : 125 }}>4</View>
+              <View className="view" style={{ width: size ? size : 200 }}>
+                1
+              </View>
+              <View className="view" style={{ width: size ? size : 175 }}>
+                2
+              </View>
+              <View className="view" style={{ width: size ? size : 315 }}>
+                3
+              </View>
+              <View className="view" style={{ width: size ? size : 125 }}>
+                4
+              </View>
             </Track>
           </Frame>
         </ViewPager>
-
         <h1 className="center">Images</h1>
         <ViewPager>
           <Frame className="frame">
             <Track viewsToShow="auto" align={0.5} className="track">
-              <View tag="img" src="http://lorempixel.com/300/200?image=10"/>
-              <View tag="img" src="http://lorempixel.com/450/200?image=20"/>
-              <View tag="img" src="http://lorempixel.com/200/200?image=30"/>
-              <View tag="img" src="http://lorempixel.com/250/200?image=40"/>
-              <View tag="img" src="http://lorempixel.com/375/200?image=50"/>
+              <View tag="img" src="https://picsum.photos/300/200?image=10" />
+              <View tag="img" src="https://picsum.photos/450/200?image=20" />
+              <View tag="img" src="https://picsum.photos/200/200?image=30" />
+              <View tag="img" src="https://picsum.photos/250/200?image=40" />
+              <View tag="img" src="https://picsum.photos/375/200?image=50" />
             </Track>
           </Frame>
         </ViewPager>
-
         <h1 className="center">Animations</h1>
         <ViewPager>
           <Frame
             style={{
               margin: '0 auto',
-              outline: 0
+              outline: 0,
             }}
           >
-            <Track
-              viewsToShow="auto"
-              align={0.5}
-              animations={animations}
-            >
-              <View tag="img" src="http://lorempixel.com/200/200?image=10"/>
-              <View tag="img" src="http://lorempixel.com/200/200?image=20"/>
-              <View tag="img" src="http://lorempixel.com/200/200?image=30"/>
-              <View tag="img" src="http://lorempixel.com/200/200?image=40"/>
-              <View tag="img" src="http://lorempixel.com/200/200?image=50"/>
+            <Track viewsToShow="auto" align={0.5} animations={animations}>
+              <View tag="img" src="https://picsum.photos/200/200?image=60" />
+              <View tag="img" src="https://picsum.photos/200/200?image=70" />
+              <View tag="img" src="https://picsum.photos/200/200?image=80" />
+              <View tag="img" src="https://picsum.photos/200/200?image=90" />
+              <View tag="img" src="https://picsum.photos/200/200?image=100" />
             </Track>
           </Frame>
         </ViewPager>
-
         <h1 className="center">Progress</h1>
-        <ProgressExample/>
+        <ProgressExample />
       </div>
     )
   }
 }
 
-ReactDOM.render(<App/>, document.getElementById('app'))
+ReactDOM.render(<App />, document.getElementById('app'))
