@@ -3,19 +3,20 @@
   "version": "0.5.1",
   "description": "View-Pager/Slider/Carousel powered by React Motion.",
   "main": "lib/react-view-pager.js",
-  "files": [
-    "dist",
-    "lib"
-  ],
+  "files": ["dist", "lib"],
   "scripts": {
     "build:lib": "babel src --out-dir lib",
-    "build": "npm run build:lib && NODE_ENV=production webpack --config webpack.prod.config.js",
-    "dev": "webpack-dev-server --inline --hot --progress --colors --host 0.0.0.0 --devtool eval",
-    "postbuild": "NODE_ENV=production TARGET=minify webpack --config webpack.prod.config.js",
+    "build":
+      "npm run build:lib && NODE_ENV=production webpack --config webpack.prod.config.js",
+    "dev":
+      "webpack-dev-server --inline --hot --progress --colors --host 0.0.0.0 --devtool eval",
+    "postbuild":
+      "NODE_ENV=production TARGET=minify webpack --config webpack.prod.config.js",
     "prebuild": "rm -rf dist && mkdir dist",
     "prepublish": "npm run build",
     "test": "mocha tests/.setup.js --reporter spec tests/**/*.js",
-    "deploy": "NODE_ENV=production TARGET=minify webpack && git-directory-deploy --directory example --branch gh-pages"
+    "deploy":
+      "NODE_ENV=production TARGET=minify webpack && git-directory-deploy --directory example --branch gh-pages"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,8 @@
     "DOM",
     "browser"
   ],
-  "author": "Travis Arnold <travis@souporserious.com> (http://souporserious.com)",
+  "author":
+    "Travis Arnold <travis@souporserious.com> (http://souporserious.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/souporserious/react-view-pager/issues"
@@ -49,8 +51,8 @@
   },
   "peerDependencies": {
     "prop-types": "^15.5.8",
-    "react": "^0.14.0 || ^15.0.0",
-    "react-dom": "^0.14.0 || ^15.0.0"
+    "react": "0.14.x || ^15.0.0 || ^16.0.0",
+    "react-dom": "0.14.x || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
