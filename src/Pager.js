@@ -13,7 +13,7 @@ class Track extends PagerElement {
     const { x, y } = this.pager.getPositionValue(trackPosition)
     const trackSize = this.pager.getTrackSize()
     const style = {
-      [TRANSFORM]: `translate3d(${x}px, ${y}px, 0)`
+      [TRANSFORM]: `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`
     }
 
     if (trackSize) {
