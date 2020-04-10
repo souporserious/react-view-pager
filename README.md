@@ -1,4 +1,8 @@
-## React View Pager (Prerelease)
+## ⚠️ NO LONGER MAINTAINED
+
+This library is no longer being maintained. Please use [framer-motion](https://twitter.com/steveruizok/status/1241458733152174089) or another animation library to power your view pagers.
+
+## React View Pager
 
 [![Dependency Status](https://david-dm.org/souporserious/react-view-pager.svg)](https://david-dm.org/souporserious/react-view-pager)
 
