@@ -56,8 +56,8 @@ class View extends Component {
 
     if (this._viewInstance) {
       style = {
-        ...style,
-        ...this._viewInstance.getStyles()
+        ...this._viewInstance.getStyles(),
+        ...style
       }
     }
 
